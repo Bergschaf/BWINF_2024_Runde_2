@@ -96,9 +96,14 @@ class Encoder:
         self.color_sizes = sorted(color_sizes)
 
     def encode_bfs(self):
+        """
+        Naive Methode: alle vollen Binärbäume werden mit Binärsuche durchsucht
+        :return:
+        """
         # Probability for each character of the alphabet
         p = {i: self.text.count(i) / len(self.text) for i in set(self.text)}
         p = sorted(p.values(), reverse=True)
+        print(p)
         # The number of different codewords needed to encode the text
         n = len(p)
         # The biggest Perl
@@ -107,18 +112,23 @@ class Encoder:
 
         print(f"N: {n}, C : {C}")
         stack = [([0] + D, 0, [])]
+        best_cost = float("inf")
         possible_res = []
         while stack:
-            sig, cost, Qs = stack.pop()
+            sig, cost, Qs = stack.pop(0)
             new_cost = cost + sum([p[i] for i in range(sig[0], n)])
-
-            if sum(sig) >= n:
+            if new_cost > best_cost:
+                continue
+            if sig[0] >= n:
+                if cost < best_cost:
+                    best_cost = cost
+                    print(f"New best: {best_cost.__round__(3)} ({best_cost * len(self.text)})", len(stack))
                 possible_res.append((sig, cost, Qs))
                 continue
 
-            for q in range(1, sig[1] + 1):
+            for q in range(0, sig[1] + 1):
                 new_sig = extend(sig, q, D)
-                stack.append((new_sig, new_cost + cost, Qs + [q]))
+                stack.append((new_sig, new_cost, Qs + [q]))
         best = min(possible_res, key=lambda x: calc_cost(text, generate_tree(color_sizes, x[2])[1]))
         print(len(possible_res), possible_res)
         return best[1] * len(self.text), best[0], best[1], best[2]
