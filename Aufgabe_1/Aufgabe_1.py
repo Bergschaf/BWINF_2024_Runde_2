@@ -133,6 +133,34 @@ class Encoder:
         print(len(possible_res), possible_res)
         return best[1] * len(self.text), best[0], best[1], best[2]
 
+    def encode_dijkstra(self):
+        """
+        Der Graph der Binärbäume wird mit dijkstra durchsucht
+        :return:
+        """
+        p = {i: self.text.count(i) / len(self.text) for i in set(self.text)}
+        p = sorted(p.values(), reverse=True)
+        print(p)
+        # The number of different codewords needed to encode the text
+        n = len(p)
+        # The biggest Perl
+        C = max(self.color_sizes)
+        D = [self.color_sizes.count(i) for i in range(1, C + 1)]
+
+        print(f"N: {n}, C : {C}")
+        stack = [([0] + D, 0, [])]
+        while stack:
+            # TODO inefficient
+            min_pos = min(range(len(stack)), key=lambda x: stack[x][1])
+            # TODO testen ob des fakt ist
+            sig, cost, Qs = stack.pop(min_pos)
+
+
+
+
+
+
+
     def encode(self):
         # Probability for each character of the alphabet
         p = {i: self.text.count(i) / len(self.text) for i in set(self.text)}
