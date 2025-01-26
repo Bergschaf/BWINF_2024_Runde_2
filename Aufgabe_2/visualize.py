@@ -1,6 +1,6 @@
 from PIL import Image
 import numpy as np
-filename = "Examples/labyrinthe6.txt"
+filename = "Examples/labyrinthe2.txt"
 
 def fill_rectangle(img, x, y, width, height, color=(0, 255, 0)):
     for i in range(x, x + width):

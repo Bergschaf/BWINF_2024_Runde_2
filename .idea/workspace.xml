@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="e196fe10-29fd-499a-ad04-606a10f9fee4" name="Changes" comment="bfs works">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Aufgabe_1/Aufgabe_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Aufgabe_1/Aufgabe_1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Aufgabe_2/Aufgabe_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/Aufgabe_2/Aufgabe_2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Aufgabe_2/notes.tex" beforeDir="false" afterPath="$PROJECT_DIR$/Aufgabe_2/notes.tex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Aufgabe_2/visualize.py" beforeDir="false" afterPath="$PROJECT_DIR$/Aufgabe_2/visualize.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,8 +33,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:Bergschaf/BWINF_2024_Runde_2.git&quot;,
-    &quot;accountId&quot;: &quot;8626af00-84b0-4edf-a099-a00330e36e59&quot;
+    &quot;url&quot;: &quot;https://github.com/Bergschaf/BWINF_2024_Runde_2.git&quot;,
+    &quot;accountId&quot;: &quot;c106b0c4-a062-4cdc-bdbb-29f25ff104e9&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -47,10 +49,12 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.Aufgabe_1.executor": "Run",
+    "Python.Aufgabe_2.executor": "Debug",
+    "Python.visualize.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/bergschaf/mathlib4",
+    "last_opened_file_path": "/home/bergschaf/BWINF_2024_Runde_2",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -60,7 +64,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.Aufgabe_2">
     <configuration name="Aufgabe_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BWINF_2024_Runde_2" />
       <option name="ENV_FILES" value="" />
@@ -84,8 +88,56 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Aufgabe_2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BWINF_2024_Runde_2" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Aufgabe_2" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Aufgabe_2/Aufgabe_2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="visualize" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BWINF_2024_Runde_2" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Aufgabe_2" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Aufgabe_2/visualize.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Aufgabe_2" />
+        <item itemvalue="Python.visualize" />
         <item itemvalue="Python.Aufgabe_1" />
       </list>
     </recent_temporary>
@@ -93,8 +145,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.17890.14" />
-        <option value="bundled-python-sdk-5b207ade9991-7e9c3bbb6e34-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.17890.14" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-PY-243.21565.199" />
+        <option value="bundled-python-sdk-cab1f2013843-4ae2d6a61b08-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.21565.199" />
       </set>
     </attachedChunks>
   </component>
@@ -115,9 +167,8 @@
       <workItem from="1737117211272" duration="5540000" />
       <workItem from="1737233211476" duration="2026000" />
       <workItem from="1737294436417" duration="1347000" />
-      <workItem from="1737295793575" duration="6892000" />
-      <workItem from="1737464718718" duration="16000" />
-      <workItem from="1737492532355" duration="757000" />
+      <workItem from="1737295793575" duration="2756000" />
+      <workItem from="1737907441449" duration="5236000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <option name="closed" value="true" />
@@ -135,15 +186,7 @@
       <option name="project" value="LOCAL" />
       <updated>1736793043955</updated>
     </task>
-    <task id="LOCAL-00003" summary="bfs works">
-      <option name="closed" value="true" />
-      <created>1737298835915</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1737298835915</updated>
-    </task>
-    <option name="localTasksCounter" value="4" />
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -167,6 +210,8 @@
     <option name="LAST_COMMIT_MESSAGE" value="bfs works" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/BWINF_2024_Runde_2$Aufgabe_2.coverage" NAME="Aufgabe_2 Coverage Results" MODIFIED="1737914284795" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Aufgabe_2" />
+    <SUITE FILE_PATH="coverage/BWINF_2024_Runde_2$visualize.coverage" NAME="visualize Coverage Results" MODIFIED="1737908824405" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Aufgabe_2" />
     <SUITE FILE_PATH="coverage/BWINF_2024_Runde_2$Aufgabe_1.coverage" NAME="Aufgabe_1 Coverage Results" MODIFIED="1737297443463" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Aufgabe_1" />
   </component>
 </project>
