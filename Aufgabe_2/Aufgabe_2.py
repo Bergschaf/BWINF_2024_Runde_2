@@ -4,7 +4,7 @@ from PIL import Image
 # TODO beweis, dass das NP-schwer ist?
 
 
-filename = "Examples/labyrinthe1.txt"
+filename = "Examples/labyrinthe5.txt"
 
 
 class Labyrinth:
@@ -36,14 +36,36 @@ class Labyrinth:
             self.holes.append(list(map(int, data[2 * m + n].split())))
         return 2 * m + num_holes
 
-    def visualize(self, path):
-        img = np.ones((self.n * 20 + 1, self.m * 20, 3), dtype=np.uint8) * 255
+    def visualize(self, path, filename="test.png"):
+        img = np.ones((self.m * 20 + 1, self.n * 20, 3), dtype=np.uint8) * 255
         def draw_rectangle(img, x, y, widht, height, color=(0, 255, 0)):
             for i in range(x, x + widht):
                 for j in range(y, y + height):
                     if i < img.shape[1] and j < img.shape[0]:
                         img[j, i] = color
             return img
+
+        def draw_line(img, x0, y0, x1, y1, color=(0, 0, 0)):
+            dx = x1 - x0
+            dy = y1 - y0
+            if abs(dx) > abs(dy):
+                if x0 > x1:
+                    x0, x1 = x1, x0
+                    y0, y1 = y1, y0
+                for x in range(x0, x1):
+                    y = y0 + dy * (x - x0) // dx
+                    if y < img.shape[0] and y >= 0 and x < img.shape[1] and x >= 0:
+                        img[y, x] = color
+            else:
+                if y0 > y1:
+                    x0, x1 = x1, x0
+                    y0, y1 = y1, y0
+                for y in range(y0, y1):
+                    x = x0 + dx * (y - y0) // dy
+                    if y < img.shape[0] and y >= 0 and x < img.shape[1] and x >= 0:
+                        img[y, x] = color
+            return img
+
 
         # Draw vertical walls
         for j in range(self.m):
@@ -62,34 +84,42 @@ class Labyrinth:
             img = draw_rectangle(img, hole[0] * 20, hole[1] * 20,20, 20, (255, 0, 0))
 
         # Draw path
-        for i, j in path:
+        for ii, (i, j) in enumerate(path):
             img = draw_rectangle(img, i * 20 + 5, j * 20 + 5, 10, 10, (0, 0, 255))
+            # draw line
+            if ii > 0:
+                i0, j0 = path[ii - 1]
+                img = draw_line(img, i0 * 20 + 10, j0 * 20 + 10, i * 20 + 10, j * 20 + 10, (0, 0, 255))
 
         img = Image.fromarray(img)
-        img.save("test.png")
+        img.save(filename)
 
-    def get_reachable_neighbours(self, i, j):
+
+    def get_reachable_neighbours(self, x, y):
         possible = []
-        # Up
-        if i > 0 and not self.horizontal_walls[i - 1][j]:
-            possible.append((i - 1, j))
-        # Down
-        if i < self.n - 1 and not self.horizontal_walls[i][j]:
-            possible.append((i + 1, j))
 
-        # Left
-        if j > 0 and not self.vertical_walls[i][j - 1]:
-            possible.append((i, j - 1))
-        # Right
-        if j < self.m - 1 and not self.vertical_walls[i][j]:
-            possible.append((i, j + 1))
+        # UP
+        if y > 0 and self.horizontal_walls[y - 1][x] == 0:
+            possible.append((x, y - 1))
+
+        # DOWN
+        if y < self.m - 1 and self.horizontal_walls[y][x] == 0:
+            possible.append((x, y + 1))
+
+        # LEFT
+        if x > 0 and self.vertical_walls[y][x - 1] == 0:
+            possible.append((x - 1, y))
+
+        # RIGHT
+        if x < self.n - 1 and self.vertical_walls[y][x] == 0:
+            possible.append((x + 1, y))
 
         for p in possible:
             if p in self.holes:
                 possible.remove(p)
-                # TODO probably not optimal
-
+                # TODO wahrscheinlich nicht optimal
         return possible
+
 
     def get_best_path_dijkstra(self):
         start = (0, 0)
@@ -112,12 +142,12 @@ class Labyrinth:
                             break
                     else:
                         stack.append((neighbour, dist + 1, current))
-        path = []
+        path = [end]
         current = visited[end]
         while current:
             path.append(current)
             current = visited[current]
-        return path[::-1]
+        return path
 
 
 def main(filename):
@@ -127,9 +157,11 @@ def main(filename):
         l1 = Labyrinth(n, m)
         offset = l1.parse(data)
 
+
+        l1.visualize([])
         l2 = Labyrinth(n, m)
         l2.parse(data[offset:])
-
-        l1.visualize(l1.get_best_path_dijkstra())
+        l2.visualize(l2.get_best_path_dijkstra(), "test2.png")
+        l1.visualize(l1.get_best_path_dijkstra(), "test1.png")
 if __name__ == '__main__':
     main(filename)
