@@ -109,8 +109,11 @@ Der kürzeste Pfad von $S_0$ zu $S_end$ entspricht also einer kürzesten Anweisu
 Dies kann zum Beispiel mit dem bekannten Dijstra-Algorithmus (TODO Name richtig?) (TODO Quelle) bewerkstelligt werden.
 
 \subsubsection{Laufzeit}
+Wenn Dijkstra mit einer Liste oder einem Array implementiert wird, entspricht die Zeitkomplexität dem Quadrat der Knotenanzahl: $O(\|E\| + \|V\|^2) = O(\|V\|^2)$. (TODO Quelle Wikipedia).
+Der oben beschriebene Graph besitzt einen Knoten für jede Mögliche Kombination an Positionen von Anton und Bea. Bea und Anton können jeweils $n \cdot m$ verschiedene Positionen einnehmen, d.h. insgesamt hat der Graph $\|V\| = n^2 m^2$ Knoten. Damit entspricht die worst-case Laufzeit für die naive Implementierung $O(n^4  m^4)$.
+TODO bessere Datenstrukturen
 
-
+\subsection{Heuristik} TODO optimalen Ansatz besser machen
 
 \section{Erweiterungen}
 TODO gibt es mehrere mögliche kürzeste Anweisungssequenzen
