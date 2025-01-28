@@ -18,4 +18,32 @@
 
     TODO eigene zufällige labyrinthe mit variabler Dichte
 
+\section{struktur}
+    \subsection{Nicht optimale Lösung}
+    Zuerst optimale Pfade von beiden labyrinthen berechnen.
+    Die Instructions für die einzelnen Schritte speichern. Für jeden Schritt die Bewegungen berechnen, die gegen die
+    Wand führen würden. Diese Bewegungen speichern und dann die Pfade zusammenführen.
+
+    TODO annahne das Labyrinth ist von Wänden umgeben
+
+    \section{Modellierungsversuche}
+    Graph, jeder Knoten ist ein Tupel aus Positionen, jede Kante ist eine Bewegung.
+Wir brauchen einen Pfad von ((0,0),(0,0)) zu ((n-1,m-1),(n-1,m-1)).
+von ((a,b),(c, d)) gibt es eine Kante für jede Richtung, in die man gehen kann (oben unten links rechts). Die
+    entsprechenden positionen hängen davon ab, ob man gegen eine Wand läuft oder nicht (oder sogar in ein Loch fällt).
+
+\subsection{Laufzeit}
+nicht ganz optimal (hängt von der Implementierung ab (TODO auf Wikipedia  von Dijkstra schauen, Fibonacci heaps und
+so)),
+Obergrenze: $O(V^2)$. Es gibt $n^2 \cdot m^2$ Knoten (glaub i mal). Für jeden Knoten gibt es maximal vier Kanten.
+Also ist die Laufzeit ....
+TODO schauen ob der Algorithmus überhaupt stimmt
+TODO falls der stimmt noch eine clevere heuristik finden
+
+
+TODO Annahme: Gruben teleportieren (und man muss nicht extra laufen)
+
+
+    \section{NP schwer?}
+
 \end{document}
