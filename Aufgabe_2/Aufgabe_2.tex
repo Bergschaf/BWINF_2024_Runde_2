@@ -106,9 +106,11 @@ TODO das vlt später irgendwo: In der Implementierung können alle Schleifen, al
 Jeder Pfad von einem Knoten $A$ zu einem anderen Knoten $B$ repräsentiert eine Sequenz von Anweisungen, die Anton und Bea von ihren Positionen bei $A$ zu ihren Positionen bei $B$ bringt.  
 Die Länge eines solchen Pfades entspricht der Anzahl der durchlaufenen Anweisungen.\\
 Der kürzeste Pfad von $S_0$ zu $S_end$ entspricht also einer kürzesten Anweisungssequenz, die Anton und Bea ins Ziel bringt. Die Aufgabenstellung lässt sich also darauf reduzieren, den kürzesten Pfad von $S_0$ zu $S_{end}$ in dem oben beschriebenen Graph zu finden. \\
-Dies kann zum Beispiel mit dem bekannten Dijstra-Algorithmus (TODO Name richtig?) (TODO Quelle) bewerkstelligt werden.
+Da der Graph nicht gewichtet ist, kann dieser Pfad mit einer Breitensuche gefunden werden.
+TODO Falsch iDies kann zum Beispiel mit dem bekannten Dijstra-Algorithmus (TODO Name richtig?) (TODO Quelle) bewerkstelligt werden.
 
 \subsubsection{Laufzeit}
+TODO BFS hat die Komplexität $O(\|E\| + \| V\|)$
 Wenn Dijkstra mit einer Liste oder einem Array implementiert wird, entspricht die Zeitkomplexität dem Quadrat der Knotenanzahl: $O(\|E\| + \|V\|^2) = O(\|V\|^2)$. (TODO Quelle Wikipedia).
 Der oben beschriebene Graph besitzt einen Knoten für jede Mögliche Kombination an Positionen von Anton und Bea. Bea und Anton können jeweils $n \cdot m$ verschiedene Positionen einnehmen, d.h. insgesamt hat der Graph $\|V\| = n^2 m^2$ Knoten. Damit entspricht die worst-case Laufzeit für die naive Implementierung $O(n^4  m^4)$.
 TODO bessere Datenstrukturen
