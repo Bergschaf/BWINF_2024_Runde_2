@@ -55,7 +55,6 @@
   morestring=[b]",
   sensitive=true
 }
-
 % Diese beiden Pakete müssen zuletzt geladen werden
 %\usepackage{hyperref} % Anklickbare Links im Dokument
 \usepackage{cleveref}
@@ -102,6 +101,7 @@ TODO \\
 TODO Grube \\
 Alle Kanten haben die Länge $1$, da sie einer Anweisung entsprechen. \\
 TODO das vlt später irgendwo: In der Implementierung können alle Schleifen, also Kanten die einen Knoten mit sich selbst verbinden, ignoriert werden, da sie mit Anweisungen zusammenhängen, die den Zustand nicht ändern (z.B. da Anton und Bea beide gegen eine Wand laufen). \\
+Außerdem muss man beachten, dass Anton und Bea warten, wenn sie ihr Zielfeld bereits erreicht haben. Wenn also eine der Koordinaten die Position $(n-1,m-1)$ erreicht hat, wird diese von den Anweisungen von Chris nicht mehr vverändert. Da nun nur noch eine Person ihr Ziel finden muss, würde es keinen Sinn machen, Anwendungen auszuführen, mit denen diese Person gegen eine Wand laufen würde. Dies muss aber in der Praxis nicht extra überprüft werden, da sich der Gesamtzustand in diesen Fällen nicht ändern würde (da eine Person gegen die Wand läuft und die andere wartet). Solche Anweisungen werden sowieso herausgefiltert.
 
 Jeder Pfad von einem Knoten $A$ zu einem anderen Knoten $B$ repräsentiert eine Sequenz von Anweisungen, die Anton und Bea von ihren Positionen bei $A$ zu ihren Positionen bei $B$ bringt.  
 Die Länge eines solchen Pfades entspricht der Anzahl der durchlaufenen Anweisungen.\\
@@ -119,7 +119,12 @@ WICHTIG TODO beachten, wenn eine Person das Zielfeld erreicht, wartet sie auf di
 
 \subsection{Heuristik} TODO optimalen Ansatz besser machen
 
+
+TODO analyse der Pfadlänge? (ggf bei mehr als zwei Labyrinthen)
+
+
 \section{Erweiterungen}
 TODO gibt es mehrere mögliche kürzeste Anweisungssequenzen
 TODO die Personen bleiben im Zielfeld nicht stehen
+TODO nicht nur zwei labyrinthe
 \end{document}

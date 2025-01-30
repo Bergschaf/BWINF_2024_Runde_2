@@ -4,7 +4,7 @@ from PIL import Image
 # TODO beweis, dass das NP-schwer ist?
 
 
-filename = "Examples/labyrinthe7.txt"
+filename = "Examples/labyrinthe3.txt"
 
 
 class Instruction:
@@ -219,6 +219,9 @@ class Labyrinth:
 
 
     def move(self, x, y, instruction):
+        if x == self.n -1 and y == self.m - 1:
+            return (x, y)
+
         if instruction == Instruction.UP:
             if self.is_wall_above(x, y):
                 return (x, y)
@@ -288,10 +291,9 @@ def main(filename):
         offset = l1.parse(data)
         l2 = Labyrinth(n, m)
         l2.parse(data[offset:])
-    l1.visualize([], filename="test1.png")
-    l2.visualize([], filename="test2.png")
-    print(l2.get_best_path_dijkstra())
-    exit()
+    #l1.visualize([], filename="test1.png")
+    #l2.visualize([], filename="test2.png")
+    #print(l2.get_best_path_dijkstra())
 
     path1, path2, inst = get_double_path_dijkstra(l1, l2)
     l1.visualize(path1, filename="test1.png")
