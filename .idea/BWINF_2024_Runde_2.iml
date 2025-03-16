@@ -4,6 +4,10 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/Aufgabe_2/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/Aufgabe_2/CMakeFiles/3.31.6" />
+      <excludeFolder url="file://$MODULE_DIR$/Aufgabe_2/cpp_implementation/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/Aufgabe_2/cpp_implementation/cmake-build-debug/CMakeFiles/3.30.5" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.13 (BWINF_2024_Runde_2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
