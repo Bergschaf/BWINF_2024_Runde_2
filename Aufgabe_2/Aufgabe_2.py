@@ -1,3 +1,5 @@
+from readline import write_history_file
+
 import numpy as np
 from PIL import Image
 
@@ -5,7 +7,6 @@ from PIL import Image
 
 
 filename = "Examples/labyrinthe3.txt"
-
 
 class Instruction:
     UP = "UP"
@@ -52,6 +53,7 @@ class Labyrinth:
         num_holes = int(data[2 * m - 1])
         for n in range(num_holes):
             self.holes.append(tuple(map(int, data[2 * m + n].split())))
+        self.holes = set(self.holes)
         return 2 * m + num_holes
 
     def visualize(self, path, filename="test.png"):
@@ -221,40 +223,46 @@ class Labyrinth:
     def move(self, x, y, instruction):
         if x == self.n -1 and y == self.m - 1:
             return (x, y)
+        match instruction:
+            case Instruction.UP:
+                if self.is_wall_above(x, y):
+                    return (x, y)
+            case Instruction.DOWN:
+                if self.is_wall_below(x, y):
+                    return (x, y)
+            case Instruction.LEFT:
+                if self.is_wall_left(x, y):
+                    return (x, y)
+            case Instruction.RIGHT:
+                if self.is_wall_right(x, y):
+                    return (x, y)
 
-        if instruction == Instruction.UP:
-            if self.is_wall_above(x, y):
-                return (x, y)
-        elif instruction == Instruction.DOWN:
-            if self.is_wall_below(x, y):
-                return (x, y)
-        elif instruction == Instruction.LEFT:
-            if self.is_wall_left(x, y):
-                return (x, y)
-        elif instruction == Instruction.RIGHT:
-            if self.is_wall_right(x, y):
-                return (x, y)
         new_pos = Instruction.move(x, y, instruction)
         if new_pos in self.holes:
             return (0,0)
         return new_pos
 
 
-def get_double_path_dijkstra(l1, l2):
+def get_double_path_bfs(l1, l2):
     start = ((0, 0), (0, 0))
     n, m = l1.n, l1.m
     assert n == l2.n and m == l2.m
     end = ((n - 1, m - 1), (n - 1, m - 1))
 
     # TODO ab jetzt wirds ineffizient
-    stack = [(start, 0, None, None)]
-    visited = {start: (None, None)}
-    while stack:
-        stack = sorted(stack, key=lambda x: x[1])
-        current, dist, previous, instruction = stack.pop(0)
+    stack = [(start, None, None)]
+    visited = {start : None}
+    count = 0
 
-        visited[current] = (previous, instruction)
+    while stack:
+        if count % 100000 == 0:
+            print(count)
+        #stack = sorted(stack, key=lambda x: x[1])
+        current, previous, instruction = stack.pop(0)
+
         if current == end:
+            print("Found Path")
+
             break
 
         for direction in [Instruction.DOWN, Instruction.LEFT, Instruction.UP, Instruction.RIGHT]:
@@ -262,25 +270,21 @@ def get_double_path_dijkstra(l1, l2):
             if new_pos == current:
                 continue
 
-            if new_pos not in visited.keys():
-                for i in range(len(stack)):
-                    if new_pos == stack[i][0]:
-                        if dist + 1 < stack[i][1]:
-                            stack[i] = (new_pos, dist + 1, current, direction)
-                        break
-                else:
-                    stack.append((new_pos, dist + 1, current, direction))
+            if new_pos not in visited:
+                stack.append((new_pos,  current, direction))
+                visited[new_pos] = current
+                count += 1
     path1 = [end[0]]
     path2 = [end[1]]
     instructions = []
-    current, inst = visited[end]
+    current = visited[end]
     while current:
-        instructions.append(inst)
+        #instructions.append(inst)
         path1.append(current[0])
         path2.append(current[1])
-        current, inst = visited[current]
-    return path1[::-1], path2[::-1], instructions[::-1]
+        current = visited[current]
 
+    return path1[::-1], path2[::-1], instructions[::-1]
 
 
 def main(filename):
@@ -289,18 +293,21 @@ def main(filename):
         n, m = map(int, data.pop(0).split())
         l1 = Labyrinth(n, m)
         offset = l1.parse(data)
+        print(f"offset: {offset}")
+
         l2 = Labyrinth(n, m)
         l2.parse(data[offset:])
     #l1.visualize([], filename="test1.png")
     #l2.visualize([], filename="test2.png")
     #print(l2.get_best_path_dijkstra())
 
-    path1, path2, inst = get_double_path_dijkstra(l1, l2)
+    path1, path2, inst = get_double_path_bfs(l1, l2)
     l1.visualize(path1, filename="test1.png")
     l2.visualize(path2, filename="test2.png")
     print(path1)
     print(path2)
     print(inst)
+    print(f"Länge: {len(path2)}")
 
 
 

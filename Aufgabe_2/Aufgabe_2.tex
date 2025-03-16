@@ -94,7 +94,7 @@ Jeder Zustand, in dem sich Anton und Bea befinden, kann als Tupel der jeweiligen
 $(x_0,y_0)$ ist hier die Position von Anton (der sich in Labyrinth 1 befindet), $(x_1, y_1)$ beschreibt die Position von Bea im zweiten Labyrinth. 
 Am Anfang herscht der Zustand $S_0 = ((0,0), (0,0))$, da sich beide auf ihrem Startfeld befinden. Chris (uii, er heißt ja fast wie ich!!!) kann nun vier mögliche Anweisungen geben, die einen neuen Zustand herbeiführen würden. Wenn Anton und Bea beide ihr Zielfeld erreicht haben, befindet wir uns in dem Zustand $S_{end} = ((n-1, m-1), (n-1, m-1))$.\\
 Formal können die verschiedenen Positionen von Anton und Bea als Graph dargestellt werden, dessen Knoten alle Möglichen Zustände sind. 
-\[ V = \{((x_1, y_1), (x_1, y_1)) \mid 0 \le x_1, x_2 < n and 0 \le y_1, y_2 < m\}\] 
+\[ V = \{((x_1, y_1), (x_1, y_1)) \mid 0 \le x_1, x_2 < n \land 0 \le y_1, y_2 < m\}\]
 (TODO muss man hier n und m vertauschen?)
 Von jedem Knoten gehen vier Kanten aus, eine für jede Anweisung, die Chris geben könnte. 
 TODO \\
@@ -108,13 +108,16 @@ Die Länge eines solchen Pfades entspricht der Anzahl der durchlaufenen Anweisun
 Der kürzeste Pfad von $S_0$ zu $S_end$ entspricht also einer kürzesten Anweisungssequenz, die Anton und Bea ins Ziel bringt. Die Aufgabenstellung lässt sich also darauf reduzieren, den kürzesten Pfad von $S_0$ zu $S_{end}$ in dem oben beschriebenen Graph zu finden. \\
 Da der Graph nicht gewichtet ist, kann dieser Pfad mit einer Breitensuche gefunden werden.
 
-\subsubsection{Laufzeit}
+\subsubsection{Laufzeitkomplexität}
 Die Breitensuche hat eine Zeitkomplexität von $O(\|E\| + \|V\|)$, wobei $\|E\|$ die Anzahl der Kanten und $\|V\|$ die Anzahl der Knoten im Graphen ist. (TOOD Quelle) \\
 Der oben beschriebene Graph besitzt einen Knoten für jede Mögliche Kombination an Positionen von Anton und Bea. Bea und Anton können jeweils $n \cdot m$ verschiedene Positionen einnehmen, d.h. insgesamt hat der Graph $\|V\| = n^2 m^2$ Knoten.
-Jeder Knoten hat höchstens vier ausgehende Kanten (da Schleifen nicht betrachtet werden müssen). Damit entspricht die worst-case Laufzeit $O(n^2 m^2)$.
+Jeder Knoten hat höchstens vier ausgehende Kanten (da Schleifen nicht betrachtet werden müssen). Damit entspricht die worst-case Laufzeit $O(4 \cdot n^2 m^2) = O(n^2 m^2)$.
 
 \subsubsection{Speicherplatzverbrauch}
 TODO $O(\| V \|) = O(n^2 m^2)$ -> viel
+
+
+TODO Datenstrukturen für visited (array ist schlecht, hashtable (Python set ist besser))
 
 
 
