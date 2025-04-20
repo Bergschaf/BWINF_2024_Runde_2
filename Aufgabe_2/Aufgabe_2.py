@@ -6,7 +6,6 @@ from PIL import Image
 # TODO beweis, dass das NP-schwer ist?
 
 
-filename = "Examples/labyrinthe3.txt"
 
 class Instruction:
     UP = "UP"
@@ -93,13 +92,13 @@ class Labyrinth:
         for j in range(self.m):
             for i in range(self.n - 1):
                 if self.vertical_walls[j][i] == 1:
-                    img = draw_rectangle(img, (i + 1) * 20 - 3, j * 20, 5, 20, alpha=0.3)
+                    img = draw_rectangle(img, (i + 1) * 20 - 3, j * 20, 5, 20, alpha=0.4)
 
         # Draw horizontal walls
         for m_ in range(self.m - 1):
             for i in range(self.n):
                 if self.horizontal_walls[m_][i] == 1:
-                    img = draw_rectangle(img, i * 20, (m_ + 1) * 20 - 3, 20, 5, alpha=0.3)
+                    img = draw_rectangle(img, i * 20, (m_ + 1) * 20 - 3, 20, 5, alpha=0.4)
 
         # Draw holes
         for hole in self.holes:
@@ -297,8 +296,8 @@ def main(filename):
 
         l2 = Labyrinth(n, m)
         l2.parse(data[offset:])
-    #l1.visualize([], filename="test1.png")
-    #l2.visualize([], filename="test2.png")
+    l1.visualize([], filename="test1.png")
+    l2.visualize([], filename="test2.png")
     #print(l2.get_best_path_dijkstra())
 
     path1, path2, inst = get_double_path_bfs(l1, l2)
@@ -310,6 +309,7 @@ def main(filename):
     print(f"Länge: {len(path2)}")
 
 
+filename = "Examples/labyrinthe7.txt"
 
 
 if __name__ == '__main__':
