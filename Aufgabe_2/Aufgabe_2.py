@@ -3,8 +3,8 @@ from readline import write_history_file
 import numpy as np
 from PIL import Image
 
-# TODO beweis, dass das NP-schwer ist?
 
+# TODO beweis, dass das NP-schwer ist?
 
 
 class Instruction:
@@ -12,8 +12,9 @@ class Instruction:
     DOWN = "DOWN"
     LEFT = "LEFT"
     RIGHT = "RIGHT"
+
     @staticmethod
-    def move(x, y, instruction):
+    def walk(x, y, instruction):
         if instruction == Instruction.UP:
             return x, y - 1
         if instruction == Instruction.DOWN:
@@ -22,6 +23,18 @@ class Instruction:
             return x - 1, y
         if instruction == Instruction.RIGHT:
             return x + 1, y
+        raise ValueError("Invalid instruction")
+
+    @staticmethod
+    def inv(instruction):
+        if instruction == Instruction.UP:
+            return Instruction.DOWN
+        if instruction == Instruction.DOWN:
+            return Instruction.UP
+        if instruction == Instruction.LEFT:
+            return Instruction.RIGHT
+        if instruction == Instruction.RIGHT:
+            return Instruction.LEFT
         raise ValueError("Invalid instruction")
 
 
@@ -56,7 +69,7 @@ class Labyrinth:
         return 2 * m + num_holes
 
     def visualize(self, path, filename="test.png"):
-        img = np.ones((self.m * 20 + 1, self.n * 20, 3), dtype=np.uint8) * 0  #255
+        img = np.ones((self.m * 20 + 1, self.n * 20, 3), dtype=np.uint8) * 0  # 255
 
         def draw_rectangle(img, x, y, widht, height, color=(0, 255, 0), alpha=0.3):
             color = (int(color[0] * alpha), int(color[1] * alpha), int(color[2] * alpha))
@@ -66,7 +79,7 @@ class Labyrinth:
                         img[j, i] = color + img[j, i]
             return img
 
-        def draw_line(img, x0, y0, x1, y1, color=(0, 0, 0),alpha=0.3):
+        def draw_line(img, x0, y0, x1, y1, color=(0, 0, 0), alpha=0.3):
             color = (int(color[0] * alpha), int(color[1] * alpha), int(color[2] * alpha))
             dx = x1 - x0
             dy = y1 - y0
@@ -114,8 +127,6 @@ class Labyrinth:
 
         img = Image.fromarray(img)
         img.save(filename)
-
-
 
     def is_wall_below(self, x, y):
         if y == self.m - 1:
@@ -218,28 +229,59 @@ class Labyrinth:
 
         return instructions
 
+    def is_wall_in_direction(self, x, y, instruction):
+        if instruction == Instruction.UP:
+            return self.is_wall_above(x, y)
+        elif instruction == Instruction.DOWN:
+            return self.is_wall_below(x, y)
+        elif instruction == Instruction.LEFT:
+            return self.is_wall_left(x, y)
+        elif instruction == Instruction.RIGHT:
+            return self.is_wall_right(x, y)
+        raise ValueError("Invalid instruction")
 
     def move(self, x, y, instruction):
-        if x == self.n -1 and y == self.m - 1:
+        if self.is_wall_in_direction(x, y, instruction):
             return (x, y)
-        match instruction:
-            case Instruction.UP:
-                if self.is_wall_above(x, y):
-                    return (x, y)
-            case Instruction.DOWN:
-                if self.is_wall_below(x, y):
-                    return (x, y)
-            case Instruction.LEFT:
-                if self.is_wall_left(x, y):
-                    return (x, y)
-            case Instruction.RIGHT:
-                if self.is_wall_right(x, y):
-                    return (x, y)
 
-        new_pos = Instruction.move(x, y, instruction)
+        if x == self.n - 1 and y == self.m - 1:
+            return (x, y)
+        new_pos = Instruction.walk(x, y, instruction)
         if new_pos in self.holes:
-            return (0,0)
+            return (0, 0)
         return new_pos
+
+    def move_without_fix_at_end(self, x, y, instruction):
+        if self.is_wall_in_direction(x, y, instruction):
+            return (x, y)
+
+        new_pos = Instruction.walk(x, y, instruction)
+        if new_pos in self.holes:
+            return (0, 0)
+        return new_pos
+
+
+#    def move(self, x, y, instruction):
+#        if x == self.n -1 and y == self.m - 1:
+#            return (x, y)
+#        match instruction:
+#            case Instruction.UP:
+#                if self.is_wall_above(x, y):
+#                    return (x, y)
+#            case Instruction.DOWN:
+#                if self.is_wall_below(x, y):
+#                    return (x, y)
+#            case Instruction.LEFT:
+#                if self.is_wall_left(x, y):
+#                    return (x, y)
+#            case Instruction.RIGHT:
+#                if self.is_wall_right(x, y):
+#                    return (x, y)
+#
+#        new_pos = Instruction.move(x, y, instruction)
+#        if new_pos in self.holes:
+#            return (0,0)
+#        return new_pos
 
 
 def get_double_path_bfs(l1, l2):
@@ -250,13 +292,13 @@ def get_double_path_bfs(l1, l2):
 
     # TODO ab jetzt wirds ineffizient
     stack = [(start, None, None)]
-    visited = {start : None}
+    visited = {start: None}
     count = 0
 
     while stack:
         if count % 100000 == 0:
             print(count)
-        #stack = sorted(stack, key=lambda x: x[1])
+        # stack = sorted(stack, key=lambda x: x[1])
         current, previous, instruction = stack.pop(0)
 
         if current == end:
@@ -270,7 +312,7 @@ def get_double_path_bfs(l1, l2):
                 continue
 
             if new_pos not in visited:
-                stack.append((new_pos,  current, direction))
+                stack.append((new_pos, current, direction))
                 visited[new_pos] = current
                 count += 1
     path1 = [end[0]]
@@ -278,12 +320,102 @@ def get_double_path_bfs(l1, l2):
     instructions = []
     current = visited[end]
     while current:
-        #instructions.append(inst)
+        # instructions.append(inst)
         path1.append(current[0])
         path2.append(current[1])
         current = visited[current]
 
     return path1[::-1], path2[::-1], instructions[::-1]
+
+
+def forward(l1, l2, nodes, forward_visited, backward_visited):
+    """
+    Returns all the nodes one level deeper
+    returns Nodes, Found Path
+    """
+    new_nodes = []  # TODO vlt as Set
+    for node in nodes:
+        for direction in [Instruction.DOWN, Instruction.LEFT, Instruction.UP, Instruction.RIGHT]:
+            new_pos = (l1.move(*node[0], direction), l2.move(*node[1], direction))
+            if new_pos == node:
+                continue
+            if new_pos not in forward_visited:
+                new_nodes.append(new_pos)
+                forward_visited[new_pos] = node
+                if new_pos in backward_visited:
+                    print("Found Path")
+                    return new_nodes, True
+
+    return new_nodes, False
+
+
+def backward(l1, l2, nodes, forward_visited, backward_visited):
+    """
+    Returns all the nodes that can reach a node in nodes in one step
+    returns nodes, found path, can continue (false if one pos is (0,0), could be from every hole)
+    """
+    new_nodes = []  # TODO vlt as Set
+    can_continue = True
+    for node in nodes:
+        # TODO parallelisieren
+        for direction in [Instruction.DOWN, Instruction.LEFT, Instruction.UP, Instruction.RIGHT]:
+            # TODO Mülltonne
+            if l1.is_wall_in_direction(*node[0], Instruction.inv(direction)):
+                if l2.is_wall_in_direction(*node[1], Instruction.inv(direction)):
+                    to_process = [(node[0], l2.move_without_fix_at_end(*node[1], direction)),
+                                  (l1.move_without_fix_at_end(*node[0], direction),
+                                   l2.move_without_fix_at_end(*node[1], direction)),
+                                  (l1.move_without_fix_at_end(*node[0], direction), node[1])]
+                else:
+                    to_process = [(node[0], l2.move_without_fix_at_end(*node[1], direction)),
+                                  (l1.move_without_fix_at_end(*node[0], direction),
+                                   l2.move_without_fix_at_end(*node[1], direction))]
+            else:
+                if l2.is_wall_in_direction(*node[1], Instruction.inv(direction)):
+                    to_process = [(l1.move_without_fix_at_end(*node[0], direction), node[1]),
+                                  (l1.move_without_fix_at_end(*node[0], direction),
+                                   l2.move_without_fix_at_end(*node[1], direction))]
+                else:
+                    to_process = [(l1.move_without_fix_at_end(*node[0], direction),
+                                   l2.move_without_fix_at_end(*node[1], direction))]
+            for new_pos in to_process:
+                if new_pos == node:
+                    continue
+                if new_pos not in backward_visited:
+                    if (l1.move(*new_pos[0], Instruction.inv(direction)),
+                        l2.move(*new_pos[1], Instruction.inv(direction))) == node:
+                        if new_pos in forward_visited:
+                            print("Found Path hier")
+                            return new_nodes, False, None
+                        new_nodes.append(new_pos)
+                        backward_visited[new_pos] = node
+
+    return new_nodes, False, can_continue
+
+
+def get_double_path_bidibfs(l1, l2):
+    start = ((0, 0), (0, 0))
+    n, m = l1.n, l1.m
+    assert n == l2.n and m == l2.m
+    end = ((n - 1, m - 1), (n - 1, m - 1))
+    level = 0
+    forward_stack = [start]
+    backward_stack = [end]
+    forward_visited = {start: None}
+    backward_visited = {end: None}
+    can_continue = True
+    while forward_stack and backward_stack:
+        print(level, len(forward_stack), len(backward_stack), can_continue)
+        if not can_continue or len(forward_stack) <= len(backward_stack):
+            forward_stack, found_path = forward(l1, l2, forward_stack, forward_visited, backward_visited)
+        else:
+            backward_stack, found_path, can_continue = backward(l1, l2, backward_stack, forward_visited,
+                                                                backward_visited)
+        if found_path:
+            print("Found Path")
+            break
+        level += 1
+    print("Level: ", level)
 
 
 def main(filename):
@@ -298,9 +430,11 @@ def main(filename):
         l2.parse(data[offset:])
     l1.visualize([], filename="test1.png")
     l2.visualize([], filename="test2.png")
-    #print(l2.get_best_path_dijkstra())
+    # print(l2.get_best_path_dijkstra())
 
-    path1, path2, inst = get_double_path_bfs(l1, l2)
+    #path1, path2, inst = get_double_path_bfs(l1, l2)
+    #print("BFS len " + str(len(path1)))
+    get_double_path_bidibfs(l1, l2)
     l1.visualize(path1, filename="test1.png")
     l2.visualize(path2, filename="test2.png")
     print(path1)
@@ -309,8 +443,7 @@ def main(filename):
     print(f"Länge: {len(path2)}")
 
 
-filename = "Examples/labyrinthe7.txt"
-
+filename = "Examples/labyrinthe4.txt"
 
 if __name__ == '__main__':
     main(filename)

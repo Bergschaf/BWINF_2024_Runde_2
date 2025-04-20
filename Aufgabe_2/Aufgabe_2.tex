@@ -99,30 +99,26 @@ Von jedem Knoten gehen vier Kanten aus, eine für jede Anweisung, die Chris gebe
 Ob Anton und Bea diese Anweisung ausführen können, hängt natürlich davon ab, ob sie die neue Position erreichen können, ohne gegen eine Wand zu stoßen oder in eine Grube zu fallen. Formal führen Anton und Bea an der Position $p$ bei jeder Anweisung $a \in A$ folgende Funktion aus, um ihre neue Position $p'$ zu bestimmen:
 \[f(p, a) =
 \begin{cases}
-p & \text{Falls zwischen $p$ und $a(p)$ eine Wand ist} \\
+p & \text{Falls zwischen $p$ und $a(p)$ eine Wand ist oder das Zielfeld erreicht ist (also $p = (n-1, m-1)$)} \\
 (0, 0)  & \text {Falls $a(p)$ eine Grube ist}\\
 a(p) & \text{ansonsten} \\
 \end{cases}\]
-Die Zustandsänderung des Zustands $S = (p_0, p_1)$, die durch die Anweisung $a \in A$ hervorgerufen wird, ist also: $S' = (f(p_0, a), f(p_1, a))$. Zwischen zwei Zuständen $S \in V$ und $S' \in V$ existiert also eine Kante, wenn $S'$ durch die Anwendung einer Anweisung $a \in A$ auf $S$ erreicht werden kann:
-
-
-Anton und Bea führen diese Anweisung
-TODO \\
-TODO Grube \\
-Alle Kanten haben die Länge $1$, da sie einer Anweisung entsprechen. \\
-
-
-Jeder Pfad von einem Knoten $A$ zu einem anderen Knoten $B$ repräsentiert eine Sequenz von Anweisungen, die Anton und Bea von ihren Positionen bei $A$ zu ihren Positionen bei $B$ bringt.
+Da wir annehmen, dass das Labyrinth von Wänden umgeben ist, kann gibt es keine Position $p$, von der aus man mit einer Anweisung $a \in A$, eine Position $f(p,a)$ außerhalb des Labyrinths erreichen kann. \\
+Um auf die zwei Positionen eines Zustands $S \in V, S = (p_0, p_1)$ zuzugreifen, schreibe ich ab jetzt $S[0] = p_0$ für die Position von Anton und $S[1] = p_1$ für die Position von Bea.\\
+Die Zustandsänderung des Zustands $S \in V$, die durch die Anweisung $a \in A$ hervorgerufen wird, ist also: $S' = (f(S[0], a), f(S[1], a))$. Zwischen zwei Zuständen $S \in V$ und $S' \in V$ existiert also eine Kante, wenn $S'$ durch die Anwendung einer Anweisung $a \in A$ auf $S$ erreicht werden kann:
+\[E = \{[S, S'] \mid \exists a \in A, S' = (f(S[0], a), f(S[1], a)\}\]
+Eine Kante zwischen dem Startknoten $S$ und dem Endknoten $S'$ wird hier als Tupel $[S, S']$ dargestellt.\\
+Alle Kanten haben die Länge $1$, da sie genau einer Anweisung entsprechen. \\
+Jeder Pfad von einem Knoten $A \in V$ zu einem anderen Knoten $B \in V$ repräsentiert eine Sequenz von Anweisungen, die Anton und Bea von ihren Positionen bei $A$ zu ihren Positionen bei $B$ bringt.
 Die Länge eines solchen Pfades entspricht der Anzahl der durchlaufenen Anweisungen.\\
-Der kürzeste Pfad von $S_0$ zu $S_end$ entspricht also einer kürzesten Anweisungssequenz, die Anton und Bea ins Ziel bringt. Die Aufgabenstellung lässt sich also darauf reduzieren, den kürzesten Pfad von $S_0$ zu $S_{end}$ in dem oben beschriebenen Graph zu finden. \\
+Der kürzeste Pfad von $S_0$ zu $S_{end}$ entspricht also einer kürzesten Anweisungssequenz, die Anton und Bea ins Ziel bringt. Die Aufgabenstellung lässt sich also darauf reduzieren, den kürzesten Pfad von $S_0$ zu $S_{end}$ in dem oben beschriebenen Graph zu finden. \\
 Da der Graph nicht gewichtet ist, kann dieser Pfad mit einer Breitensuche gefunden werden.\\
-
-TODO das vlt später irgendwo: In der Implementierung können alle Schleifen, also Kanten die einen Knoten mit sich selbst verbinden, ignoriert werden, da sie mit Anweisungen zusammenhängen, die den Zustand nicht ändern (z.B. da Anton und Bea beide gegen eine Wand laufen). \\
+In der Implementierung können alle Schleifen, also Kanten die einen Knoten mit sich selbst verbinden, ignoriert werden, da sie mit Anweisungen zusammenhängen, die den Zustand nicht ändern (z.B. da Anton und Bea beide gegen eine Wand laufen). \\
 Außerdem muss man beachten, dass Anton und Bea warten, wenn sie ihr Zielfeld bereits erreicht haben. Wenn also eine der Koordinaten die Position $(n-1,m-1)$ erreicht hat, wird diese von den Anweisungen von Chris nicht mehr verändert. Da nun nur noch eine Person ihr Ziel finden muss, würde es keinen Sinn machen, Anwendungen auszuführen, mit denen diese Person gegen eine Wand laufen würde. Dies muss aber in der Praxis nicht extra überprüft werden, da sich der Gesamtzustand in diesen Fällen nicht ändern würde (da eine Person gegen die Wand läuft und die andere wartet). Solche Anweisungen werden sowieso herausgefiltert.
 \subsubsection{Laufzeitkomplexität}
 Die Breitensuche hat eine Zeitkomplexität von $O(\|E\| + \|V\|)$, wobei $\|E\|$ die Anzahl der Kanten und $\|V\|$ die Anzahl der Knoten im Graphen ist. (TOOD Quelle) \\
 Der oben beschriebene Graph besitzt einen Knoten für jede Mögliche Kombination an Positionen von Anton und Bea. Bea und Anton können jeweils $n \cdot m$ verschiedene Positionen einnehmen, d.h. insgesamt hat der Graph $\|V\| = n^2 m^2$ Knoten.
-Jeder Knoten hat höchstens vier ausgehende Kanten (da Schleifen nicht betrachtet werden müssen). Damit entspricht die worst-case Laufzeit $O(4 \cdot n^2 m^2) = O(n^2 m^2)$.
+Jeder Knoten hat höchstens vier ausgehende Kanten (da Schleifen nicht betrachtet werden müssen). Damit entspricht die worst-case Laufzeit $O(n^2 m^2 + 4 \cdot n^2 m^2) = O(n^2 m^2)$.
 
 \subsubsection{Speicherplatzverbrauch}
 TODO $O(\| V \|) = O(n^2 m^2)$ -> viel
@@ -131,7 +127,9 @@ TODO $O(\| V \|) = O(n^2 m^2)$ -> viel
 TODO Datenstrukturen für visited (array ist schlecht, hashtable (Python set ist besser))
 
 
-
+// optimierungen
+Bidirektional (von beiden seiten aus?)
+https://en.wikipedia.org/wiki/Bidirectional_search
 
 \subsection{Heuristik} TODO optimalen Ansatz besser machen
 
