@@ -1,9 +1,8 @@
 from readline import write_history_file
-
+from numba import jit
 import numpy as np
 from PIL import Image
-
-
+from multiprocessing import Pool
 # TODO beweis, dass das NP-schwer ist?
 
 
@@ -14,14 +13,15 @@ class Instruction:
     RIGHT = "RIGHT"
 
     @staticmethod
+    @jit
     def walk(x, y, instruction):
-        if instruction == Instruction.UP:
+        if instruction == "UP":
             return x, y - 1
-        if instruction == Instruction.DOWN:
+        if instruction == "DOWN":
             return x, y + 1
-        if instruction == Instruction.LEFT:
+        if instruction == "LEFT":
             return x - 1, y
-        if instruction == Instruction.RIGHT:
+        if instruction == "RIGHT":
             return x + 1, y
         raise ValueError("Invalid instruction")
 
@@ -344,10 +344,9 @@ def forward(l1, l2, nodes, forward_visited, backward_visited):
                 forward_visited[new_pos] = node
                 if new_pos in backward_visited:
                     print("Found Path")
-                    return new_nodes, True
+                    return new_nodes, new_pos
 
     return new_nodes, False
-
 
 def backward(l1, l2, nodes, forward_visited, backward_visited):
     """
@@ -384,13 +383,42 @@ def backward(l1, l2, nodes, forward_visited, backward_visited):
                 if new_pos not in backward_visited:
                     if (l1.move(*new_pos[0], Instruction.inv(direction)),
                         l2.move(*new_pos[1], Instruction.inv(direction))) == node:
-                        if new_pos in forward_visited:
-                            print("Found Path hier")
-                            return new_nodes, False, None
                         new_nodes.append(new_pos)
                         backward_visited[new_pos] = node
+                        if new_pos in forward_visited:
+                            print("Found Path hier")
+                            return new_nodes, new_pos, None
 
     return new_nodes, False, can_continue
+
+
+
+def retrace_path_forward(forward_visited, connection):
+    """
+    :param l1:
+    :param l2:
+    :param forward_visited:
+    :param connection: The node that connects the two paths
+    :return:
+    """
+    current = forward_visited[connection]
+    path1 = []
+    path2 = []
+    while current:
+        path1.append(current[0])
+        path2.append(current[1])
+        current = forward_visited[current]
+    return path1[::-1], path2[::-1]
+
+def retrace_path_backward(backward_visited, connection):
+    current = backward_visited[connection]
+    path1 = []
+    path2 = []
+    while current:
+        path1.append(current[0])
+        path2.append(current[1])
+        current = backward_visited[current]
+    return path1, path2
 
 
 def get_double_path_bidibfs(l1, l2):
@@ -404,18 +432,25 @@ def get_double_path_bidibfs(l1, l2):
     forward_visited = {start: None}
     backward_visited = {end: None}
     can_continue = True
+    found_path = False
     while forward_stack and backward_stack:
-        print(level, len(forward_stack), len(backward_stack), can_continue)
+        if level % 100 == 0:
+            print(level, len(forward_stack), len(backward_stack), can_continue)
         if not can_continue or len(forward_stack) <= len(backward_stack):
             forward_stack, found_path = forward(l1, l2, forward_stack, forward_visited, backward_visited)
         else:
             backward_stack, found_path, can_continue = backward(l1, l2, backward_stack, forward_visited,
                                                                 backward_visited)
         if found_path:
-            print("Found Path")
             break
         level += 1
-    print("Level: ", level)
+    if not found_path:
+        print("No path found")
+        return False
+    path1_1, path2_1 = retrace_path_forward(forward_visited, found_path)
+    path1_2, path2_2 = retrace_path_backward(backward_visited, found_path)
+    return path1_1 + [found_path[0]] + path1_2, path2_1 + [found_path[1]] + path2_2
+
 
 
 def main(filename):
@@ -431,19 +466,19 @@ def main(filename):
     l1.visualize([], filename="test1.png")
     l2.visualize([], filename="test2.png")
     # print(l2.get_best_path_dijkstra())
-
     #path1, path2, inst = get_double_path_bfs(l1, l2)
-    #print("BFS len " + str(len(path1)))
-    get_double_path_bidibfs(l1, l2)
+    #bfs_len = len(path1)
+    path1, path2 = get_double_path_bidibfs(l1, l2)
     l1.visualize(path1, filename="test1.png")
     l2.visualize(path2, filename="test2.png")
     print(path1)
     print(path2)
-    print(inst)
+    #print("BFS len " + str(bfs_len))
+
     print(f"Länge: {len(path2)}")
 
 
-filename = "Examples/labyrinthe4.txt"
+filename = "Examples/labyrinthe6.txt"
 
 if __name__ == '__main__':
     main(filename)
