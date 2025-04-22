@@ -49,7 +49,9 @@
 }
 
 \newtheorem{definition}{Definition}
-
+\newtheorem{lemma}{Lemma}
+\newtheorem{satz}{Satz}
+\newtheorem{beispiel}{Beispiel}
 
 % Diese beiden Pakete müssen zuletzt geladen werden
 %\usepackage{hyperref} % Anklickbare Links im Dokument
@@ -78,45 +80,121 @@
 
 
     \section{Lösungsidee}
+    TODO vlt kurzfassung/zusammenfassung
 
     \subsection{Huffman Codierung}
     TODO Quelle vlt: https://people.eng.unimelb.edu.au/ammoffat/abstracts/compsurv19moffat.pdf\\
     David Huffman hat 1952 eine Methode veröffentlicht, die heute als \textit{Huffman Codierung} bekannt ist.
     Er stellte eine Methode vor, um eine optimale Präfixfreie Codierung für einen bestimmten Text zu finden.
-    Dabei geht man von einem Alphabet $A$  mit $n$ verschiedenen Zeichen $a_1, \ddot, a_n \in A$ aus, gemeinsam mit der Häufigkeitsverteilung der Zeichen $p_i = \frac {\text{Häufigkeit von $a_i$ im zu codierenden Text}} {\text{Länge des Textes}}$.
-    Wir nehmen an, dass das Alphabet so sortiert ist, dass $p_i \le p_{i + 1}$ für alle $0 \le i < n - 1$ gilt.
+    Dabei geht man von einem Alphabet $A$ mit $n$ verschiedenen Zeichen $a_1, \dots, a_n \in A$ aus, gemeinsam mit der Häufigkeitsverteilung der Zeichen $p_i = \frac {\text{Häufigkeit von $a_i$ im zu codierenden Text}} {\text{Länge des Textes}}$. Man nennt diese Antreffwahrscheinlichkeit $p_i$ eines Zeichens auch \textit{Frequenz} oder \textit{Gewichtung}.
+    Wir nehmen an, dass das Alphabet nach absteigender Häufigkeit sortiert ist ist, also $p_i \ge p_{i + 1}$ für alle $0 \le i < n - 1$.
     Der Text soll mit einem Ausgabealphabet $O$ codiert werden, das aus $r$ verschiedenen Zeichen $o_1, \dots, o_r \in O$ besteht. In der Bwinf-Aufgabenstellung besteht dieses Ausgabealphabet $O$ aus den $r$ verschiedenen Perlen (die aber alle den gleichen Durchmesser haben). Um den ursprünglichen Text zu codieren, müssen wir nun jedem Buchstaben $a_i$ ein \textit{Codewort} $w_i$ zuordnen, dass aus einer Kette an Buchstaben aus dem Ausgabealphabet besteht $w_i = o_j o_k o_l \dots$. \\
-    Diese Codierung soll \textit{Präfixfrei} sein, also kein Codewort soll Teil eines anderen Codeworts sein. Dadurch kann der Text als Aneinanderreihung von Codewörtern (ohne \glqq Komma\grqq~dazwischen) übertragen und eindeutig decodiert werden. \\
+    Diese Codierung soll \textit{Präfixfrei} sein, also kein Codewort soll Teil eines anderen Codeworts sein.
+    Dadurch kann der Text als Aneinanderreihung von Codewörtern (ohne \glqq Komma\grqq~dazwischen) übertragen und eindeutig decodiert werden. \\
     Aufgrund von dieser Eigenschaft können wir den Code als einen Baum darstellen, der $n$ Blätter hat und bei dem jeder Knoten höchstens $r$ Kinder hat.
     \begin{definition}
         Wir nennen einen solchen Baum mit $n$ blättern und höchstens $r$ Kindern \textbf{valide}, da er eine mögliche Codetabelle darstellt.
     \end{definition}
     Jedes Blatt eines solchen Baums repräsentiert ein Codewort $w$, dass eindeutig durch den Pfad von der Wurzel des Baums zu diesem Blatt definiert ist. Der Pfad wird durch die Kanten des Baums definiert, die mit den Perlen beschriftet sind. Da alle Perlen gleich groß sind, also die Länge aller Buchstaben des Ausgabealphabets gleich ist, ist die Beschriftung der Kanten beliebig. Es ist lediglich wichtig, dass alle Kanten eines Knotens mit unterschiedlichen Buchstaben beschriftet sind. Die Länge des Codeworts $|w|$ entspricht der Anzahl der Kanten auf dem Pfad von der Wurzel zu diesem Blatt. \\
     Da wir eine optimale Codetabelle (also eine möglichst kurze Perlenkette) erstellen wollen, müssen wir die \glqq Kosten\grqq~eines Baums definieren.
-    Diese Kosten eines Baums hängen natürlich auch davon ab, welches Codewort welchem Buchstaben zugeordnet wird. FÜr diese Definition gehen wir
+    Diese Kosten eines Baums hängen natürlich auch davon ab, welches Codewort welchem Buchstaben zugeordnet wird. Für diese Definition gehen wir
     davon aus, dass wir eine solche Zuordnung $w_i \to a_i$ haben.
     \begin{definition}
-        Die Kosten eines Baums $T$ ist definiert als das Produkt der Länge jedes Codeworts $w_i$ mit der Antrittswahrscheinlichkeit $p_i$ des codierten Buchstabens $a_i$: \[cost(T) = \sum^{i=0}_{i\le n} |w_i| \cdot p_i\]
+        Die Kosten eines Baums $T$ ist definiert als das Produkt der Länge jedes Codeworts $w_i$ mit der Frequenz $p_i$ des codierten Buchstabens $a_i$: \[cost(T) = \sum^{i=0}_{i\le n} |w_i| \cdot p_i\]
     \end{definition}
-    Da die Kosten eines Baumes proportional zu der Länge der resultierenden Perlenkette sind, kann die Aufgabenstellung darauf reduziert werden, den validen Baum $T$ mit den minimalen Kosten zu finden.
+    Da die Kosten eines Baumes proportional zu der Länge der resultierenden Perlenkette sind, kann die Aufgabenstellung darauf reduziert werden, den validen Baum $T$ mit den minimalen Kosten zu finden. \\
+    Dafür ist aber auch die Zuordnung, welcher Buchstabe von welchem Codewort codiert werden soll, entscheidend.
+    Für diese Aufgabenstellung ist die Zuordnung aber für jeden Baum eindeutig, da wir die Kosten des Baums minimieren wollen.
+    Um das zu erreichen, müssen wir das längste Codewort zu dem Buchstaben zugeordnet, der am seltensten vorkommt und das kürzeste Codewort zu dem Buchstaben zuordnen, der am häufigsten vorkommt.
+    Dafür ordnen wir im Folgenden die Blätter Baumes in aufsteigender Reihenfolge, also $|w_0| \le \dots \le |w_n|$.
+    Da das Alphabet nach absteigender Reihenfolge sortiert ist, also $p_0 \ge \dots \ge p_n$, liefert die Zuordnung von $w_i$ zu $a_i$ für jeden Baum die geringsten Kosten. \\
+    \begin{definition}
+        Wir nennen einen solchen Baum, der die minimalen Kosten (kürzeste Perlenkette) für eine bestimmte Häufigkeitsverteilung hat \textbf{optimal}
+    \end{definition}
+
+    \subsubsection{Konstruktion des optimalen Baums}
+    \begin{definition}
+        Wir nennen einen $r$-när Baum, bei dem jeder Knoten maximal $r$ Kinder hat \textbf{vollständig}, wenn jeder Knoten genau $r$ Kinder hat.
+    \end{definition}
+    \begin{lemma}
+        Ein optimaler binärer Huffman Baum ist vollständig. TODO braucht man das??
+    \end{lemma}
+    \begin{proof}
+        Ein optimaler binärer Huffman Baum ist im allgemeinen vollständig, da in einem Optimalen Baum kein Knoten mit nur einem Kind existieren kann.
+        Würde man diesen Knoten zu einem Blatt machen hätte man einen Baum mit der gleichen Anzahl an Blättern aber geringeren Kosten.
+    \end{proof}
+    Das gilt im allgemeinen Fall bei Bäumen mit $r > 2$ Kindern aber nicht. \\
+    Für die allgemein bekannte Konstruktion (TODO Quelle) eines binären Huffman Baums werden wiederholt zwei Teilbäume zu einem zusammengefasst, bis schließlich nur noch einer übrig ist. % TODO vlt kurz beschreiben was passiert
+    Im allgemeinen Fall müssen immer $r$ Teilbäume zu einem zusammengefasst werden, was aber nicht für jede Anzahl an Buchstaben $n$ im Alphabet immer funktioniert.
+    \begin{beispiel}
+        Für $n = 4$ werden im ersten Schritt drei Knoten zu einem zusammengefasst. Im nächsten sind nur noch zwei Knoten übrig. Würde man diese Knoten nun zu einem fertigen Baum kombinieren wäre dieser für bestimmte Häufigkeitsverteilungen (z.B. $p_0 = p_1 = p_2 = p_3$) nicht optimal.
+            % TODO Bild
+    \end{beispiel}
+    Daher muss das Alphabet zuerst mit so vielen Platzhalterbuchstaben, deren Antreffwahrscheinlichkeit 0 ist, aufgefüllt werden, dass gilt: $n \mod (n - 1) = 1$.\\ % (TODO erklären warum genau des oder Quelle)
+    Jetzt können wir mit der Konstruktion beginnen:
+    \begin{enumerate}
+        \item Erstelle für jeden Buchstaben $o_i$ im Alphabet (inklusive Platzhalter) einen Teilbaum (der aus einem Wurzelknoten besteht) und beschriften diesen mit der Frequenz $p_i$ des Buchstabens $o_i$.
+        \item Wähle die $r$ Teilbäume mit den kleinsten Antreffwahrscheinlichkeiten. (Diese Wahl ist nicht eindeutig)
+        \item Beschrifte einen neuen Knoten mit der Summe der Antreffwahrscheinlichkeiten der $r$ gewählten Teilbäume und erstelle einen neuen Teilbeum mit dem neuen Knoten als Wurzel und den gewählten Teilbäumen als Kinder.
+        \item Wieder hole Schritt 2 und 3, bis nur noch ein Baum übrig ist.
+    \end{enumerate}
+    % TODO Wie kommt man dann an die codes
+    TODO Bilder
+
+    TODO QUelle für allgemeine Konstruktion
+
+    \subsubsection{Beweis der optimalität}
+    Der Standartbeweis für die Optimalität von Binären Huffman Bäumen kann leicht verallgemeinert werden, daher
+    Dazu müssen wir zuerst das \glqq Sibling-Lemma\grqq~auf $r-$när Bäume verallgemeinern: % TODO Sibling lemma
+    \begin{lemma}
+        Seien $l_0, l_1, \dots l_{r - 1}$ die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit. Sie sind in einem Huffman Baum \glqq Geschwister\grqq, also Kinder des gleichen Knotens $Y$ und liegen auf der untersten Ebene des Baums.
+    \end{lemma}
+    \begin{proof}
+        Die Buchstaben $l_0, l_1, \dots l_{r - 1}$ sind sicher Geschwister, da sie als erstes ausgewählt werden. \\
+        Wenn $l_0, l_1, \dots l_{r - 1}$ nicht auf der unteresten Ebene des Baums liegen würden, dann müsste es einen Internen Knoten $X$ geben, dessen Antreffwahrscheinlichkeit kleiner ist als die des Knotens $Y$, dessen Kinder $l_0, l_1, \dots l_{r - 1}$ sind. Dafür müsste aber mindestens einer der Kinder von $X$ eine geringere Antreffwahrscheinlichkeit haben als einer der Kinder  $l_0, l_1, \dots l_{r - 1}$ von $Y$. Das wiederspricht aber unserer Anfänglichen Annahme, das $l_0, l_1, \dots l_{r - 1}$ die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit sind. Daher können wir sagen, dass $l_0, l_1, \dots l_{r - 1}$ immer auf der untersten Ebene des Baums liegen.
+            % TODO so ein Bild wie hier: https://opendsa-server.cs.vt.edu/ODSA/Books/CS3/html/HuffProof.html
+    \end{proof}
+    % TODO irgendwo sagen, was r-när meint
+    Damit können wir nun mithilfe von Induktion über die Größe $n$ des Alphabets den Beweis durchführen:
+    \begin{satz}
+        Die oben beschrieben Konstruktion für $r-$näre Huffman Bäume liefert einen optimalen Baum und damit eine bestmögliche Codetabelle.
+    \end{satz}
+    \begin{proof} % TODO stimmt des letzt mit contradiction?????
+        \textit{Induktionsanfang}:
+        Für $n \le r$ ist ein Huffman Baum offensichtlich optimal. \\
+        \textit{Induktionshypothese}: Alle Huffman Bäume mit $< n$ Blättern sind optimal. \\
+        \textit{Induktionsschritt}: Nun müssen wir zeigen, ein Huffman Baum $T$ mit $n$ Blättern optimal ist.
+        Seien $l_0, l_1, \dots l_{r - 1}$ wieder die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit.
+        Sei $Y$ der Knoten in $T$, dessen Kinder $l_0, l_1, \dots l_{r - 1}$ sind.
+        Sei $T'$ nun ein Huffman Baum identisch zu $T$, bei dem $Y$ zu einem Blattknoten konvertiert wurde (mit der gleichen Antreffwahrscheinlichkeit wie der Knoten $Y$ in $T$).
+        Aufgrund der Induktionshypothese ist $T'$ optimal, da er $n - (r - 1) < n$ Blätter hat.\\
+        Wenn $T$ nicht optimal wäre, gäbe es einen Baum $T_1$ mit geringeren Kosten als $T$. Aus $T_1$ könnte man wieder einen Baum $T_1'$ mit $n - (r - 1)$ Blättern erstellen, in dem man $Y$ zu einem Knoten konvertiert. Wenn $T_1$ geringere Kosten als $T$ hätte, hätte auch $T_1'$ geringere Kosten als $T'$, woraus man schließen kann, dass $T$ optimal sein muss.
+    \end{proof}
+
+    \subsubsection{Pseudocode}
 
 
+    \subsubection{Laufzeit}
+
+    \subsection{TODO Titel}
+    TODO entweder bei 1 anfangen und bis r oder bei 0 anfagnen und bis r-1
+    Im Aufgabenteil b) haben die Perlen $o_1, \cdot, o_r$ unterschiedliche, ganzzahlige Durchmesser $c_1, \cdot, c_r$. Wir sortieren die Perlen ab jetzt so, dass gilt: $c_1 \le c_2 \le \dots \le c_r = C$ und wir bezeichnen den Durchmesser der größten Perle $c_r$ mit $C$. \\
+    Wir eine Codetabelle, die mit unterschiedlich großen Perlen erstellt wurde ähnlich wie in Aufgabenteil a) wieder als Baum darstellen.
+    \begin{definition}
+        Wir bezeichnen die Tiefe eines Knotens $V$ mit $depth(V)$. Die Tiefe des Wurzelknotens ist 0.
+    \end{definition}
+    Bis jetzt waren die Kinder $v_0$ bis $v_{r-1}$ eines Knotens $V$ immer genau eine Ebene tiefer als $V$, also $depth(v_i) = depth(V) - 1$.
+    Wir wollen die Eigenschaft, dass die Pfadlänge von der Wurzel eines Baumes zu einem Blatt $|w|$ der Länge der entsprechenden Aneinanderreihung an Perlen entspricht aber natürlich weiterhin erhalten. Wenn wir also die Kinder $v_0$ bis $v_{r-1}$ des Knotens $V$ mit den Perlen $o_1$ bis $o_{r}$ beschriften $v_i \to o_i$, soll gelten: $depth(V) = depth(v_i) + c_i$.
+
+    \subsection{Huffman}
+    Da die oben beschriebene Huffman-Codierung den Spezialfall $c_1 = c_2 = \cdot = c_r$ darstellt, ist es zunächst Sinnvoll zu betrachten, weshalb der Huffman Algorithmus hier keinen Optimalen Baum liefert
 
 
-
-
-    Jede Codetabelle, bei der $r$ Perlen mit dem selben Durchmesser verwendet werden dürfen, kann als Baum, bei dem jeder Knoten höchstens $r$ Kinder hat, dargestellt werden. ... \\
-
-    Im Aufgabenteil b) haben die Perlen aber unterschiedliche, ganzzahlige Durchmesser $c_1 \le c_2 \le \dots \le c_r = C$. Um die Eigenschaft zu erhalten, dass die Länge des Pfads von der Wurzel des Baums zu einem Blatt der Länge des Codes entspricht, müssen die Kanten des Baums der Länge der Perlen entsprechen. ... \\
-    TODO Beispiel \\
 
     \begin{definition}
         $d_1, d_2, \dots, d_C$ bezeichnet die Anzahl der Perlen mit den Durchmessern $1, 2, \dots, C$.
     \end{definition}
     TODO Beispiel
-    \begin{definition}
-        Voller Baum (alle Knoten haben entweder 0 oder $r$ Kinder) \\
-    \end{definition}
 
 
 
