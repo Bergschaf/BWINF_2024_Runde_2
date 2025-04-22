@@ -37,7 +37,7 @@
 \usepackage{color}
 
 \usepackage{forest}
-\usepackage{adjustbox}
+\usepackage{float}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
@@ -201,8 +201,7 @@
     \begin{definition}
         Für jeden Baum $T$ erhält man einen vollständigen Baum $Fill(T)$, indem man an jeden Knoten so viele zusätzliche Blätter mit Frequenz 0 hinzufügt, das dieser genau $r$ Blätter besitzt.
     \end{definition}
-
-    \begin{figure}
+        \begin{figure}[H]
         \centering
         \begin{minipage}{.5\textwidth}
             \centering
@@ -219,6 +218,7 @@
                 [
                 [$\frac 1 5$, tier=2]
                 [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=2]
                 ]
                 [
                 [$\frac 1 5$, tier=2]
@@ -226,7 +226,7 @@
                 ]
                 ]
             \end{forest}
-            \captionof{figure}{A figure}
+            \captionof{figure}{Ein nicht vollständiger Baum $T$}
             \label{fig:test1}
         \end{minipage}%
         \begin{minipage}{.5\textwidth}
@@ -244,83 +244,31 @@
                 [
                 [$\frac 1 5$, tier=2, [,phantom,tier=3]]
                 [$\frac 1 5$, tier=2]
-                [$0$, tier=3]
+                [$\frac 1 5$, tier=2]
                 ]
                 [
                 [$\frac 1 5$, tier=2]
-                [$\frac 1 5$, tier=2]
+                [$\frac 1 4$, tier=2]
                 [$0$, tier=3]
                 ]
                 [$0$, tier=2]
                 ]
             \end{forest}
-            \captionof{figure}{Another figure}
+            \captionof{figure}{Der vervollständige Baum $Fill(T)$}
             \label{fig:test2}
         \end{minipage}
     \end{figure}
-    \begin{center}
 
-        \begin{adjustbox}{valign=t}
-            \begin{figure}
-                \begin{forest}
-                    for tree={
-                        grow                    = south,
-                        parent anchor           = north,
-                        child anchor            = north,
-                        edge                    = {thick, -},
-                        l sep                    = 10mm, % level distance
-                        s sep                    = 5mm, % sibling distance
-                    }
-                    [
-                    [
-                    [$\frac 1 5$, tier=2]
-                    [$\frac 1 5$, tier=2]
-                    ]
-                    [
-                    [$\frac 1 5$, tier=2]
-                    [$\frac 1 5$, tier=2]
-                    ]
-                    ]
-                \end{forest}
-                \caption{Ein nicht vollständiger Baum $T$}
-            \end{figure}
-        \end{adjustbox}
 
-        \begin{adjustbox}{valign=t}
-            \centering
-            \begin{forest}
-                for tree={
-                    grow                    = south,
-                    parent anchor           = north,
-                    child anchor            = north,
-                    edge                    = {thick, -},
-                    l sep                    = 10mm, % level distance
-                    s sep                    = 10mm, % sibling distance
-                }
-                [
-                [
-                [$\frac 1 5$, tier=2, [,phantom,tier=3]]
-                [$\frac 1 5$, tier=2]
-                [$0$, tier=3]
-                ]
-                [
-                [$\frac 1 5$, tier=2]
-                [$\frac 1 5$, tier=2]
-                [$0$, tier=3]
-                ]
-                [$0$, tier=2]
-                ]
-            \end{forest}
-        \end{adjustbox}
-    \end{center}
+
     \begin{lemma}
         Sei $T$ ein optimaler Baum mit $n$ Blättern. Die Anzahl der Blätter $m$ von $Fill(T)$ beträgt höchstens $m \le n(r-1)$.
     \end{lemma}
     \begin{proof}
         TODO
     \end{proof}
-    Da $cost(Fill(T))$ = $cost(T)$ offensichtlich gilt können wir nun das Problem umformulieren:\\
-    Finde für die Perlendurchmesser $c_1, \cdots, c_r$ und die Frequenzen $p_1 \ge \dots \ge p_n$ (und $p_i = 0$ für alle $i > n$) den vollen Baum $T_{opt}$ mit $m$ Blättern ($n \le m \le n(r - 1)$) mit minimalen Kosten:
+    Da $cost(Fill(T))$ = $cost(T)$ offensichtlich gilt, können wir nun das Problem umformulieren:\\
+    Finde für die Perlendurchmesser $c_1, \dots, c_r$ und die Frequenzen $p_1 \ge \dots \ge p_n$ (und $p_i = 0$ für alle $i > n$) den vollen Baum $T_{opt}$ mit $m$ Blättern ($n \le m \le n(r - 1)$) mit minimalen Kosten:
     \[cost(T_{opt}) = \min \{cost(T) : T \text{ ist vollständig und hat $m$ Blätter ($n \le m \le n(r - 1)$)}\}\]
     Wenn wir $T_{opt}$ konstruiert haben, können wir die Blätter mit Frequenz 0 entfernen und erhalten eine optimale Codierungstabelle für $n$ Buchstaben. \\
     Dafür müssen wir aber zuerst betrachten, wie wir vollständige Bäume allgemein darstellen und Ebene für Ebene konstruieren können.
