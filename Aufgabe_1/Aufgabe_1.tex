@@ -35,6 +35,10 @@
 % Für Quelltext
 \usepackage{listings}
 \usepackage{color}
+
+\usepackage{forest}
+\usepackage{adjustbox}
+
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
@@ -121,7 +125,7 @@
     \end{lemma}
     \begin{proof}
         Ein optimaler binärer Huffman Baum ist im allgemeinen vollständig, da in einem Optimalen Baum kein Knoten mit nur einem Kind existieren kann.
-        Würde man diesen Knoten zu einem Blatt machen hätte man einen Baum mit der gleichen Anzahl an Blättern aber geringeren Kosten.
+        Würde man diesen Knoten zu einem Blatt machen hätte man einen Baum mit der gleichen 3Anzahl an Blättern aber geringeren Kosten.
     \end{proof}
     Das gilt im allgemeinen Fall bei Bäumen mit $r > 2$ Kindern aber nicht. \\
     Für die allgemein bekannte Konstruktion (TODO Quelle) eines binären Huffman Baums werden wiederholt zwei Teilbäume zu einem zusammengefasst, bis schließlich nur noch einer übrig ist. % TODO vlt kurz beschreiben was passiert
@@ -173,8 +177,7 @@
 
     \subsubsection{Pseudocode}
 
-
-    \subsubection{Laufzeit}
+    \subsubsection{Laufzeit}
 
     \subsection{TODO Titel}
     TODO entweder bei 1 anfangen und bis r oder bei 0 anfagnen und bis r-1
@@ -185,47 +188,183 @@
     \end{definition}
     Bis jetzt waren die Kinder $v_0$ bis $v_{r-1}$ eines Knotens $V$ immer genau eine Ebene tiefer als $V$, also $depth(v_i) = depth(V) - 1$.
     Wir wollen die Eigenschaft, dass die Pfadlänge von der Wurzel eines Baumes zu einem Blatt $|w|$ der Länge der entsprechenden Aneinanderreihung an Perlen entspricht aber natürlich weiterhin erhalten. Wenn wir also die Kinder $v_0$ bis $v_{r-1}$ des Knotens $V$ mit den Perlen $o_1$ bis $o_{r}$ beschriften $v_i \to o_i$, soll gelten: $depth(V) = depth(v_i) + c_i$.
+    % TODO Bild  
 
-    \subsection{Huffman}
-    Da die oben beschriebene Huffman-Codierung den Spezialfall $c_1 = c_2 = \cdot = c_r$ darstellt, ist es zunächst Sinnvoll zu betrachten, weshalb der Huffman Algorithmus hier keinen Optimalen Baum liefert
+    \subsubsection{Huffman}
+    Da die oben beschriebene Huffman-Codierung den Spezialfall $c_1 = c_2 = \cdot = c_r$ darstellt, ist es zunächst sinnvoll, zu betrachten, weshalb der Huffman Algorithmus hier keinen optimalen Baum liefert.
+    TODO (Die tiefsten Knoten sind nicht zwingend Nachbarn, weil c1 = c2 etc)
 
-
-
+    \subsubsection{Vollständige Bäume}
+    TODO Quelle hier (TODO vlt kuuz auf Paper eingehen) Der und der haben 19irgendwas einen neuen Ansatz vorgestellt... sehr ausführlich hier fokusssiert auf das wesentliche) \\
+    Da es in diesem Aufgabenteil also nicht möglich ist, die Bäume von unten nach oben mit einem Greedy-Algorithmus zu erstellen, müssen wir alle mögliche Lösungen betrachten.
+    In diesem Kapitel werden wir uns zuerst auf vollständige Bäume beschränken, indem wir ähnlich wie in Teil a) fehlende Buchstaben durch Platzhalter mit Frequenz 0 ersetzen:
     \begin{definition}
-        $d_1, d_2, \dots, d_C$ bezeichnet die Anzahl der Perlen mit den Durchmessern $1, 2, \dots, C$.
-    \end{definition}
-    TODO Beispiel
-
-
-
-    Einführung ... \\
-    Labeling ist trivial (und kann ab jetzt weggelassen werden), weil... \\
-    \begin{definition}
-        Wir bennen die Blätter des Baums nach aufsteigender Tiefe:
-        $depth(v_1) \le depth(v_2) \le \dots \le depth(v_n)$
+        Für jeden Baum $T$ erhält man einen vollständigen Baum $Fill(T)$, indem man an jeden Knoten so viele zusätzliche Blätter mit Frequenz 0 hinzufügt, das dieser genau $r$ Blätter besitzt.
     \end{definition}
 
+    \begin{figure}
+        \centering
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \begin{forest}
+                for tree={
+                    grow                    = south,
+                    parent anchor           = north,
+                    child anchor            = north,
+                    edge                    = {thick, -},
+                    l sep                    = 10mm, % level distance
+                    s sep                    = 5mm, % sibling distance
+                }
+                [
+                [
+                [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=2]
+                ]
+                [
+                [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=2]
+                ]
+                ]
+            \end{forest}
+            \captionof{figure}{A figure}
+            \label{fig:test1}
+        \end{minipage}%
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \begin{forest}
+                for tree={
+                    grow                    = south,
+                    parent anchor           = north,
+                    child anchor            = north,
+                    edge                    = {thick, -},
+                    l sep                    = 10mm, % level distance
+                    s sep                    = 10mm, % sibling distance
+                }
+                [
+                [
+                [$\frac 1 5$, tier=2, [,phantom,tier=3]]
+                [$\frac 1 5$, tier=2]
+                [$0$, tier=3]
+                ]
+                [
+                [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=2]
+                [$0$, tier=3]
+                ]
+                [$0$, tier=2]
+                ]
+            \end{forest}
+            \captionof{figure}{Another figure}
+            \label{fig:test2}
+        \end{minipage}
+    \end{figure}
+    \begin{center}
+
+        \begin{adjustbox}{valign=t}
+            \begin{figure}
+                \begin{forest}
+                    for tree={
+                        grow                    = south,
+                        parent anchor           = north,
+                        child anchor            = north,
+                        edge                    = {thick, -},
+                        l sep                    = 10mm, % level distance
+                        s sep                    = 5mm, % sibling distance
+                    }
+                    [
+                    [
+                    [$\frac 1 5$, tier=2]
+                    [$\frac 1 5$, tier=2]
+                    ]
+                    [
+                    [$\frac 1 5$, tier=2]
+                    [$\frac 1 5$, tier=2]
+                    ]
+                    ]
+                \end{forest}
+                \caption{Ein nicht vollständiger Baum $T$}
+            \end{figure}
+        \end{adjustbox}
+
+        \begin{adjustbox}{valign=t}
+            \centering
+            \begin{forest}
+                for tree={
+                    grow                    = south,
+                    parent anchor           = north,
+                    child anchor            = north,
+                    edge                    = {thick, -},
+                    l sep                    = 10mm, % level distance
+                    s sep                    = 10mm, % sibling distance
+                }
+                [
+                [
+                [$\frac 1 5$, tier=2, [,phantom,tier=3]]
+                [$\frac 1 5$, tier=2]
+                [$0$, tier=3]
+                ]
+                [
+                [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=2]
+                [$0$, tier=3]
+                ]
+                [$0$, tier=2]
+                ]
+            \end{forest}
+        \end{adjustbox}
+    \end{center}
+    \begin{lemma}
+        Sei $T$ ein optimaler Baum mit $n$ Blättern. Die Anzahl der Blätter $m$ von $Fill(T)$ beträgt höchstens $m \le n(r-1)$.
+    \end{lemma}
+    \begin{proof}
+        TODO
+    \end{proof}
+    Da $cost(Fill(T))$ = $cost(T)$ offensichtlich gilt können wir nun das Problem umformulieren:\\
+    Finde für die Perlendurchmesser $c_1, \cdots, c_r$ und die Frequenzen $p_1 \ge \dots \ge p_n$ (und $p_i = 0$ für alle $i > n$) den vollen Baum $T_{opt}$ mit $m$ Blättern ($n \le m \le n(r - 1)$) mit minimalen Kosten:
+    \[cost(T_{opt}) = \min \{cost(T) : T \text{ ist vollständig und hat $m$ Blätter ($n \le m \le n(r - 1)$)}\}\]
+    Wenn wir $T_{opt}$ konstruiert haben, können wir die Blätter mit Frequenz 0 entfernen und erhalten eine optimale Codierungstabelle für $n$ Buchstaben. \\
+    Dafür müssen wir aber zuerst betrachten, wie wir vollständige Bäume allgemein darstellen und Ebene für Ebene konstruieren können.
+
     \begin{definition}
+        TODO braucht man des und wenn ja hier?
         Wir nennen einen Baum Ebene-$i$-Baum, wenn alle internen Knoten auf einer Ebene $\le i$ liegen. \\
     \end{definition}
 
     \begin{definition}
         Die Signatur einer Ebene $i$ des Baums $T$ ist das $C + 1$-Tupel \[sig_i(T) = (m;l_1,l2_, \dots, l_C)\]
-        wobei $m = |\{v \in T | v \text{ist ein Blatt,} tiefe(v) \le i\}|$ die Anzahl der Blätter von T mit einer Tiefe von höchstens $i$ ist und
-        \[l_k = |\{u \in T | tiefe(u) = i + k\}, k \in \{1,\dots,C\}\]
+        wobei $m = |\{v \in T \mid v \text{ ist ein Blatt, tiefe} (v) \le i\}|$ der Anzahl der Blätter von $T$ mit einer Tiefe von höchstens $i$ enspricht und
+        \[l_k = |\{u \in T \mid \text{tiefe}(u) = i + k\}, k \in \{1,\dots,C\}\]
         die Anzahl der Knoten auf Ebene $i + k$ ist.
     \end{definition}
-    Nun definieren mit die Expand-Operation, die einen Ebene-$i+1$-Baum aus einem Ebene-$i$-Baum erzeugt. \\
+    Diese Signatur wird es uns später erlauben, alle möglichen zu betrachten und dabei aber kleine Unterschiede, die nichts an den Kosten eines Baums ändern zu vernachlässigen.
+    Um diese Bäume Ebene für Ebene aufzubauen, definieren wir nun die Expand-Operation, die einen Ebene-$i+1$-Baum aus einem Ebene-$i$-Baum erzeugt.
     \begin{definition}
         Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$. Die Expand Operation wandelt $0 \le q \le l_1$ Blätter auf Ebene $i + 1$ in interne Knoten um, indem $r$ Kinder an jedes dieser Blätter angehängt werden. Die Signatur des resultierenden Ebene-$i+1$-Baums ist
         \[sig_{T'} = (m + l_1, l_2, \dots, l_C) + q * (-1, d_1, d_2, \dots, d_C)\]
     \end{definition}
+
+    TODO Beispiele mit signatur und expand
+
+    Über die Signatur einer eines Ebene-$i$-Baums können wir nun die Kosten dieser Ebene definieren, was uns später dabei helfen wird, den \glqq Billigsten\grqq{} Baum zu finden.
+    \begin{definition}
+        Sei $T$ ein Ebene-$i$ Baum mit der Signatur $sig_i(T) = (m, l_1, l_2, \dots, l_C)$. Für $m \le n$ definieren wir die Kosten der Ebene-$i$ als:
+        \[cost_i(T) = \sum^m_{j=1} |w_j| \cdot p_j + i \cdot \sum^n_{j=m + 1}p_j\]
+        wobei $|w_1| \le \cdot \le |w_m|$ die $m$ höchsten Blätter nach Tiefe geordnet sind.
+    \end{definition}
+    %    TODO igendwo explizit sagen, dass $|w_i| $tiefe vom blatt
+    Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter um die Ebene $i$ zu erreichen darstellt.
+    FÜr $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > m$. \\
+
+
+
+
+
+
+
     (TODO jeder volle Binärbaum der höhe $h$ kann durch $h$ Expand Operationen erzeugt werden?) \\
 
-    Um einen optimalen Code zu finden, definieren wir die Kosten eines Baumes.
-    \begin{definition}
-        Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$. Falls $m \le n$, dann sind die Kosten von $T$ gleich ...
-    \end{definition}
+
+
 
     \begin{definition}
         Die Kosten eines Baumes $T$ mit $\ge n$ Blätter sind
