@@ -1,0 +1,216 @@
+\documentclass[a4paper,10pt,ngerman]{scrartcl}
+\usepackage{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[a4paper,margin=2.5cm,footskip=0.5cm]{geometry}
+
+% Die nächsten drei Felder bitte anpassen:
+\newcommand{\Aufgabe}{Aufgabe 2: Simultane Labyrinthe} % Aufgabennummer und Aufgabennamen angeben
+\newcommand{\TeilnahmeId}{74749}                  % Teilnahme-ID angeben
+\newcommand{\Name}{Christian Krause}             % Name des Bearbeiter / der Bearbeiterin dieser Aufgabe angeben
+
+
+% Kopf- und Fußzeilen
+\usepackage{scrlayer-scrpage, lastpage}
+\setkomafont{pageheadfoot}{\large\textrm}
+\lohead{\Aufgabe}
+\rohead{Teilnahme-ID: \TeilnahmeId}
+\cfoot*{\thepage{}/\pageref{LastPage}}
+
+% Position des Titels
+\usepackage{titling}
+\setlength{\droptitle}{-1.0cm}
+
+% Für mathematische Befehle und Symbole
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Für Bilder
+\usepackage{graphicx}
+
+% Für Algorithmen
+\usepackage{algorithm}      % floating wrapper for algorithms
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+
+% Für Quelltext
+\usepackage{listings,listings-rust}
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\lstset{
+    keywordstyle=\color{blue},commentstyle=\color{mygreen},
+    stringstyle=\color{mymauve},rulecolor=\color{black},
+    basicstyle=\footnotesize\ttfamily,numberstyle=\tiny\color{mygray},
+    captionpos=b, % sets the caption-position to bottom
+    keepspaces=true, % keeps spaces in text
+    numbers=left, numbersep=5pt, showspaces=false,showstringspaces=true,
+    showtabs=false, stepnumber=2, tabsize=2, title=\lstname
+}
+\lstdefinelanguage{JavaScript}{ % JavaScript ist als einzige Sprache noch nicht vordefiniert
+    keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with},
+    morecomment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]',
+    morestring=[b]",
+    sensitive=true
+}
+% Diese beiden Pakete müssen zuletzt geladen werden
+%\usepackage{hyperref} % Anklickbare Links im Dokument
+\usepackage{cleveref}
+
+% Daten für die Titelseite
+\title{\textbf{\Huge\Aufgabe}}
+\author{\LARGE Teilnahme-ID: \LARGE \TeilnahmeId \\\\
+\LARGE Bearbeiter/-in dieser Aufgabe: \\
+\LARGE \Name\\\\}
+\date{\LARGE\today}
+
+\begin{document}
+
+    \maketitle
+    \tableofcontents
+
+    \vspace{0.5cm}
+
+    \textbf{Anleitung:} Trage oben in den Zeilen 8 bis 10 die Aufgabennummer, die Teilnahme-ID und die/den Bearbeiterin/Bearbeiter dieser Aufgabe mit Vor- und Nachnamen ein.
+    Vergiss nicht, auch den Aufgabennamen anzupassen (statt "`\LaTeX-Dokument"')!
+
+    Dann kannst du dieses Dokument mit deiner \LaTeX-Umgebung übersetzen.
+
+    Die Texte, die hier bereits stehen, geben ein paar Hinweise zur
+    Einsendung. Du solltest sie aber in deiner Einsendung wieder entfernen!
+
+
+    \section{Lösungsidee}
+    \dots Einleitung
+
+    Annahmen:
+    Das Labyrinth ist von Wänden umgeben
+    \dots
+
+    \subsection{Breitensuche}
+    Zuerst habe ich mich damit beschäftigt, einen Algorithmus zu entwickeln, der eine optimale Lösung für die Aufgabenstellung berechnen kann. Eine optimale Lösung ist hier die kürzeste Anweisungssequenz, die Anton und Bea ins Ziel bringt. In diesem Abschnitt wird direkt der Aufgabenteil b) behandelt (TOOD besser formulieren). \\
+    TODO vlt section Modellierung hier? \\
+    Jeder Zustand, in dem sich Anton und Bea befinden, kann als Tupel der jeweiligen Koordinaten dargestellt werden: $((x_0,y_0), (x_1, y_1))$.
+    $(x_0,y_0)$ ist hier die Position von Anton (der sich in Labyrinth 1 befindet), $(x_1, y_1)$ beschreibt die Position von Bea im zweiten Labyrinth.
+    Am Anfang herrscht der Zustand $S_0 = ((0,0), (0,0))$, da sich beide auf ihrem Startfeld befinden. Chris kann nun vier mögliche Anweisungen geben, die einen neuen Zustand herbeiführen würden. Wenn Anton und Bea beide ihr Zielfeld erreicht haben, befindet wir uns in dem Zustand $S_{end} = ((n-1, m-1), (n-1, m-1))$.\\
+    Formal können die verschiedenen Positionen von Anton und Bea als Graph dargestellt werden, dessen Knoten alle Möglichen Zustände sind.
+    \[ V = \{((x_0, y_0), (x_1, y_1)) \in ((\mathbb{N} \times \mathbb{N}) \times (\mathbb{N} \times \mathbb{N}))\mid 0 \le x_0, x_1 < n \land 0 \le y_0, y_1 < m\}\]
+    Von jedem Knoten gehen vier Kanten aus, eine für jede Anweisung, die Chris geben könnte. Die Menge der Anweisungen $A$ kann formal als Menge an Funktionen dargestellt werden, die eine Position $p = (x_0, y_0)$ in eine neue Position $p'$ (die oben, unten, rechts oder links von $p$ ist) überführt: \[A = \{(x_0, y_0) \mapsto (x_0 + 1, y_0), (x_0, y_0) \mapsto (x_0 - 1, y_0), (x_0, y_0) \mapsto (x_0, y_0 + 1), (x_0, y_0) \mapsto (x_0, y_0 - 1)\}\]
+    Ob Anton und Bea diese Anweisung ausführen können, hängt natürlich davon ab, ob sie die neue Position erreichen können, ohne gegen eine Wand zu stoßen oder in eine Grube zu fallen. Formal führen Anton und Bea an der Position $p$ bei jeder Anweisung $a \in A$ folgende Funktion aus, um ihre neue Position $p'$ zu bestimmen:
+    \[f(p, a) =
+    \begin{cases}
+        p & \text{Falls zwischen $p$ und $a(p)$ eine Wand ist oder das Zielfeld erreicht ist (also $p = (n-1, m-1)$)} \\
+        (0, 0)  & \text {Falls $a(p)$ eine Grube ist}\\
+        a(p) & \text{ansonsten} \\
+    \end{cases}\]
+    Da wir annehmen, dass das Labyrinth von Wänden umgeben ist, kann gibt es keine Position $p$, von der aus man mit einer Anweisung $a \in A$, eine Position $f(p,a)$ außerhalb des Labyrinths erreichen kann. \\
+    Um auf die zwei Positionen eines Zustands $S \in V, S = (p_0, p_1)$ zuzugreifen, schreibe ich ab jetzt $S[0] = p_0$ für die Position von Anton und $S[1] = p_1$ für die Position von Bea.\\
+    Die Zustandsänderung des Zustands $S \in V$, die durch die Anweisung $a \in A$ hervorgerufen wird, ist also: \[S' = (f(S[0], a), f(S[1], a)).\] Zwischen zwei Zuständen $S \in V$ und $S' \in V$ existiert also eine Kante, wenn $S'$ durch die Anwendung einer Anweisung $a \in A$ auf $S$ erreicht werden kann:
+    \[E = \{(S, S') \in (V \times V) \mid \exists a \in A, S' = (f(S[0], a), f(S[1], a)\}\]
+    Eine Kante zwischen dem Startknoten $S$ und dem Endknoten $S'$ wird hier als Tupel $(S, S')$ dargestellt.\\
+    Alle Kanten haben die Länge $1$, da sie genau einer Anweisung entsprechen. \\
+    Jeder Pfad von einem Knoten $A \in V$ zu einem anderen Knoten $B \in V$ repräsentiert eine Sequenz von Anweisungen, die Anton und Bea von ihren Positionen bei $A$ zu ihren Positionen bei $B$ bringt.
+    Die Länge eines solchen Pfades entspricht der Anzahl der durchlaufenen Anweisungen.\\
+    Der kürzeste Pfad von $S_0$ zu $S_{end}$ entspricht also einer kürzesten Anweisungssequenz, die Anton und Bea ins Ziel bringt. Die Aufgabenstellung lässt sich also darauf reduzieren, den kürzesten Pfad von $S_0$ zu $S_{end}$ in dem oben beschriebenen Graph zu finden. \\
+    Da der Graph nicht gewichtet ist, kann dieser Pfad mit einer Breitensuche gefunden werden.\\
+    In der Implementierung können alle Schleifen, also Kanten die einen Knoten mit sich selbst verbinden, ignoriert werden, da sie mit Anweisungen zusammenhängen, die den Zustand nicht ändern (z.B. da Anton und Bea beide gegen eine Wand laufen). \\
+    Außerdem muss man beachten, dass Anton und Bea warten, wenn sie ihr Zielfeld bereits erreicht haben. Wenn also eine der Koordinaten die Position $(n-1,m-1)$ erreicht hat, wird diese von den Anweisungen von Chris nicht mehr verändert. Da nun nur noch eine Person ihr Ziel finden muss, würde es keinen Sinn machen, Anwendungen auszuführen, mit denen diese Person gegen eine Wand laufen würde. Dies muss aber in der Praxis nicht extra überprüft werden, da sich der Gesamtzustand in diesen Fällen nicht ändern würde (da eine Person gegen die Wand läuft und die andere wartet). Solche Anweisungen werden sowieso herausgefiltert.
+    \subsubsection{Laufzeitkomplexität} (TODO Löcher abziehen, weil da kann man ja nicht sein??)(TODO Pseudocode zum Laufzeit erklären)
+    Die Breitensuche hat eine Zeitkomplexität von $O(\|E\| + \|V\|)$, wobei $\|E\|$ die Anzahl der Kanten und $\|V\|$ die Anzahl der Knoten im Graphen ist. (TOOD Quelle) \\
+    Der oben beschriebene Graph besitzt einen Knoten für jede Mögliche Kombination an Positionen von Anton und Bea. Bea und Anton können jeweils $n \cdot m$ verschiedene Positionen einnehmen, d.h. insgesamt hat der Graph $\|V\| = n^2 m^2$ Knoten.
+    Jeder Knoten hat höchstens vier ausgehende Kanten (da Schleifen nicht betrachtet werden müssen): $\|E\| \le 4 \cdot n ^2 m^2$. Damit entspricht die worst-case Laufzeit $O(n^2 m^2 + 4 \cdot n^2 m^2) = O(n^2 m^2)$.
+
+    \subsubsection{Speicherplatzverbrauch}
+    TODO $O(\| V \|) = O(n^2 m^2)$ -> viel
+
+
+    TODO Datenstrukturen für visited (array ist schlecht, hashtable (Python set ist besser))
+
+    \subsection{Bidirektionale Breitensuche}
+    Der oben beschriebene Algorithmus hat zwar die bestmögliche Asymptotische Laufzeit für einen Algorithmus, der einen optimalen Pfad findet (TODO Stimmt das?), lässt sich aber in der Praxis noch weiter optimieren, nämlich durch das Verfahren der Bidirektionalen Breitensuche. Dabei wird die Breitensuche nicht nur von dem Startknoten $S_0$ aus gestartet, sondern gleichzeitig auch \glqq rückwärts\grqq~von $S_{end}$ aus. Sobald die Breitensuche aus der einen Richtung einen Knoten besucht, der von der anderen Richtung aus schon besucht wurde, ist ein kürzester Pfad gefunden und die Suche ist abgeschlossen.
+    Dabei muss aber genauer auf die Reihenfolge geachtet werden, in der die Knoten besucht werden.
+    Die normale Breitensuche funktioniert nämlich mit einer Datenstruktur, die wie eine Warteschlange (Queue) nach dem First-in Last-out prinzip funktioniert. Das bedeutet, dass ein neuer Knoten, der zu der Warteschlange hinzugefügt wurde erst besucht wird, wenn alle anderen Knoten, die vorher hinzugefügt wurden bereits aus der Warteschlange entfert sind. (TODO bild queue) Das bedeutet, dass zuerst alle Knoten, die $i$ Kanten von $S_0$ entfernt sind, besucht werden, bevor ein Knoten in der Entfernung $i+1$ besucht wird. Darus folgt auch die Optimalität der Breitensuche, da so sicher der kürzeste Pfad gefunden wird. \\
+% TODO vlt pseudocode
+
+
+    Würde man bei der bidirektionalen Breitensuche dieses Verfahren vom Startknoten aus und vom Zielknoten aus rückwärts anwenden, könnte es passieren, dass ein Pfad gefunden wird, der um eine Kante zu lang ist (TODO QUelle die eien internetseite). \\
+    Darum müssen die Knoten von jeder Breitensuche \glqq Ebene für Ebene\grqq~besucht werden:
+    \begin{algorithm}[H]
+        \caption{Bidirektionale Suche}
+        \label{alg:bidirectional-search}
+        \begin{algorithmic}[1]
+            \State $Visited_{1} \gets \{S_{0}\}$
+            \State $Visited_{2} \gets \{S_{\text{end}}\}$
+            \State $Frontier_{1} \gets \{S_{0}\}$
+            \State $Frontier_{2} \gets \{S_{\text{end}}\}$
+            \While{$|Frontier_{1}| > 0 \,\land\, |Frontier_{2}| > 0$}
+                \If{$|Frontier_{1}| \le |Frontier_{2}|$}
+                    \State $Frontier_{1} \gets \text{Expand\_by\_one}_1(Frontier_{1})$
+                    \State $Visited_{1} \gets Visited_{1} \cup Frontier_{1}$
+                    \If{$|Frontier_{1} \,\cap\, Visited_{2}| > 0$}
+                        \State \textbf{exit} \Comment{Pfad gefunden!}
+                    \EndIf
+                \Else
+                    \State $Frontier_{2} \gets \text{Expand\_by\_one}_2(Frontier_{2})$
+                    \State $Visited_{2} \gets Visited_{2} \cup Frontier_{2}$
+                    \If{$|Frontier_{2} \,\cap\, Visited_{1}| > 0$}
+                        \State \textbf{exit} \Comment{Pfad gefunden!}
+                    \EndIf
+                \EndIf
+            \EndWhile
+        \end{algorithmic}
+    \end{algorithm}
+    Als erstes werden die Variablen \textit{Visited$_1$} und \textit{Visited$_2$} initialisiert, um die Knoten zu speichern, für die bereits ein Pfad von $S_0$ bzw von $S_{end}$ aus bekannt ist. Die Variablen \textit{Frontier$_1$} und \textit{Frontier$_2$} speichern alle Knoten, die genau $i$ Pfadlängen von $S_0$ bzw $S_{end}$ entfernt sind. In der Schleife wird entschieden, ob die Binärsuche von $S_0$ aus oder die von $S_{end}$ aus um eine Ebene weitergeführt werden. In welcher Reihenfolge dies geschieht ist irrelevant, der Algorithmus ist in jedem Fall optimal. Hier wird die Seite weitergeführt, die zurzeit weniger \glqq aktive\grqq~Knoten hat, die erweitert werden sollen.\\
+    Die $\textit{Expand\_by\_one}_1$ Funktion nimmt eine Menge an Knoten und gibt alle Knoten zurück, die genau eine Pfadlänge von einem der Knoten in \textit{Frontier} entfernt liegen, was einem Schritt der Binärsuche entspricht. Die Funktion $\textit{Expand\_by\_one}_1$ geht dabei entlang der Pfeile des Graphen und $\textit{Expand\_by\_one}_2$ geht \glqq Rückwärts\grqq~in die entgegengesetzte Richtung. \\
+    Anschließend werden in beiden Fällen die neuen Knoten zur jeweiligen \textit{Visited}-Menge hinzugefügt.
+    Am Ende wird überprüft, ob einer der neuen Knoten in der jeweiligen \textit{Frontier}-Variable bereits aus der anderen Richtung besucht wurde. Wenn dies der Fall ist, dann ist der kürzeste Pfad gefunden, da zu dem Knoten, der nun z.B. in $\textit{Frontier}_1$ und $\textit{Visited}_2$ enthalten ist, ein Pfad von $S_0$ aus und von $S_{end}$ aus bekannt ist. Im Umsetzungsteil gehe ich genauer darauf ein, welche Möglichkeiten es gibt, diesen Pfad zu speichern und zurückzuverfolgen.
+
+    \subsubsection{Optimalität}
+    Warum??
+
+    \subsubsection{Laufzeit}
+    Asymptotisch ist die Laufzeit von bidirektionaler Breitensuche gleich wie die der normalen Breitensuche, im Wort-Case muss jeder Knoten und jede Kante besucht werden, also $O(\|V\| + \|E\|)$.
+    \begin{figure}
+        \label{fig:1}
+        \centering
+        \includegraphics[width=0.7\textwidth]{Assets/Bidirectional_Search_in_1966}
+        \caption {TODO QUelle: }
+    \end{figure}
+    TODO Quelle. \url{https://en.wikipedia.org/wiki/Bidirectional_search#/media/File:Bidirectional_Search_in_1966.png}
+
+    Intuitiv ist Bidirektionale Breitensuche aber schneller, da meistens weniger Knoten besucht werden müssen (siehe Bild \ref{fig:1}). \\
+    Mathematisch lässt sich das schwer quantifizieren, man kann allerdings eine andere Obergrenze der Laufzeit der Breitensuche betrachten. Sei $d$ die Länge des Pfades, der gefunden werden muss und $b$ die Durchschnittliche Anzahl an ausgehenden Kanten eines Knotens, in unserem Fall $d = 4$. Die Laufzeit von Breitensuche lässt sich durch $O(b^d)$ begrenzen. Die zwei Breitensuchen treffen sich aber schon nach $D/2$ Schritten in der Mitte (wenn man beide Richtungen immer abwechselnd um eine Ebene erweitert). Die Laufzeit der Bidirektionalen Breitensuche lässt sich also durch $O(b^{\frac d 2})$ begrenzen. (TODO Quelle) \\
+    Für die Pfadlänge in unserem Graphen gilt allerdings $d > m + n$, und da $m^2 n^2  \le 4^{\frac {n + m} 2}$ für alle $n, m \in \mathbb N$ ist $O(n^2 m^2)$ eine deutlich bessere Abschätzung für die Laufzeit der Bidirektionalen Breitensuche als $O(b^{\frac d 2})$.
+    Im Beispielteil wird sich zeigen, dass Bidirektionale Breitensuche in den meisten Fällen trotzdem deutlich schneller ist.
+
+
+    \section{Umsetzung}
+    \begin{lstlisting}[language=Rust]
+        enum Instruction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+}
+
+    \end{lstlisting}
+
+    \subsection{Breitensuche}
+
+
+    Bidirektionale Breitensuche rückwärts löcher beachten
+    TODO man kann Bidirektionale suche Parallelisierne
+
+
+    \section{Erweiterung}
+    Mehrere Pfade? -> Ist die Intersection zwischen Frontier und Visited größer 1?
+
+
+    TODO gibt es mehrere mögliche kürzeste Anweisungssequenzen
+    TODO die Personen bleiben im Zielfeld nicht stehen
+    TODO nicht nur zwei labyrinthe
+    TODO mehrdimensionale Labyrinthe
+\end{document}
