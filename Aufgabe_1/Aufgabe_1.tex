@@ -201,7 +201,7 @@
     \begin{definition}
         Für jeden Baum $T$ erhält man einen vollständigen Baum $Fill(T)$, indem man an jeden Knoten so viele zusätzliche Blätter mit Frequenz 0 hinzufügt, das dieser genau $r$ Blätter besitzt.
     \end{definition}
-        \begin{figure}[H]
+    \begin{figure}[H]
         \centering
         \begin{minipage}{.5\textwidth}
             \centering
@@ -216,9 +216,9 @@
                 }
                 [
                 [
+                [$\frac 1 5$, tier=2, [,phantom,tier=3]]
                 [$\frac 1 5$, tier=2]
-                [$\frac 1 5$, tier=2]
-                [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=3]
                 ]
                 [
                 [$\frac 1 5$, tier=2]
@@ -244,7 +244,7 @@
                 [
                 [$\frac 1 5$, tier=2, [,phantom,tier=3]]
                 [$\frac 1 5$, tier=2]
-                [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=3]
                 ]
                 [
                 [$\frac 1 5$, tier=2]
@@ -277,6 +277,10 @@
         TODO braucht man des und wenn ja hier?
         Wir nennen einen Baum Ebene-$i$-Baum, wenn alle internen Knoten auf einer Ebene $\le i$ liegen. \\
     \end{definition}
+    \begin{definition}
+        Wir kürzen einen Baum $T$ zu dem Ebene-$i$-Baum $Cut_i(T)$, indem wir alle Knoten entfernen, deren Eltern Tiefer als Ebene-$i$ liegen: \[Cut_i(T) = T - {v \in T \mid |parent(v)| > i}\]
+    \end{definition}
+    TODO Beispiel
 
     \begin{definition}
         Die Signatur einer Ebene $i$ des Baums $T$ ist das $C + 1$-Tupel \[sig_i(T) = (m;l_1,l2_, \dots, l_C)\]
@@ -285,11 +289,7 @@
         die Anzahl der Knoten auf Ebene $i + k$ ist.
     \end{definition}
     Diese Signatur wird es uns später erlauben, alle möglichen zu betrachten und dabei aber kleine Unterschiede, die nichts an den Kosten eines Baums ändern zu vernachlässigen.
-    Um diese Bäume Ebene für Ebene aufzubauen, definieren wir nun die Expand-Operation, die einen Ebene-$i+1$-Baum aus einem Ebene-$i$-Baum erzeugt.
-    \begin{definition}
-        Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$. Die Expand Operation wandelt $0 \le q \le l_1$ Blätter auf Ebene $i + 1$ in interne Knoten um, indem $r$ Kinder an jedes dieser Blätter angehängt werden. Die Signatur des resultierenden Ebene-$i+1$-Baums ist
-        \[sig_{T'} = (m + l_1, l_2, \dots, l_C) + q * (-1, d_1, d_2, \dots, d_C)\]
-    \end{definition}
+
 
     TODO Beispiele mit signatur und expand
 
@@ -301,30 +301,52 @@
     \end{definition}
     %    TODO igendwo explizit sagen, dass $|w_i| $tiefe vom blatt
     Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter um die Ebene $i$ zu erreichen darstellt.
-    FÜr $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > m$. \\
-
-
-
-
-
-
-
-    (TODO jeder volle Binärbaum der höhe $h$ kann durch $h$ Expand Operationen erzeugt werden?) \\
-
-
-
-
+    FÜr $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > m$. D.h. wenn $T$ ein Ebene-$i$-Baumm mit $sig_i(T) = (m, l1, \dots l_C)$ ist und $m \ge n$, dann gilt $cost_i(T) = cost(T)$. \\
     \begin{definition}
-        Die Kosten eines Baumes $T$ mit $\ge n$ Blätter sind
-        \[cost(T) = \sum_{i=1}^{n} v_i * p_i\]
-        (TODO diese Definition geht vom optimalen labeling aus)
+        Sei $(m, l1, \dots, l_C)$ eine valide Signatur. Wir bezeichnen die minimalen Kosten eines Baumes mit dieser Signatur mit $OPT[m, l1, \dots l_C]$: \[OPT[m,l1, \dots, l_C] = \min \{cost_i(T) \mid \text{$T$ ist ein Ebene-$i$-Baum mit $sig_i(T) = (m, l_1, \dots, l_C)$}\}\]
     \end{definition}
+    Da die maximale Anzahl an Blättern des optimalen vervollständigen Baums $Fill(T_{opt})$ $n(r-1)$ beträgt, entsprechen die Kosten dieses Baums dem Minimum aller Kosten $OPT[m, l1, \dots, l_C]$ mit $m \ge n$ und $m + l_1 + \dots + l_C \le n(r-1)$:
+    \[cost(Fill(T_{opt}))) = cost(T_{opt}) = \min  \{OPT[m, l1, \dots, l_C] \mid m \ge n \land m + l_1 + \dots + l_C \le n(r-1)\}.\]
+    Um dieses Minimum zu ermitteln müssen wir die $OPT$-Tabelle Schritt für Schritt auffüllen, beginnend bei einem Ebene-0-Baum, der nur aus der Wurzel und dessen Kindern besteht.
+    Sei $T$ also ein Ebene-$i$-Baum und $T'$ ein Ebene-$i+1$-Baum, der bis auf Ebene-$i$ identisch zu $T$ ist, also: $Cut_i(T') = T$. $T$ und $T'$ haben also die selbe Anzahl an Knoten auf den Ebenen $0$ bis $i$. Daher ist auch die Anzahl der Knoten auf Ebene $i+1$ identisch, der einzige Unterschied besteht darin, ob diese Knoten Blätter oder interne Knoten sind. In $T$ sind alle diese Knoten Blätter, da $T$ ein Ebene-$i$-Baum ist. In $T'$ könnten auch alle Knoten auf Ebene $i+1$ Blätter sein, es könnte aber auch eine bestimmte Anzahl $q$ an Knoten interne Knoten sein, maximal aber natürlich so viele, wie $T$ Blätter in Ebene $i+1$ hat. Sei $sig_i(T) = (m, l_1, \dots, l_C)$ die Ebene-$i$ Signatur von $T$. Damit können wir sagen, dass $0 \le q \le l_1$, da $l_1$ die Anzahl der Blätter von $T$ auf Ebene $i+1$ ist.
+    \begin{definition}
+        Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$. Die Expand Operation wandelt $0 \le q \le l_1$ Blätter auf Ebene $i + 1$ in interne Knoten um, indem $r$ Kinder an jedes dieser Blätter angehängt werden:
+            \[T' = Expand_i(T, q)\]
+    \end{definition}
+    Die Expand-Operation legt nicht fest, welche der $l_1$ Blättern zu Knoten werden.
+    Da wir uns auf vollständige Bäume beschränken, sind die Kosten dieser Bäume aber gleich, selbst wenn die Bäume selbst geringfügige Unterschiede haben. Um die Änderung der Signatur des Baums zu quantifizieren, müssen wir den charakteristischen Vektor einer Perlensammlung mit den Durchmessen $c_1, c_2, \dots, c_r$) definieren:
+    \begin{definition}
+        Der charakteristische Vektor $(d_1, d_2, \dots, d_C)$ einer Perlensammlung mit den Durchmessern $D = (c_1, c_2, \dots, c_r)$ entspricht den Anzahlen, wie oft ein bestimmter Durchmesser in der Perlensammlung vertreten ist:
+        \[d_i = \text{Anzahl von $i$ in $D$}\]
+    \end{definition}
+    \begin{beispiel}
+        Der charakteristische Vektor der Beispieldatei 7 mit den Durchmessern $D = (1, 1, 1, 1, 1, 1, 1, 2, 3, 4)$ beträgt $(7, 1, 1, 1)$ und der charakteristische Vektor der Beispieldatei 5 mit den Durchmessern $D = (1, 1, 2, 2, 3)$ beträgt $(2, 2, 1)$.
+    \end{beispiel}
+    \begin{lemma}
+        Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$ und $T' = Expand_i(T,q)$ die Erweiterung um $q$. Die Signatur von $T'$ ist dann: \[sig_{i+1}(T') = (m + l_1, l_2, \dots, l_C, 0)) + q \cdot (-1, d_1, d_2, \dots, d_C)\]
+        (Multiplikation und Addition werden Elementweise ausgeführt). Die Kosten der Erweiterung betragen:
+        \[cost_{i+1}(Expand_i(T,q)) = cost_i(T) + \sum_{m < j \le n}p_j\]
+    \end{lemma}
+    \begin{proof}
+        TODO
+    \end{proof}
+    \begin{beispiel}
+        TODO
+    \end{beispiel}
+    Wir können nun einen Graph $G = (V, E)$ definieren, dessen Knoten die Signaturen der Bäume darstellen und dessen Kanten Erweiterungen auf die nächste Ebene repräsentieren:
+    \[V = \{(m, l_1, \dots, l_C) \mid  m, l_1, \dots, l_2 \ge 0 \land m + l_1 + \dots + l_c \le n(r-1)\}\]
+    \[E = \{(S = (m, l_1, \dots, l_C), S') \in V \times V \mid \exists q, 0 \le q \le l_1, S' = (m + l_1, l_2, \dots, l_C, 0) + q \cdot (-1, d_1, \dots, d_C)\}\]
+
+    TODO man könnte jetzt bfs machen kurz laufzeit und ist schlecht
+
+    \subsection{TODO Titel}
+
 
 
     \section{Umsetzung}
     Hier wird kurz erläutert, wie die Lösungsidee im Programm tatsächlich umgesetzt wurde. Hier können auch Implementierungsdetails erwähnt werden.
     TODO erweiterung: die Kosten der Perlen sind keine ganzen Zahlen mehr, sondern reelle Zahlen.
-
+    TODO Optimierung: kleinen Baum mit höhe h bauen (wo alle probabiliteis gleich sind) -> n Blätter -> im n dinger zusammenfassen dann algorithmus machen und kleine bäume wieder hinbasteln
 
     \section{Beispiele}
     Genügend Beispiele einbinden! Die Beispiele von der BwInf-Webseite sollten hier diskutiert werden, aber auch eigene Beispiele sind sehr gut – besonders wenn sie Spezialfälle abdecken. Aber bitte nicht 30 Seiten Programmausgabe hier einfügen!
