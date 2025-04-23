@@ -30,7 +30,9 @@
 \usepackage{graphicx}
 
 % Für Algorithmen
+\usepackage{algorithm}      % floating wrapper for algorithms
 \usepackage{algpseudocode}
+\usepackage{hyperref}
 
 % Für Quelltext
 \usepackage{listings}
@@ -115,10 +117,10 @@ Der kürzeste Pfad von $S_0$ zu $S_{end}$ entspricht also einer kürzesten Anwei
 Da der Graph nicht gewichtet ist, kann dieser Pfad mit einer Breitensuche gefunden werden.\\
 In der Implementierung können alle Schleifen, also Kanten die einen Knoten mit sich selbst verbinden, ignoriert werden, da sie mit Anweisungen zusammenhängen, die den Zustand nicht ändern (z.B. da Anton und Bea beide gegen eine Wand laufen). \\
 Außerdem muss man beachten, dass Anton und Bea warten, wenn sie ihr Zielfeld bereits erreicht haben. Wenn also eine der Koordinaten die Position $(n-1,m-1)$ erreicht hat, wird diese von den Anweisungen von Chris nicht mehr verändert. Da nun nur noch eine Person ihr Ziel finden muss, würde es keinen Sinn machen, Anwendungen auszuführen, mit denen diese Person gegen eine Wand laufen würde. Dies muss aber in der Praxis nicht extra überprüft werden, da sich der Gesamtzustand in diesen Fällen nicht ändern würde (da eine Person gegen die Wand läuft und die andere wartet). Solche Anweisungen werden sowieso herausgefiltert.
-\subsubsection{Laufzeitkomplexität}
+\subsubsection{Laufzeitkomplexität} (TODO Löcher abziehen, weil da kann man ja nicht sein??)(TODO Pseudocode zum Laufzeit erklären)
 Die Breitensuche hat eine Zeitkomplexität von $O(\|E\| + \|V\|)$, wobei $\|E\|$ die Anzahl der Kanten und $\|V\|$ die Anzahl der Knoten im Graphen ist. (TOOD Quelle) \\
 Der oben beschriebene Graph besitzt einen Knoten für jede Mögliche Kombination an Positionen von Anton und Bea. Bea und Anton können jeweils $n \cdot m$ verschiedene Positionen einnehmen, d.h. insgesamt hat der Graph $\|V\| = n^2 m^2$ Knoten.
-Jeder Knoten hat höchstens vier ausgehende Kanten (da Schleifen nicht betrachtet werden müssen). Damit entspricht die worst-case Laufzeit $O(n^2 m^2 + 4 \cdot n^2 m^2) = O(n^2 m^2)$.
+Jeder Knoten hat höchstens vier ausgehende Kanten (da Schleifen nicht betrachtet werden müssen): $\|E\| \le 4 \cdot n ^2 m^2$. Damit entspricht die worst-case Laufzeit $O(n^2 m^2 + 4 \cdot n^2 m^2) = O(n^2 m^2)$.
 
 \subsubsection{Speicherplatzverbrauch}
 TODO $O(\| V \|) = O(n^2 m^2)$ -> viel
@@ -126,20 +128,70 @@ TODO $O(\| V \|) = O(n^2 m^2)$ -> viel
 
 TODO Datenstrukturen für visited (array ist schlecht, hashtable (Python set ist besser))
 
+\subsection{Bidirektionale Breitensuche}
+Der oben beschriebene Algorithmus hat zwar die bestmögliche Asymptotische Laufzeit für einen Algorithmus (TODO Stimmt das?), lässt sich aber in der Praxis noch weiter optimieren, nämlich durch das Verfahren der Bidirektionalen Breitensuche. Dabei wird die Breitensuche nicht nur von dem Startknoten $S_0$ aus gestartet, sondern gleichzeitig auch \glqq rückwärts\grqq~von $S_{end}$ aus. Sobald die Breitensuche aus der einen Richtung einen Knoten besucht, der von der anderen Richtung aus schon besucht wurde, ist ein kürzester Pfad gefunden und die Suche ist abgeschlossen.
+Dabei muss aber genauer auf die Reihenfolge geachtet werden, in der die Knoten besucht werden.
+Die normale Breitensuche funktioniert nämlich mit einer Datenstruktur, die wie eine Warteschlange (Queue) nach dem First-in Last-out prinzip funktioniert. Das bedeutet, dass ein neuer Knoten, der zu der Warteschlange hinzugefügt wurde erst besucht wird, wenn alle anderen Knoten, die vorher hinzugefügt wurden bereits aus der Warteschlange entfert sind. (TODO bild queue) Das bedeutet, dass zuerst alle Knoten, die $i$ Kanten von $S_0$ entfernt sind, besucht werden, bevor ein Knoten in der Entfernung $i+1$ besucht wird. Darus folgt auch die Optimalität der Breitensuche, da so sicher der kürzeste Pfad gefunden wird. \\
+% TODO vlt pseudocode
 
-// optimierungen
-Bidirektional (von beiden seiten aus?)
-https://en.wikipedia.org/wiki/Bidirectional_search
 
+Würde man bei der bidirektionalen Breitensuche dieses Verfahren vom Startknoten aus und vom Zielknoten aus rückwärts anwenden, könnte es passieren, dass ein Pfad gefunden wird, der um eine Kante zu lang ist (TODO QUelle die eien internetseite). \\
+Darum müssen die Knoten von jeder Breitensuche \glqq Ebene für Ebene\grqq~besucht werden:
+\begin{algorithm}[H]
+\caption{Bidirektionale Suche}
+\label{alg:bidirectional-search}
+\begin{algorithmic}[1]
+  \State $Visited_{1} \gets \{S_{0}\}$
+  \State $Visited_{2} \gets \{S_{\text{end}}\}$
+  \State $Frontier_{1} \gets \{S_{0}\}$
+  \State $Frontier_{2} \gets \{S_{\text{end}}\}$
+  \While{$|Frontier_{1}| > 0 \,\land\, |Frontier_{2}| > 0$}
+    \If{$|Frontier_{1}| \le |Frontier_{2}|$}
+      \State $Frontier_{1} \gets \text{Expand\_by\_one}_1(Frontier_{1})$
+      \State $Visited_{1} \gets Visited_{1} \cup Frontier_{1}$
+      \If{$|Frontier_{1} \,\cap\, Visited_{2}| > 0$}
+        \State \textbf{exit} \Comment{Pfad gefunden!}
+      \EndIf
+    \Else
+      \State $Frontier_{2} \gets \text{Expand\_by\_one}_2(Frontier_{2})$
+      \State $Visited_{2} \gets Visited_{2} \cup Frontier_{2}$
+      \If{$|Frontier_{2} \,\cap\, Visited_{1}| > 0$}
+        \State \textbf{exit} \Comment{Pfad gefunden!}
+      \EndIf
+    \EndIf
+  \EndWhile
+\end{algorithmic}
+\end{algorithm}
+Als erstes werden die Variablen \textit{Visited$_1$} und \textit{Visited$_2$} initialisiert, um die Knoten zu speichern, für die bereits ein Pfad von $S_0$ bzw von $S_{end}$ aus bekannt ist. Die Variablen \textit{Frontier$_1$} und \textit{Frontier$_2$} speichern alle Knoten, die genau $i$ Pfadlängen von $S_0$ bzw $S_{end}$ entfernt sind. In der Schleife wird entschieden, ob die Binärsuche von $S_0$ aus oder die von $S_{end}$ aus um eine Ebene weitergeführt werden. In welcher Reihenfolge dies geschieht ist irrelevant, der Algorithmus ist in jedem Fall optimal. Hier wird die Binärsuche erweitert, die zurzeit weniger \glqq aktive\grqq Knoten hat, die erweitert werden sollen.\\
+Die $\textit{Expand\_by\_one}_1$ Funktion nimmt eine Menge an Knoten und gibt alle Knoten zurück, die genau eine Pfadlänge von einem der Knoten in \textit{Frontier} entfernt liegen, was einem Schritt der Binärsuche entspricht. Die Funktion $\textit{Expand\_by\_one}_1$ geht dabei entlang der Pfeile des Graphen und $\textit{Expand\_by\_one}_2$ geht \glqq Rückwärts\grqq~in die entgegengesetzte Richtung. \\
+Anschließend werden in beiden Fällen die neuen Knoten zur jeweiligen \textit{Visited}-Menge hinzugefügt.
+Am Ende wird überprüft, ob einer der neuen Knoten in der jeweiligen \textit{Frontier}-Variable bereits aus der anderen Richtung besucht wurde. Wenn dies der Fall ist, dann ist der kürzeste Pfad gefunden, da zu dem Knoten, der nun z.B. in $\textit{Frontier}_1$ und $\textit{Visited}_2$ enthalten ist, ein Pfad von $S_0$ aus und von $S_{end}$ aus bekannt ist. Im Umsetzungsteil gehe ich genauer darauf ein, welche Möglichkeiten es gibt, diesen Pfad zu speichern und zurückzuverfolgen.
+\subsubsection{Optimalität}
+Warum??
+
+\subsubsection{Laufzeit}
+Asymptotisch ist die Laufzeit von Bidirekationaler Breitensuche gleich wie die der normalen Breitensuche, im Wort-Case muss jeder Knoten und jede Kante besucht werden, also $O(\|V\| + \|E\|)$.
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{Assets/Bidirectional_Search_in_1966}
+  \caption {TODO QUelle: }
+\end{figure}
+TODO Quelle. \url{https://en.wikipedia.org/wiki/Bidirectional_search#/media/File:Bidirectional_Search_in_1966.png}
 Bidirektionale Suche ist schneller weil (intuition : des eine Bild mit zwei Kreisen))
 
-\subsection{Heuristik} TODO optimalen Ansatz besser machen
 
 
-TODO analyse der Pfadlänge? (ggf bei mehr als zwei Labyrinthen)
+\section{Umsetzung}
+
+TODO man kann Bidirektionale suche Parallelisierne
 
 
-\section{Erweiterungen}
+\section{Erweiterung}
+Mehrere Pfade? -> Ist die Intersection zwischen Frontier und Visited größer 1?
+
+
 TODO gibt es mehrere mögliche kürzeste Anweisungssequenzen
 TODO die Personen bleiben im Zielfeld nicht stehen
 TODO nicht nur zwei labyrinthe
