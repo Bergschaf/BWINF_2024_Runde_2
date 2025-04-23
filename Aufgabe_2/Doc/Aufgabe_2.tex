@@ -35,7 +35,22 @@
 
 % Für Quelltext
 \usepackage{listings,listings-rust}
-\usepackage{color}
+
+\usepackage{fontspec}
+\setmonofont{JetBrains Mono}[
+    Contextuals = Alternate,
+    Ligatures = TeX,
+]
+
+\lstset{
+    basicstyle = \ttfamily,
+    columns = flexible,
+}
+\makeatletter
+\renewcommand*\verbatim@nolig@list{}
+\makeatother
+
+
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
@@ -189,7 +204,7 @@
 
     \section{Umsetzung}
     \begin{lstlisting}[language=Rust]
-        enum Instruction {
+enum Instruction {
     UP,
     DOWN,
     LEFT,
@@ -199,9 +214,65 @@
     \end{lstlisting}
 
     \subsection{Breitensuche}
+    Ich verwende eine \textit{HashMap} um zu speichern, welche Knoten bereits besucht wurden. Der Schlüssel entspricht dem Knoten der Besucht wurde und der Wert, der hinter dem Schlüssel hinterlegt wird, ist der Knoten, von dem aus der Schlüssel erreicht wurde. Das hat den Vorteil, dass Werte mit Konstanter Laufzeit gesetzt werden können und dass mit konstanter Laufzeit überprüft werden kann, ob ein Knoten bereits besucht wurde.
+    Wenn dann der Zielknoten gefunden wurde, kann der Pfad mit der \textit{HashMap} leicht zurückverfolgt werden.
+    \begin{lstlisting}[language=Rust]
+    \end{lstlisting}
 
+    \subsection{Bidirektionale Breitensuche}
+    TODO hier ausführlicher Variablen??
+    Für die Bidirektionale Breitensuche benötigt man zwei Funktionen; die \textit{forward} und die \textit{backward} Funktion. Die \textit{forward} \glqq erweitert\grqq~einen Knoten entlang der Richtung der Pfeile wie bei der normalen Breitensuche und gibt alle Knoten zurück, die eine Pfadlänge von dem Knoten entfernt sind und noch nicht besucht wurde. \\
+    Die \textit{backward} Funktion muss für einen Knoten alle Knoten finde, von denen aus dieser Knoten mit einer Anweisung erreicht werden kann:
+    \begin{algorithm}[H]
+        \label{backward}
+        \caption{\textsc{Backward}}
+        \begin{algorithmic}[1]
+            \Function{Backward}{$l_1, l_2, \textit{current}, \textit{forward\_visited}, \textit{backward\_visited}$}
+                \State $\textit{new\_backward\_queue} \gets [\ ]$
+                \ForAll{$\textit{inst} \in \{\text{UP}, \text{DOWN}, \text{LEFT}, \text{RIGHT}\}$}
+                    \State $\textit{temp\_queue} \gets [\ \text{State}(l_1.\text{shift'}(\textit{current.pos1}, \textit{inst}),$
+                    \State \hspace{5em}$l_2.\text{shift'}(\textit{current.pos2}, \textit{inst})) ]$
 
-    Bidirektionale Breitensuche rückwärts löcher beachten
+                    \If{$l_1.\text{hasWallInDirection}(\textit{current.pos1}, \textit{inst}^{-1})$}
+                        \State $\textit{temp\_queue}.\text{add}(\text{State}(\textit{current.pos1}, l_2.\text{shift'}(\textit{current.pos2}, \textit{inst})))$
+                    \EndIf
+
+                    \If{$l_2.\text{hasWallInDirection}(\textit{current.pos2}, \textit{inst}^{-1})$}
+                        \State $\textit{temp\_queue}.\text{add}(\text{State}(l_1.\text{shift'}(\textit{current.pos1}, \textit{inst}), \textit{current.pos2}))$
+                    \EndIf
+
+                    \ForAll{$\textit{new\_pos} \in \textit{temp\_queue}$}
+                        \If{$\textit{new\_pos} = \textit{current}$}
+                            \State \textbf{continue}
+                        \EndIf
+                        \If{$\textit{new\_pos} \in \textit{backward\_visited}$}
+                            \State \textbf{continue}
+                        \EndIf
+                        \If{$\text{State}(l_1.\text{shift}(\textit{new\_pos.pos1}, \textit{inst}^{-1}),$
+                            \State \hspace{5em}$l_2.\text{shift}(\textit{new\_pos.pos2}, \textit{inst}^{-1})) \ne \textit{current}$}
+                            \State \textbf{continue}
+                        \EndIf
+
+                        \State $\textit{backward\_visited}[\textit{new\_pos}] \gets \textit{current}$
+
+                        \If{$\textit{new\_pos} \in \textit{forward\_visited}$}
+                            \State \Return \textbf{Connection}($\textit{new\_pos}$)
+                        \EndIf
+
+                        \State $\textit{new\_backward\_queue}.\text{add}(\textit{new\_pos})$
+                    \EndFor
+                \EndFor
+            \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+    In Algorithmus~\ref{backward} sieht man den wichtigsten Teil der \textit{backward} Funktion. Für einen Knoten \textit{current} müssen für jede mögliche Anweisung \textit{inst} alle Knoten gefunden werden, die durch eine Anwendung von $\textit{inst}^{-1}$ wieder zu \textit{current} werden. Dafür gibt es verschiedene Möglichkeiten, die in \textit{temp\_queue} gespeichert werden. Die erste Möglichkeit ist, beide Positionen des Knotens in Richtung \textit{inst} zu verschieben. Falls aber in Richtung $\textit{inst}^{-1}$ von der ersten Position (also \textit{current.pos1}) eine Wand liegt, kann es auch sein, dass diese Position durch die Anwendung von $\textit{inv}^{-1}$ konstant bleibt, da Anton gegen die Wand läuft. (    TODO Bild zum erklären) Das selbe gilt auch für $\textit{current.pos2}$. Es gibt also in manchen Fällen bis zu drei mögliche Knoten, von denen aus \textit{current} durch eine Anwendung von $\textit{inst}^{-1}$ erreicht werden könnte. \\
+    Für jeden dieser Knoten muss nun überprüft werden, ob das tatsächlich der Fall ist und ob der Knoten in der Suche beachtet werden muss. Dafür wird zuerst überprüft, ob der Knoten \textit{new\_pos} überhaupt unterschiedlich zu \textit{current} ist. Wenn z.B. eine Wand in Richtung \textit{inst} liegt, könnte es sein, dass Anton und Bea gegen die Wand gelaufen sind bei dem Versuch, \textit{current} in Richtung \textit{inst} zu verschieben. \\
+    Als nächstes wird überprüft, ob die Position schon besucht wurde, da sie in diesem Fall nicht beachtet werden muss. Schließlich wird überprüft ob man von \textit{new\_pos} aus \textit{current} tatsächlich durch einen Schritt in $\textit{inst}^{-1}$ erreichen kann.\\
+    Wenn alle notwendigen Bedingungen gegeben sind, kann \textit{new\_pos} in die \textit{backward\_visited} Hashmap eingetragen werden. Als Wert wird \textit{current} eingetragen, wodurch später der Pfad zurückverfolgt werden kann. \\
+    Anschließend wird überprüft, ob der Knoten \textit{new\_pos} bereits aus der anderen Richtung besucht wurde. Wenn dies der Fall ist, ist ein kürzester Pfad gefunden und der verbindende Knoten wird zurückgegeben. Von ihm aus kann nun durch die HashMaps \textit{forward\_visited} und \textit{backward\_visited} der Pfad in beide Richtungen zurückverfolgt werden. \\
+    Bei der \textit{backward} Funktion müssen einige edge-cases beachtet werden. Die \textit{shift} Funktion (in der Lösungsidee als $f(p,a)$ definiert für eine Anweisung $a \in A$ und eine Position $p$) verändert eine Position normalerweise nicht, falls sie bereits den Endzustand $p = (n-1, m-1)$ erreicht hat. Wenn in der \textit{backward} Funktion allerdings Positionen \glqq Rückwärts\grqq~vom Endzustand aus verschoben werden sollen, ist das ein Problem. Drum verwende ich im Pseudocode die \textit{shift'} Funktion, die diese Bedingung nicht beachtet. Im Quellcode heißt diese Funktion \textit{shift\_without\_end\_fix}. \\
+    Wenn Anton oder Bea in ein Loch fallen, gehen sie direkt zum Startfeld zurück. Das bedeutet, wenn die \textit{backward} Funktion alle Felder ermitteln müsste, von denen Anton oder Bea mit einer Anweisung zum Startfeld gelangen können, müsste sie jede Position ausgeben, von der aus ein Loch mit einer Anweisung erreichbar ist. Da das für die meisten Beispieldateien eine sehr große Anzahl an Feldern ist, verwende ich die \textit{backward} Funktion nicht mehr, sobald Anton oder Bea die Position $(0,0)$ Rückwärts besucht haben. Von dort an wird dir Suche nur noch mit der \textit{forward} Funktion fortgeführt. In der Praxis wird aber meistens ein Pfad gefunden, bevor \textit{backward} in einem Labyrinth das Startfeld erreicht. \\
+
     TODO man kann Bidirektionale suche Parallelisierne
 
 
