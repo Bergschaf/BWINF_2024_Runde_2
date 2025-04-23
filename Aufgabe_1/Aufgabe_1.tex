@@ -340,11 +340,34 @@
 
 
     TODO man könnte jetzt bfs machen kurz laufzeit und ist schlecht
+    TODO (wieso darf man bfs, eigenlich doch dijkstra?) des eine ist gar kein bfs!!!!
+
 
     \subsection{TODO Titel}
 
+    Da dieser Algorithmus für große Eingabealphabete ($n >> 100$) deutlich zu langsam ist und zu viel Speicher verwendet, ...
 
-    TODO Optimierung: kleinen Baum mit höhe h bauen (wo alle probabiliteis gleich sind) -> n Blätter -> im n dinger zusammenfassen dann algorithmus machen und kleine bäume wieder hinbasteln
+    Ansatz: aufteilung in häufige und seltende Buchstaben (häufige mit $p > 0.05$)seltene Buchstaben werden in chunks aufgeteilt (z.B. größe 30)
+    Ein Chunk wird mit dem Algorithmus bearbeiete -> Qs.
+    SUmme der einzelnen Chunks + häufige Buchstaben in den Algorithmus -> Qs -> Blätter mit den Bäumen von den chunks ersetzten
+    -> codes erstellen
+
+
+    Ansatz: p_0 = p_1 = p_2 etc:
+        
+
+(    TODO Optimierung: kleinen Baum mit höhe h bauen (wo alle probabiliteis gleich sind) -> n Blätter -> im n dinger zusammenfassen dann algorithmus machen und kleine bäume wieder hinbasteln
+    TODo einfach großen algorithmus auf die kleinen Bäume anwedne
+    Da die Frequenz dieser Buchstaben, die sehr selten vorkommen sehr ähnlich ist, können wir das Problem vereinfachen, in dem wir annehmen, dass die Wahr
+    -> eigentlich das gleiche mit p_0 = p_1 = p_2
+
+
+
+    TODO oder irgendwie die "dichte" optimieren (height (tiefster knoten) / N))
+
+    Oder allgemein annahme, dass p_0 = p_1 = p_2, was macht des??
+    $cost_i(T) = \sum^m_{j=1}|w_j| \cdot p + i \cdot p^{(m + 1 - 1)}$
+
 
     \section{Umsetzung}
     Hier wird kurz erläutert, wie die Lösungsidee im Programm tatsächlich umgesetzt wurde. Hier können auch Implementierungsdetails erwähnt werden.

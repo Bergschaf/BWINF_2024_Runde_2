@@ -41,7 +41,76 @@ def generate_tree(color_sizes, Qs):
             cost += color_sizes[c]
 
         codes.append((code,  cost))
+
     return root, codes
+
+
+def generate_tree_custom(color_sizes, Qs, custom_Q_s, fixed_slots): # fixed_slots: number of letters that were not grouped
+    color_sizes = sorted(color_sizes)
+    root = Node(0, None)
+    Levels = defaultdict(list)
+    Levels[0].append(root)
+    for i, c in enumerate(color_sizes):
+        root.children.append(Node(c, root, i))
+        Levels[c].append(root.children[-1])
+
+    for i, q in enumerate(Qs):
+        if q == 0:
+            continue
+        j = 0
+        for n in Levels[i + 1]:
+            for ii, c in enumerate(color_sizes):
+                n.children.append(Node(c + i + 1, n, ii))
+                Levels[c + i + 1].append(n.children[-1])
+            j += 1
+            if j == q:
+                break
+    # count leaves
+    leaves = []
+    for i in Levels:
+        for n in Levels[i]:
+            if not n.children:
+                leaves.append((n,i))
+    leaves = sorted(leaves, key= lambda x: x[1])
+    #fixed_leaves = leaves[:fixed_slots]
+    leaves = leaves[fixed_slots:]
+
+    for i, (leaf, _) in enumerate(leaves):
+        if i >= len(custom_Q_s):
+            break
+        r, _ = generate_tree(color_sizes, custom_Q_s[i])
+        leaf.parent.children.remove(leaf)
+        leaf.parent.children.append(r)
+        r.parent = leaf.parent
+        r.number = leaf.number
+
+    def get_leaves_rec(node):
+        if not node.children:
+            return [node]
+        else:
+            a = []
+            for c in node.children:
+                a.extend(get_leaves_rec(c))
+            return a
+
+    leaves = get_leaves_rec(root)
+
+
+    # get codes
+    codes = []
+    for l in leaves:
+        code = []
+        while l.parent:
+            code.append(l.number)
+            l = l.parent
+        cost = 0
+        for c in code:
+            cost += color_sizes[c]
+
+        codes.append((code,  cost))
+
+    return root, codes
+
 
 def calc_cost(text, codes):
     occurrences = [text.count(i) for i in set(text)]
@@ -95,13 +164,13 @@ class Encoder:
         self.num_colors = len(color_sizes)
         self.color_sizes = sorted(color_sizes)
 
-    def encode_bfs(self):
+    def encode_bfs(self, frequencies):
         """
         Naive Methode: alle vollen Binärbäume werden mit Binärsuche durchsucht
         :return:
         """
         # Probability for each character of the alphabet
-        p = sorted(self.frequencies.values(), reverse=True)
+        p = sorted(frequencies, reverse=True)
         # The number of different codewords needed to encode the text
         n = len(p)
         # The biggest Perl
@@ -130,6 +199,41 @@ class Encoder:
         #best = min(possible_res, key=lambda x: calc_cost(text, generate_tree(color_sizes, x[2])[1]))
         best = min(possible_res, key=lambda x : x[1])
         return best[2]
+
+    def encode_big(self):
+        cutoff = 0.05
+        common = [i for i in self.frequencies.values() if i > cutoff]
+        print("Common:", len(common))
+        not_common = sorted(i for i in self.frequencies.values() if i <= cutoff)
+        chunk_size = 27 # 30
+        # split not_common in chunks of approximately chunk_size
+        chunks = []
+        for i in range((len(not_common) // chunk_size) + 1):
+            chunks.append(not_common[i * chunk_size : (i + 1) * chunk_size])
+        Qs = []
+        #for c in chunks:
+        #    Qs.append(self.encode_bfs(c))
+        Qs = [self.encode_bfs(chunks[0])] * len(chunks)
+        main_Q = self.encode_bfs(common + [sum(c) for c in chunks])
+        root, codes = generate_tree_custom(self.color_sizes, main_Q, Qs, len(common))
+
+
+        print(len(codes))
+        print(len(self.frequencies))
+        return codes
+
+
+
+def attach_tree_at_leaf(leaf, root):
+    """
+    Replace the leaf with root
+    :param leaf:
+    :param root:
+    :return:
+    """
+    leaf.parent.children.remove(leaf)
+    leaf.parent.children.append(root)
+    root.parent = leaf.parent
 
 
 
@@ -160,15 +264,40 @@ def parse_file(filename):
 def get_frequencies(text):
     return {i : text.count(i) / len(text) for i in set(text)}
 
+def generate_full_tree_to_height(color_sizes, h):
+    root = Node(0, None)
+    Levels = defaultdict(list)
+    Levels[0].append(root)
+    for i, c in enumerate(color_sizes):
+        root.children.append(Node(c, root, i))
+        Levels[c].append(root.children[-1])
+
+    for i, q in enumerate(Qs):
+        if q == 0:
+            continue
+        j = 0
+        for n in Levels[i + 1]:
+            for ii, c in enumerate(color_sizes):
+                n.children.append(Node(c + i + 1, n, ii))
+                Levels[c + i + 1].append(n.children[-1])
+            j += 1
+            if j == q:
+                break
+    # count leaves
+    leaves = []
+    for i in Levels:
+        for n in Levels[i]:
+            if not n.children:
+                leaves.append(n)
+
 if __name__ == '__main__':
 
-    filename = "Examples/schmuck8.txt"
+    filename = ("Examples/schmuck8.txt")
     color_sizes, text = parse_file(filename)
     encoder = Encoder(get_frequencies(text), color_sizes)
 
-    Qs = encoder.encode_bfs()
-    root, codes = (generate_tree(color_sizes, Qs))
-
+    codes = encoder.encode_big()
+    #root, codes = (generate_tree(color_sizes, Qs))
 
     #graphviz.render("dot", "png","test.dot")
     occurrences = [text.count(i) for i in set(text)]
