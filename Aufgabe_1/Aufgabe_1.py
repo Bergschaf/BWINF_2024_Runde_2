@@ -90,9 +90,9 @@ def lt_sig(sig1, sig2):
 
 
 class Encoder:
-    def __init__(self, text, num_colors, color_sizes):
-        self.text = text
-        self.num_colors = num_colors
+    def __init__(self, frequencies, color_sizes):
+        self.frequencies = frequencies
+        self.num_colors = len(color_sizes)
         self.color_sizes = sorted(color_sizes)
 
     def encode_bfs(self):
@@ -101,22 +101,19 @@ class Encoder:
         :return:
         """
         # Probability for each character of the alphabet
-        p = {i: self.text.count(i) / len(self.text) for i in set(self.text)}
-        p = sorted(p.values(), reverse=True)
-        print(p)
+        p = sorted(self.frequencies.values(), reverse=True)
         # The number of different codewords needed to encode the text
         n = len(p)
         # The biggest Perl
         C = max(self.color_sizes)
+        # Occurrences of each color size
         D = [self.color_sizes.count(i) for i in range(1, C + 1)]
 
         print(f"N: {n}, C : {C}")
-        stack = [([0] + D, 0, [])]
+        stack = [([0] + D, 0, [])] # (sig, cost, Qs(Expansions))
         best_cost = float("inf")
-        possible_res = []
+        possible_res = [] # (sig, cost, Qs#)
         while stack:
-            if len(stack) % 1000 == 0:
-                    print(len(stack))
             sig, cost, Qs = stack.pop(0)
             new_cost = cost + sum([p[i] for i in range(sig[0], n)])
             if new_cost > best_cost:
@@ -124,70 +121,16 @@ class Encoder:
             if sig[0] >= n:
                 if cost < best_cost:
                     best_cost = cost
-                    print(f"New best: {best_cost.__round__(3)} ({best_cost * len(self.text)})", len(stack))
                 possible_res.append((sig, cost, Qs))
                 continue
 
             for q in range(0, sig[1] + 1):
                 new_sig = extend(sig, q, D)
                 stack.append((new_sig, new_cost, Qs + [q]))
-        best = min(possible_res, key=lambda x: calc_cost(text, generate_tree(color_sizes, x[2])[1]))
-        print(len(possible_res), possible_res)
-        return best[1] * len(self.text), best[0], best[1], best[2]
+        #best = min(possible_res, key=lambda x: calc_cost(text, generate_tree(color_sizes, x[2])[1]))
+        best = min(possible_res, key=lambda x : x[1])
+        return best[2]
 
-    #def better_algorithm(self):
-
-
-
-    def encode_optimal(self):
-        # Probability for each character of the alphabet
-        p = {i: self.text.count(i) / len(self.text) for i in set(self.text)}
-        p = sorted(p.values())
-        # The number of different codewords needed to encode the text
-        n = len(p)
-        # The biggest Perl
-        C = max(self.color_sizes)
-        D = [self.color_sizes.count(i) for i in range(1, C + 1)]
-
-        print(f"N: {n}, C : {C}")
-        OPT = defaultdict(lambda: float("inf"))
-
-        S_0 = reduce([0] + D, n)
-        OPT[tuple(S_0)] = 0
-        i = 0
-
-
-    def encode(self):
-        # Probability for each character of the alphabet
-        p = {i: self.text.count(i) / len(self.text) for i in set(self.text)}
-        p = sorted(p.values())
-        # The number of different codewords needed to encode the text
-        n = len(p)
-        # The biggest Perl
-        C = max(self.color_sizes)
-        D = [self.color_sizes.count(i) for i in range(1, C + 1)]
-
-        print(f"N: {n}, C : {C}")
-        OPT = defaultdict(lambda: float("inf"))
-
-        S_0 = reduce([0] + D, n)
-        OPT[tuple(S_0)] = 0
-        i = 0
-        for sig in all_sigs(C + 1, n):
-            i += 1
-            if i % 1000 == 0:
-                print(i)
-            if tuple(sig) not in OPT:
-                continue
-            new_cost = OPT[tuple(sig)] + sum([p[i] for i in range(sig[0], n)])
-
-            for q in range(sig[1]):
-                new_sig = extend(sig, q, D)
-                if sum(new_sig) > n:
-                    new_sig = reduce(new_sig, n)
-                OPT[tuple(new_sig)] = min(OPT[tuple(new_sig)], new_cost)
-        print(OPT)
-        return OPT[tuple([n] + [0] * (C))] * len(text)
 
 
 class Node:
@@ -208,23 +151,26 @@ class Node:
             c.visualize(tree)
 
 
+def parse_file(filename):
+    with open(filename, "r") as f:
+        _, color_sizes, text = f.readlines()
+        color_sizes = list(map(int, color_sizes.split()))
+    return color_sizes, text
 
-
+def get_frequencies(text):
+    return {i : text.count(i) / len(text) for i in set(text)}
 
 if __name__ == '__main__':
-    #text = r"英国陸地測量部制作の地図ではカラン・ウォーフ、地元の人には単にカランと呼ばれている場所は、今でこそ海岸線から二マイルほど内陸部にあるが、かつてはもっと海寄りで、無敵艦隊との戦いに六隻の船を送り、その一世紀後にはオランダの攻撃を迎え撃つため四隻の船を送り出した由緒ある港として歴史に輝かしい名を残している。ところがやがてカル川の河口域は沈泥でふさがって港口には砂州ができ、海上貿易の船は他に港を探さざるを得なくなった。その後、カル川の流れはやせ細り、それまでのようにあちらこちらへ縦横に伸びるかわりに身を縮めておとなしい河川に変貌し、しかも河川としても決して大きいほうの部類ではなかった。市民たちは港で生計が立てられないことを見て取ると、塩沢を埋め立てることでなにがしかの代償が得られるかも知れないと考え、海水を防ぐために石の堤防を築き、その真ん中にカル川の流れを海に放出する水路を造った。こうしてカラン・フラットと呼ばれる低地の牧草地ができあがり、自由市民はここで羊を放牧する権利を持ち、海峡のむこう、フランスのプレサレ羊にも負けない美味なマトンを生産するようになった。しかし海は無抵抗にその権利を明け渡したわけではない。南東風や大潮と共に波はときどき堤防を乗り越え、またときにはカル川がお行儀よく振る舞うことを忘れ、内陸部に大雨があったあとなど、昔日のごとく、あらゆる拘束を断ち切って暴れた。そんなとき、上の階の窓からカランの町を眺めた人々は、誰もがこの小さな場所が再び海岸線の方に移動したのではないかと考えた。牧草地は水浸しで、堤防は内陸の湖とそのむこうの海との境界線として、目につくほど幅が広くなかったのである。 　グレート・サザン鉄道の幹線はこの見捨てられた港の北七マイルのところを走っていて、外部との交通は長年、運送屋の二輪馬車が町と鄙びたカラン街道駅とを往復することで保たれていた。しかしやがてこの古い自治都市から選出された議員、有能で広く信望を集めていたサー・ジョゼフ・カルーがカラン自治体代表団を正式に組織して、交通の便をいっそう改善する必要ありと鉄道会社を説得し、支線が敷設されることになった。ただしその利便性は過去の運送屋と比べてほとんどかわりばえのしないお粗末なものだった。 　聖堂の修復工事がファークワー・アンド・ファークワー商会に委託された当時、鉄道の物珍しさはまだ消えておらず、汽車が到着するとカランの町をぶらつく人が毎日儀式のように集まってきた。しかしウエストレイがやってきた午後は雨が激しく降り、見物人は一人もなかった。彼はロンドンからカラン街道駅まで三等車券を買って旅費を節約し、乗換駅からカランまでは一等車券を買って会社の威厳を保とうとした。だがそんな用心は取り越し苦労に終わった。数名の年老いた駅員が養老院に送られるようにカラン駅に配属されているだけで、他に彼の到着を目撃するものはまったくなかったのである。 　彼はブランダマー・アームズという家族むけ、および商人むけのホテルが、汽車の到着に合わせて乗合馬車を運行していることを知り喜んだ。聖堂のちょうど入り口前で降ろしてくれるというから、なおのこと好都合とこの乗り物を利用することにした。彼はささやかな荷物を中に運びこむと――乗客は彼一人だったから余裕はたっぷりあった――床を覆う藁に足を突っこみ、十分間というもの、砂利道を走る馬車でなければ味わえないがたがたという振動に耐えていた。 　ウエストレイはカラン大聖堂の見取り図をすべて完全に頭に入れていたものの、実物はまだ見たことがなかった。乗合馬車がけたたましい音を立てて市場の中に駆けこみ、四角い広場の南側全面を覆いつくすように聳え立つ聖セパルカ大聖堂をはじめて見たとき、彼は感嘆の声を抑えることができなかった。篠つく雨が通りから歩行者を追い払い、降ろした緑のブラインド越しに乗合馬車の通過をのぞき見る幾人かのピーピング・トムをのぞけば、市場はまるでレディ・ゴダイヴァの行進を待っているかのように少しも人気がなかった。 　沛然と降る雨、屋根の上に砕け散り霧のように広がるしぶき、地面から立ち昇る水蒸気、それらがあらゆるものに目に見えない、けれどもそれと分かるヴェールを被せ、舞台に用いられる紗幕のように輪郭をぼやけさせた。それを通して浮かび上がる大聖堂は、ウエストレイが想像の中で思い描いたどんな姿よりも遥かに神秘的で荘厳だった。馬車はすぐに鉄の門の前に停まった。そこから境内を抜けて北側ポーチまで板石敷きの小道がついていた。 　御者がドアを開けた。 　「ここが聖堂です」と彼は言わずもがなのことを言った。「ここで降りるんでしたら、荷物はホテルにお届けしておきます」 　ウエストレイは帽子を深くかぶると、外套の襟を立て、入り口めがけて雨の中に飛び出した。小道に敷かれた墓石のくぼみに深い水たまりができていて、急いでいた彼はポーチに着くまでに服に水を撥ね散らかしてしまった。巨大な扉口にくぐり戸があり、彼はそこにかかる革の帳《とばり》を横に押しやって聖堂の中に入った。 　まだ四時ではなかったが、空は雲に閉ざされ、建物の中はすでに薄暗くなっていた。聖歌隊席で話をしていたひとかたまりの男たちが入り口の音に振り返り、建築家にむかって進んできた。領袖格は中年を過ぎた聖職者で、ストックタイを首に巻き、若い建築家のほうに歩み寄ると挨拶をした。 　「サー・ジョージ・ファークワーの助手の方ですな。いや、助手のお一人と言い直すべきでしょうね。サー・ジョージは多彩なお仕事をこなすのに、きっとあなた以外にも助手をお使いでしょうから」 　ウエストレイは同意を示すように頷き、聖職者は話しつづけた。「自己紹介しますと、わたしは参事会員パーキンと申します。わたしのことはきっとサー・ジョージからお聞きでしょうが、この聖堂の主任司祭として格別のお付き合いをいただいております。あるときなどサー・ジョージはわたしの家にお泊まりになりましてな。若い方があのように有能な建築家のもとで修業できるというのはまことに誇りに思うべきことですよ。あとで今回の修復工事についてサー・ジョージがお考えになっていることを大まかに、ごく手短に説明しますが、その前に尊敬すべき教区民にしてわたしの――友人である方々を紹介しましょう」その口調には、どこから見ても格下なのに、そんな相手を友人扱いするのは、自分を貶めすぎではないかという疑問がいくらかこめられていた。 　「こちらはミスタ・シャーノール。オルガン奏者で、わたしの指示のもと、礼拝の音楽を演奏しています。こちらはドクタ・エニファー。地元の優秀なお医者さんです。そしてこちらのミスタ・ジョウリフは商売をなさっているんですが、手の空いたときに教区委員として聖堂管理のお手伝いをしていただいています」 　医者とオルガン奏者は紹介を受けて、頷くような、肩をすくめるような仕草をした。それは主任司祭のうぬぼれて尊大ぶった態度に対する侮蔑をあらわし、万が一にも彼らがミスタ・ウエストレイと友達になることがあったとしても、それは決して参事会員パーキンの紹介のおかげではないだろうということを暗に示していた。それとは逆にミスタ・ジョウリフは、自分が主任司祭の友人に数え入れられたことの重みを充分に認識したらしく、恭しく一揖しながら丁寧に「何かあればわたしにおっしゃってください」と言い、謙虚に振る舞うすべをわきまえていて、これから世に出ようとしている若い建築家にいつでも惜しみなく保護の手を差し伸べる用意のあることを明らかにした。 　こうした主役たちの他にもその場には教会事務員と、通りから聖堂にぶらりと入ってきた数名の通行人役がいた。彼らは雨はしのげるし、午後のひとときを無料で楽しく過ごせそうだとご機嫌だった。 　「こちらでお会いすることをお望みじゃないかと思ったのですよ」と主任司祭が言った。「さっそくこの建物のひときわ目につく特徴をご指摘して差し上げることができますからな。サー・ジョージ・ファークワーは、この前お出でになった折、わたしの説明を明快だと言ってにこにこしながら褒めてくださいましたよ」 　すぐに逃れる道はなさそうだったので、ウエストレイは観念し、少人数の一団は濡れた外套や傘の匂いとあいまって独特の雰囲気を醸し出している身廊を歩き出した。教会の空気はひんやりと冷たく、濡れそぼった敷物の匂いがウエストレイの注意を屋根の雨漏りと床のあちこちにできた水たまりにむけさせた。 　「身廊がいちばん古いのです」とこの雄弁な案内人は言った。「ウォルター・ル・ベックによって千百三十五年に建てられました」 　「われわれのお友達はこの仕事を任せるには若すぎて経験不足じゃないかと、どうも不安でならないのだがね。あなたはどう思う」彼は脇をむいてすばやく医者に尋ねた。 　「ああ、あなたが手取り足取り多少指導なされば大丈夫だと思いますよ」医者はそう答えながら眉毛をつり上げて見せてオルガン奏者をにやりとさせた。 　「さよう、ここはすべてル・ベックが建てたのです」主任司祭はウエストレイのほうにむき直りながらつづけた。「崇高だと思いませんか、ノルマン様式の簡素さは。身廊のアーケードは吟味するに値しますぞ。それに交差部のこの素晴らしいアーチを見てください。もちろんノルマン様式ですが、なんと軽々としていることか。それでいて岩のように頑丈で、後代に架構された塔の莫大な重量をしっかり支えている。素晴らしい。実に見事だ」 　ウエストレイは上司が塔に不安を抱いていたことを思い出してランタンを見上げた。すると北側には以前、亀裂に煉瓦を詰めこんだ跡が筋のようについており、南側にはランタンの窓枠の下から細いぎざぎざの割れ目が稲妻を刻印したかのように走っているのが見えた。彼は「アーチは決して眠らない」という古い建築の諺を思い出した。四つの大きな美しい半円形を見上げていると、それらがこう言っているように思われた。 　「アーチは決して眠らない。決して。彼らはわれわれの上に背負いきれないほどの重荷を載せた。われわれはその重量を分散する。アーチは決して眠らない」 　「素晴らしい。実に見事だ！」主任司祭はつぶやきつづけた。「大胆なことをやる連中ですな、ノルマンの建築者たちは」 　「ええ、そうですね」とウエストレイは応ぜざるを得なかった。「しかしこの塔がアーチの上に積み上げられるとは思っていなかったでしょう」 　「なに、アーチが不安定だってことかね」オルガン奏者が口をはさんだ。「実はわたしもそんな気がしていたんだよ、何度も」 　「さあ、それはどうでしょうか。われわれが生きているあいだは持ちこたえると思いますよ」ウエストレイはさりげなく、安心させるように言った。塔に関してはいらぬ波風を立てるなと特に注意されていたことを思い出したのだ。しかし頭の上を見ると、天に登ろうとしたギリシア神話の巨人たちではないけれど、ペーリオン山にオッサ山を積み重ねたような気がしてならず、交差部の巨大なアーチに対する不信感は拭いようもなかった。"
-    #num_colors = 4
-    #color_sizes = [1, 2, 3, 4]
-    text = r"Summary This paper gives a method for constructing minimum-redundancy prefix codes for the general discrete noiseless channel without constraints. The costs of code letters need not be equal, and the symbols encoded are not assumed to be equally probable. A solution had previously been given by Huffman in 1952 for the special case in which all code letters are of equal cost. The present development is algebraic. First, structure functions are defined, in terms of which necessary and sufficient conditions for the existence of prefix codes may be stated. From these conditions, linear inequalities are derived which may be used to characterize prefix codes. Gomory’s integer programming algorithm is then used to construct optimum codes subject to these inequalities; an elegant combinatorial approach to obtain a strictly computational experience is presented to demonstrate the practicability of the method. Finally, some additional coding problems are discussed and a problem of classification is treated."
-    num_colors = 7
-    color_sizes = [1,1,2,3,4,5,6]
-    encoder = Encoder(text, num_colors, color_sizes)
-    print(encoder.encode())
-    exit()
-    root , codes = (generate_tree(color_sizes,[2,3,1]))
+
+    filename = "Examples/schmuck8.txt"
+    color_sizes, text = parse_file(filename)
+    encoder = Encoder(get_frequencies(text), color_sizes)
+
+    Qs = encoder.encode_bfs()
+    root, codes = (generate_tree(color_sizes, Qs))
 
 
-    graphviz.render("dot", "png","test.dot")
+    #graphviz.render("dot", "png","test.dot")
     occurrences = [text.count(i) for i in set(text)]
     occurrences = sorted(occurrences, reverse=True)
     costs = sorted(i[1] for i in codes)

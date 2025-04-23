@@ -336,17 +336,20 @@
     Wir können nun einen Graph $G = (V, E)$ definieren, dessen Knoten die Signaturen der Bäume darstellen und dessen Kanten Erweiterungen auf die nächste Ebene repräsentieren:
     \[V = \{(m, l_1, \dots, l_C) \mid  m, l_1, \dots, l_2 \ge 0 \land m + l_1 + \dots + l_c \le n(r-1)\}\]
     \[E = \{(S = (m, l_1, \dots, l_C), S') \in V \times V \mid \exists q, 0 \le q \le l_1, S' = (m + l_1, l_2, \dots, l_C, 0) + q \cdot (-1, d_1, \dots, d_C)\}\]
+    In diesem Graph könnte man nun mithilfe von Breitensuche den Pfad finden, der zu
+
 
     TODO man könnte jetzt bfs machen kurz laufzeit und ist schlecht
 
     \subsection{TODO Titel}
 
 
+    TODO Optimierung: kleinen Baum mit höhe h bauen (wo alle probabiliteis gleich sind) -> n Blätter -> im n dinger zusammenfassen dann algorithmus machen und kleine bäume wieder hinbasteln
 
     \section{Umsetzung}
     Hier wird kurz erläutert, wie die Lösungsidee im Programm tatsächlich umgesetzt wurde. Hier können auch Implementierungsdetails erwähnt werden.
     TODO erweiterung: die Kosten der Perlen sind keine ganzen Zahlen mehr, sondern reelle Zahlen.
-    TODO Optimierung: kleinen Baum mit höhe h bauen (wo alle probabiliteis gleich sind) -> n Blätter -> im n dinger zusammenfassen dann algorithmus machen und kleine bäume wieder hinbasteln
+
 
     \section{Beispiele}
     Genügend Beispiele einbinden! Die Beispiele von der BwInf-Webseite sollten hier diskutiert werden, aber auch eigene Beispiele sind sehr gut – besonders wenn sie Spezialfälle abdecken. Aber bitte nicht 30 Seiten Programmausgabe hier einfügen!
