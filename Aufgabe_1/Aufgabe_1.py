@@ -261,12 +261,16 @@ class Encoder:
         self.num_colors = len(color_sizes)
         self.color_sizes = sorted(color_sizes)
 
-    def encode_bfs(self):
+    def encode_naive(self):
         return generate_code_from_tree(self.get_tree_naive(self.frequencies.values()), self.color_sizes)
 
     def get_tree_naive(self, frequencies): # TODO das ist nd bfs
         """
         Naive Methode: alle vollen Binärbäume werden mit Binärsuche durchsucht
+
+        TODO Asymptotische Laufzeit von dem Ding hiers
+
+        Beweis, dass es optimal ist
         :return:
         """
         # Probability for each character of the alphabet
@@ -283,8 +287,10 @@ class Encoder:
         print(f"N: {n}, C : {C}")
         stack = collections.deque([([0] + D, 0, [])])  # (sig, cost, Qs(Expansions))
         best_cost = float("inf")
-        possible_res = []  # (sig, cost, Qs#)
+        best_tree = None
+        num_visited = 0
         while stack:
+            num_visited += 1
             sig, cost, Qs = stack.popleft()
             new_cost = cost + sum([p[i] for i in range(sig[0], n)])
             if new_cost > best_cost:
@@ -293,18 +299,15 @@ class Encoder:
                 continue
             if sig[0] >= n:
                 if cost < best_cost:
-
                     best_cost = cost
-                    #print("Best cost:", best_cost * len(text), best_cost)
-                possible_res.append((sig, cost, Qs))
+                    best_tree = Qs
                 continue
 
             for q in range(0, sig[1] + 1):
                 new_sig = extend(sig, q, D)
                 stack.append((new_sig, new_cost, Qs + [q]))
-        #best = min(possible_res, key=lambda x: calc_cost(text, generate_code_from_tree(generate_tree(color_sizes, x[2]), color_sizes)))
-        best = min(possible_res, key=lambda x: x[1])
-        return generate_tree(best[2],self.color_sizes)
+        print("Num visited:", num_visited)
+        return generate_tree(best_tree,self.color_sizes)
 
 
 
@@ -427,7 +430,7 @@ def assume_equal_probabilites(color_sizes, frequencies):
 
 if __name__ == '__main__':
 
-    filename = ("Examples/schmuck9.txt")
+    filename = ("Examples/schmuck8.txt")
     color_sizes, text = parse_file(filename)
     #qs = Encoder(get_frequencies(text), color_sizes).encode_bfs(get_frequencies(text).values())
     #print(qs)
@@ -435,8 +438,8 @@ if __name__ == '__main__':
     #print(len(get_leaves_rec(root)))
     #code = generate_code_from_tree(root, color_sizes)
     encoder = Encoder(get_frequencies(text), color_sizes)
-    code = encoder.encode_big_optimize(text)
-    #code = encoder.encode_bfs()
+    #code = encoder.encode_big_optimize(text)
+    code = encoder.encode_naive()
     print("Präfixfrei: ", is_prefixfree(code))
     print(len(code), code)
     print(calc_cost(text, code))

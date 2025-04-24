@@ -60,6 +60,7 @@
 % Diese beiden Pakete müssen zuletzt geladen werden
 %\usepackage{hyperref} % Anklickbare Links im Dokument
 \usepackage{cleveref}
+\usepackage{comment}
 
 % Daten für die Titelseite
 \title{\textbf{\Huge\Aufgabe}}
@@ -278,8 +279,9 @@
         Wir nennen einen Baum Ebene-$i$-Baum, wenn alle internen Knoten auf einer Ebene $\le i$ liegen. \\
     \end{definition}
     \begin{definition}
-        Wir kürzen einen Baum $T$ zu dem Ebene-$i$-Baum $Cut_i(T)$, indem wir alle Knoten entfernen, deren Eltern Tiefer als Ebene-$i$ liegen: \[Cut_i(T) = T - {v \in T \mid |parent(v)| > i}\]
+        Wir kürzen einen Baum $T$ zu dem Ebene-$i$-Baum $Cut_i(T)$, indem wir alle Knoten entfernen, deren Eltern Tiefer als Ebene-$i$ liegen: \[Cut_i(T) = T - \{v \in T \mid |parent(v)| > i\}\]
     \end{definition}
+    TODO notation für |Tiefe| einführen
     TODO Beispiel
 
     \begin{definition}
@@ -288,7 +290,7 @@
         \[l_k = |\{u \in T \mid \text{tiefe}(u) = i + k\}, k \in \{1,\dots,C\}\]
         die Anzahl der Knoten auf Ebene $i + k$ ist.
     \end{definition}
-    Diese Signatur wird es uns später erlauben, alle möglichen zu betrachten und dabei aber kleine Unterschiede, die nichts an den Kosten eines Baums ändern zu vernachlässigen.
+    Diese Signatur wird es uns später erlauben, alle möglichen Bäume zu betrachten und dabei aber kleine Unterschiede, die nichts an den Kosten eines Baums ändern, zu vernachlässigen.
 
 
     TODO Beispiele mit signatur und expand
@@ -297,12 +299,13 @@
     \begin{definition}
         Sei $T$ ein Ebene-$i$ Baum mit der Signatur $sig_i(T) = (m, l_1, l_2, \dots, l_C)$. Für $m \le n$ definieren wir die Kosten der Ebene-$i$ als:
         \[cost_i(T) = \sum^m_{j=1} |w_j| \cdot p_j + i \cdot \sum^n_{j=m + 1}p_j\]
-        wobei $|w_1| \le \cdot \le |w_m|$ die $m$ höchsten Blätter nach Tiefe geordnet sind.
+        wobei $|w_1| \le \dots \le |w_m|$ die $m$ höchsten Blätter nach Tiefe geordnet sind.
     \end{definition}
     %    TODO igendwo explizit sagen, dass $|w_i| $tiefe vom blatt
     Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter um die Ebene $i$ zu erreichen darstellt.
-    FÜr $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > m$. D.h. wenn $T$ ein Ebene-$i$-Baumm mit $sig_i(T) = (m, l1, \dots l_C)$ ist und $m \ge n$, dann gilt $cost_i(T) = cost(T)$. \\
+    Für $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > m$. D.h. wenn $T$ ein Ebene-$i$-Baumm mit $sig_i(T) = (m, l1, \dots l_C)$ ist und $m \ge n$, dann gilt $cost_i(T) = cost(T)$. \\
     \begin{definition}
+        TODO Opt kann man sich glaub schenken
         Sei $(m, l1, \dots, l_C)$ eine valide Signatur. Wir bezeichnen die minimalen Kosten eines Baumes mit dieser Signatur mit $OPT[m, l1, \dots l_C]$: \[OPT[m,l1, \dots, l_C] = \min \{cost_i(T) \mid \text{$T$ ist ein Ebene-$i$-Baum mit $sig_i(T) = (m, l_1, \dots, l_C)$}\}\]
     \end{definition}
     Da die maximale Anzahl an Blättern des optimalen vervollständigen Baums $Fill(T_{opt})$ $n(r-1)$ beträgt, entsprechen die Kosten dieses Baums dem Minimum aller Kosten $OPT[m, l1, \dots, l_C]$ mit $m \ge n$ und $m + l_1 + \dots + l_C \le n(r-1)$:
@@ -311,7 +314,7 @@
     Sei $T$ also ein Ebene-$i$-Baum und $T'$ ein Ebene-$i+1$-Baum, der bis auf Ebene-$i$ identisch zu $T$ ist, also: $Cut_i(T') = T$. $T$ und $T'$ haben also die selbe Anzahl an Knoten auf den Ebenen $0$ bis $i$. Daher ist auch die Anzahl der Knoten auf Ebene $i+1$ identisch, der einzige Unterschied besteht darin, ob diese Knoten Blätter oder interne Knoten sind. In $T$ sind alle diese Knoten Blätter, da $T$ ein Ebene-$i$-Baum ist. In $T'$ könnten auch alle Knoten auf Ebene $i+1$ Blätter sein, es könnte aber auch eine bestimmte Anzahl $q$ an Knoten interne Knoten sein, maximal aber natürlich so viele, wie $T$ Blätter in Ebene $i+1$ hat. Sei $sig_i(T) = (m, l_1, \dots, l_C)$ die Ebene-$i$ Signatur von $T$. Damit können wir sagen, dass $0 \le q \le l_1$, da $l_1$ die Anzahl der Blätter von $T$ auf Ebene $i+1$ ist.
     \begin{definition}
         Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$. Die Expand Operation wandelt $0 \le q \le l_1$ Blätter auf Ebene $i + 1$ in interne Knoten um, indem $r$ Kinder an jedes dieser Blätter angehängt werden:
-            \[T' = Expand_i(T, q)\]
+        \[T' = Expand_i(T, q)\]
     \end{definition}
     Die Expand-Operation legt nicht fest, welche der $l_1$ Blättern zu Knoten werden.
     Da wir uns auf vollständige Bäume beschränken, sind die Kosten dieser Bäume aber gleich, selbst wenn die Bäume selbst geringfügige Unterschiede haben. Um die Änderung der Signatur des Baums zu quantifizieren, müssen wir den charakteristischen Vektor einer Perlensammlung mit den Durchmessen $c_1, c_2, \dots, c_r$) definieren:
@@ -333,40 +336,61 @@
     \begin{beispiel}
         TODO
     \end{beispiel}
-    Wir können nun einen Graph $G = (V, E)$ definieren, dessen Knoten die Signaturen der Bäume darstellen und dessen Kanten Erweiterungen auf die nächste Ebene repräsentieren:
-    \[V = \{(m, l_1, \dots, l_C) \mid  m, l_1, \dots, l_2 \ge 0 \land m + l_1 + \dots + l_c \le n(r-1)\}\]
-    \[E = \{(S = (m, l_1, \dots, l_C), S') \in V \times V \mid \exists q, 0 \le q \le l_1, S' = (m + l_1, l_2, \dots, l_C, 0) + q \cdot (-1, d_1, \dots, d_C)\}\]
-    In diesem Graph könnte man nun mithilfe von Breitensuche den Pfad finden, der zu
 
+    \begin{definition}
+        Wir bezeichnen zwei Bäume $T_1$ und $T_2$ als equivalent, wenn sie die gleiche Anzahl an Blättern auf jeder Ebene haben:
+        \[T_1 = T_2\]
+    \end{definition}
+    \begin{lemma}
+        Offensichtliche Eigenschaften:
+        ...\\
+        $T_1 = T_2 \to cost(T_1) = cost(T_2)$??
+        $T_1 = T_2$ -> gleiche Anzahl an knoten auf jeder Ebene (weil vollständig???)
+    \end{lemma}
+    \begin{lemma}
+        Jeder vollständige Baum $T$ kann (up to Equivalence???) mit mehreren $Expand()$ Operationen vom (root baum?) aus konstruiert werden
+    \end{lemma}
+
+    \begin{lemma}
+        WICHTIG \\
+        $cost(Fill(T_{opt})) = cost(T_{opt})$ -> ist glaub schon fix \\
+        $Fill(T_{opt})$ wird von der naiven Implementierung gefunden () \\
+        Für alle $T$ mit $sig_i = (m, l_1, l_2, etc)$ und $m \ge n$ gilt $cost(T) = cost(sig_i)$
+        -> Damit ist die naive methode optimal
+    \end{lemma}
+
+
+
+
+
+    Nein...
 
     TODO man könnte jetzt bfs machen kurz laufzeit und ist schlecht
     TODO (wieso darf man bfs, eigenlich doch dijkstra?) des eine ist gar kein bfs!!!!
-
 
     \subsection{TODO Titel}
 
     Da dieser Algorithmus für große Eingabealphabete ($n >> 100$) deutlich zu langsam ist und zu viel Speicher verwendet, ...
 
-    Ansatz: aufteilung in häufige und seltende Buchstaben (häufige mit $p > 0.05$)seltene Buchstaben werden in chunks aufgeteilt (z.B. größe 30)
-    Ein Chunk wird mit dem Algorithmus bearbeiete -> Qs.
-    SUmme der einzelnen Chunks + häufige Buchstaben in den Algorithmus -> Qs -> Blätter mit den Bäumen von den chunks ersetzten
-    -> codes erstellen
-
-
-    Ansatz: p_0 = p_1 = p_2 etc:
-        
-
-(    TODO Optimierung: kleinen Baum mit höhe h bauen (wo alle probabiliteis gleich sind) -> n Blätter -> im n dinger zusammenfassen dann algorithmus machen und kleine bäume wieder hinbasteln
-    TODo einfach großen algorithmus auf die kleinen Bäume anwedne
-    Da die Frequenz dieser Buchstaben, die sehr selten vorkommen sehr ähnlich ist, können wir das Problem vereinfachen, in dem wir annehmen, dass die Wahr
-    -> eigentlich das gleiche mit p_0 = p_1 = p_2
-
-
-
-    TODO oder irgendwie die "dichte" optimieren (height (tiefster knoten) / N))
-
-    Oder allgemein annahme, dass p_0 = p_1 = p_2, was macht des??
-    $cost_i(T) = \sum^m_{j=1}|w_j| \cdot p + i \cdot p^{(m + 1 - 1)}$
+%        Ansatz: aufteilung in häufige und seltende Buchstaben (häufige mit $p > 0.05$)seltene Buchstaben werden in chunks aufgeteilt (z.B. größe 30)
+%        Ein Chunk wird mit dem Algorithmus bearbeiete -> Qs.
+%        SUmme der einzelnen Chunks + häufige Buchstaben in den Algorithmus -> Qs -> Blätter mit den Bäumen von den chunks ersetzten
+%        -> codes erstellen
+%
+%
+%        Ansatz: p_0 = p_1 = p_2 etc:
+%
+%
+%        (    TODO Optimierung: kleinen Baum mit höhe h bauen (wo alle probabiliteis gleich sind) -> n Blätter -> im n dinger zusammenfassen dann algorithmus machen und kleine bäume wieder hinbasteln
+%        TODo einfach großen algorithmus auf die kleinen Bäume anwedne
+%        Da die Frequenz dieser Buchstaben, die sehr selten vorkommen sehr ähnlich ist, können wir das Problem vereinfachen, in dem wir annehmen, dass die Wahr
+%        -> eigentlich das gleiche mit p_0 = p_1 = p_2
+%
+%
+%        TODO oder irgendwie die "dichte" optimieren (height (tiefster knoten) / N))
+%
+%        Oder allgemein annahme, dass p_0 = p_1 = p_2, was macht des??
+%        $cost_i(T) = \sum^m_{j=1}|w_j| \cdot p + i \cdot p^{(m + 1 - 1)}$
 
 
     \section{Umsetzung}
