@@ -157,9 +157,21 @@ def generate_code_from_tree(root, color_sizes):
         for c in code:
             cost += color_sizes[c]
 
-        codes.append((code, cost))
 
+        codes.append((code[::-1], cost))
     return  codes
+
+def is_prefixfree(codes):
+    """
+    Check if the codes are prefix free
+    :param codes:
+    :return:
+    """
+    for i in range(len(codes)):
+        for j in range(i + 1, len(codes)):
+            if codes[i][0] == codes[j][0][:len(codes[i][0])]:
+                return False
+    return True
 
 def attach_tree_at_leaves(main_root, sub_root, fixed_slots, color_sizes):
     """
@@ -250,9 +262,9 @@ class Encoder:
         self.color_sizes = sorted(color_sizes)
 
     def encode_bfs(self):
-        return generate_code_from_tree(self.get_tree_bfs(self.frequencies.values()), self.color_sizes)
+        return generate_code_from_tree(self.get_tree_naive(self.frequencies.values()), self.color_sizes)
 
-    def get_tree_bfs(self, frequencies):
+    def get_tree_naive(self, frequencies): # TODO das ist nd bfs
         """
         Naive Methode: alle vollen Binärbäume werden mit Binärsuche durchsucht
         :return:
@@ -265,6 +277,8 @@ class Encoder:
         C = max(self.color_sizes)
         # Occurrences of each color size
         D = [self.color_sizes.count(i) for i in range(1, C + 1)]
+        # number of pearls
+        r = len(self.color_sizes)
 
         print(f"N: {n}, C : {C}")
         stack = collections.deque([([0] + D, 0, [])])  # (sig, cost, Qs(Expansions))
@@ -275,11 +289,13 @@ class Encoder:
             new_cost = cost + sum([p[i] for i in range(sig[0], n)])
             if new_cost > best_cost:
                 continue
+            if sum(sig) > n * (r - 1):
+                continue
             if sig[0] >= n:
                 if cost < best_cost:
 
                     best_cost = cost
-                    print("Best cost:", best_cost * len(text), best_cost)
+                    #print("Best cost:", best_cost * len(text), best_cost)
                 possible_res.append((sig, cost, Qs))
                 continue
 
@@ -290,26 +306,48 @@ class Encoder:
         best = min(possible_res, key=lambda x: x[1])
         return generate_tree(best[2],self.color_sizes)
 
-    def encode_big(self):
+
+
+    def encode_simple(self,frequencies=None):
+        if frequencies is None:
+            frequencies = self.frequencies
+        OPT = defaultdict(lambda : float("inf"))
+
+
+    def encode_big_optimize(self, text):
+        n = len(self.frequencies)
+        max_leaves = 50
+        min_chunk_size = n // max_leaves + 1
+        best_cost = float("inf")
+        best_code = None
+        for i in range(min_chunk_size, max_leaves):
+            codes = self.encode_big(i)
+            cost = calc_cost(text, codes)
+            if cost < best_cost:
+                best_cost = cost
+                best_code = codes
+                print("Best cost:", best_cost)
+        return best_code
+
+
+    def encode_big(self, chunk_size=50):
         cutoff = 0.05
         common = [i for i in self.frequencies.values() if i > cutoff]
-        print("Common:", len(common))
+        #print(f"N: {len(self.frequencies)}, C : {max(self.color_sizes)}")
+        #print(f"Common: {len(common)}, Not Common: {len(self.frequencies) - len(common)}")
         not_common = sorted(i for i in self.frequencies.values() if i <= cutoff)
-        chunk_size = 26  # 30
-        # split not_common in chunks of approximately chunk_size
+
+        # split not common in chunks of chunk_size
         chunks = []
-        for i in range((len(not_common) // chunk_size) + 1):
+        for i in range((len(not_common) // chunk_size)):
             chunks.append(not_common[i * chunk_size: (i + 1) * chunk_size])
-        Qs = []
-        # for c in chunks:
-        #    Qs.append(self.encode_bfs(c))
-        Qs = [self.get_tree_bfs(chunks[0])] * len(chunks)
-        main_Q = self.get_tree_bfs(common + [sum(c) for c in chunks])
-        root = generate_recursive_tree(self.color_sizes, main_Q, Qs, len(common))
-        codes = generate_code_from_tree(root)
-        print(len(codes))
-        print(len(self.frequencies))
-        return codes
+        chunks.append(not_common[(len(not_common) // chunk_size) * chunk_size:])
+
+        chunk_root = self.get_tree_naive(chunks[0])
+
+        main_root = self.get_tree_naive(common + [sum(c) for c in chunks])
+        main_root = attach_tree_at_leaves(main_root, chunk_root, len(common), color_sizes)
+        return generate_code_from_tree(main_root, self.color_sizes)
 
     def encode_big_assume_eq_probabilities(self):
         """
@@ -321,7 +359,7 @@ class Encoder:
         print(f"N: {len(self.frequencies)}, C : {max(self.color_sizes)}")
         print(f"Common: {len(common)}, Not Common: {len(self.frequencies) - len(common)}")
         not_common = sorted(i for i in self.frequencies.values() if i <= cutoff)
-        chunk_size_upper_bound = 25
+        chunk_size_upper_bound = 50
         prev_root, prev_len_leaves = None, 0
         for i in range(1, chunk_size_upper_bound):
             chunk_root = generate_full_tree_to_height(self.color_sizes, i)
@@ -338,7 +376,7 @@ class Encoder:
         print(not_common)
         print(len(chunks[0]), chunks)
 
-        main_root = self.get_tree_bfs(common + [sum(c) for c in chunks])
+        main_root = self.get_tree_naive(common + [sum(c) for c in chunks])
         main_root = attach_tree_at_leaves(main_root, prev_root, len(common), color_sizes)
         return generate_code_from_tree(main_root, self.color_sizes)
 
@@ -389,7 +427,7 @@ def assume_equal_probabilites(color_sizes, frequencies):
 
 if __name__ == '__main__':
 
-    filename = ("Examples/schmuck5.txt")
+    filename = ("Examples/schmuck9.txt")
     color_sizes, text = parse_file(filename)
     #qs = Encoder(get_frequencies(text), color_sizes).encode_bfs(get_frequencies(text).values())
     #print(qs)
@@ -397,8 +435,9 @@ if __name__ == '__main__':
     #print(len(get_leaves_rec(root)))
     #code = generate_code_from_tree(root, color_sizes)
     encoder = Encoder(get_frequencies(text), color_sizes)
-    #code = encoder.encode_big_assume_eq_probabilities()
-    code = encoder.encode_bfs()
+    code = encoder.encode_big_optimize(text)
+    #code = encoder.encode_bfs()
+    print("Präfixfrei: ", is_prefixfree(code))
     print(len(code), code)
     print(calc_cost(text, code))
     exit()
