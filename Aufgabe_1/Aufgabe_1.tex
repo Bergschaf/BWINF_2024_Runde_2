@@ -51,11 +51,11 @@
     numbers=left, numbersep=5pt, showspaces=false,showstringspaces=true,
     showtabs=false, stepnumber=2, tabsize=2, title=\lstname
 }
-
-\newtheorem{definition}{Definition}
-\newtheorem{lemma}{Lemma}
 \newtheorem{satz}{Satz}
-\newtheorem{beispiel}{Beispiel}
+\newtheorem{definition}[satz]{Definition}
+\newtheorem{lemma}[satz]{Lemma}
+\newtheorem{beispiel}[satz]{Beispiel}
+\newtheorem{korollar}[satz]{Korollar}
 
 % Diese beiden Pakete müssen zuletzt geladen werden
 %\usepackage{hyperref} % Anklickbare Links im Dokument
@@ -180,7 +180,7 @@
 
     \subsubsection{Laufzeit}
 
-    \subsection{TODO Titel}
+    \subsection{Ungleiche Perlengrößen}
     TODO entweder bei 1 anfangen und bis r oder bei 0 anfagnen und bis r-1
     Im Aufgabenteil b) haben die Perlen $o_1, \cdot, o_r$ unterschiedliche, ganzzahlige Durchmesser $c_1, \cdot, c_r$. Wir sortieren die Perlen ab jetzt so, dass gilt: $c_1 \le c_2 \le \dots \le c_r = C$ und wir bezeichnen den Durchmesser der größten Perle $c_r$ mit $C$. \\
     Wir eine Codetabelle, die mit unterschiedlich großen Perlen erstellt wurde ähnlich wie in Aufgabenteil a) wieder als Baum darstellen.
@@ -304,20 +304,15 @@
     %    TODO igendwo explizit sagen, dass $|w_i| $tiefe vom blatt
     Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter um die Ebene $i$ zu erreichen darstellt.
     Für $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > m$. D.h. wenn $T$ ein Ebene-$i$-Baumm mit $sig_i(T) = (m, l1, \dots l_C)$ ist und $m \ge n$, dann gilt $cost_i(T) = cost(T)$. \\
-    \begin{definition}
-        TODO Opt kann man sich glaub schenken
-        Sei $(m, l1, \dots, l_C)$ eine valide Signatur. Wir bezeichnen die minimalen Kosten eines Baumes mit dieser Signatur mit $OPT[m, l1, \dots l_C]$: \[OPT[m,l1, \dots, l_C] = \min \{cost_i(T) \mid \text{$T$ ist ein Ebene-$i$-Baum mit $sig_i(T) = (m, l_1, \dots, l_C)$}\}\]
-    \end{definition}
-    Da die maximale Anzahl an Blättern des optimalen vervollständigen Baums $Fill(T_{opt})$ $n(r-1)$ beträgt, entsprechen die Kosten dieses Baums dem Minimum aller Kosten $OPT[m, l1, \dots, l_C]$ mit $m \ge n$ und $m + l_1 + \dots + l_C \le n(r-1)$:
-    \[cost(Fill(T_{opt}))) = cost(T_{opt}) = \min  \{OPT[m, l1, \dots, l_C] \mid m \ge n \land m + l_1 + \dots + l_C \le n(r-1)\}.\]
-    Um dieses Minimum zu ermitteln müssen wir die $OPT$-Tabelle Schritt für Schritt auffüllen, beginnend bei einem Ebene-0-Baum, der nur aus der Wurzel und dessen Kindern besteht.
+    % TODO coole überleitung schritt für schritt aufbauen
     Sei $T$ also ein Ebene-$i$-Baum und $T'$ ein Ebene-$i+1$-Baum, der bis auf Ebene-$i$ identisch zu $T$ ist, also: $Cut_i(T') = T$. $T$ und $T'$ haben also die selbe Anzahl an Knoten auf den Ebenen $0$ bis $i$. Daher ist auch die Anzahl der Knoten auf Ebene $i+1$ identisch, der einzige Unterschied besteht darin, ob diese Knoten Blätter oder interne Knoten sind. In $T$ sind alle diese Knoten Blätter, da $T$ ein Ebene-$i$-Baum ist. In $T'$ könnten auch alle Knoten auf Ebene $i+1$ Blätter sein, es könnte aber auch eine bestimmte Anzahl $q$ an Knoten interne Knoten sein, maximal aber natürlich so viele, wie $T$ Blätter in Ebene $i+1$ hat. Sei $sig_i(T) = (m, l_1, \dots, l_C)$ die Ebene-$i$ Signatur von $T$. Damit können wir sagen, dass $0 \le q \le l_1$, da $l_1$ die Anzahl der Blätter von $T$ auf Ebene $i+1$ ist.
     \begin{definition}
         Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$. Die Expand Operation wandelt $0 \le q \le l_1$ Blätter auf Ebene $i + 1$ in interne Knoten um, indem $r$ Kinder an jedes dieser Blätter angehängt werden:
         \[T' = Expand_i(T, q)\]
     \end{definition}
     Die Expand-Operation legt nicht fest, welche der $l_1$ Blättern zu Knoten werden.
-    Da wir uns auf vollständige Bäume beschränken, sind die Kosten dieser Bäume aber gleich, selbst wenn die Bäume selbst geringfügige Unterschiede haben. Um die Änderung der Signatur des Baums zu quantifizieren, müssen wir den charakteristischen Vektor einer Perlensammlung mit den Durchmessen $c_1, c_2, \dots, c_r$) definieren:
+    Da wir uns auf vollständige Bäume beschränken, sind die Kosten dieser Bäume aber gleich, selbst wenn die Bäume selbst geringfügige Unterschiede haben.
+    Um die Änderung der Signatur des Baums zu quantifizieren, müssen wir den charakteristischen Vektor einer Perlensammlung mit den Durchmessen $c_1, c_2, \dots, c_r$) definieren:
     \begin{definition}
         Der charakteristische Vektor $(d_1, d_2, \dots, d_C)$ einer Perlensammlung mit den Durchmessern $D = (c_1, c_2, \dots, c_r)$ entspricht den Anzahlen, wie oft ein bestimmter Durchmesser in der Perlensammlung vertreten ist:
         \[d_i = \text{Anzahl von $i$ in $D$}\]
@@ -341,20 +336,29 @@
         Wir bezeichnen zwei Bäume $T_1$ und $T_2$ als equivalent, wenn sie die gleiche Anzahl an Blättern auf jeder Ebene haben:
         \[T_1 = T_2\]
     \end{definition}
+    \begin{korollar}
+        Diese Äquivalenzrelation hat einige offensichtliche Eigenschaften:
+        \begin{enumerate}
+            \item Wenn $T_1 = T_2$, dann gilt $Expand_i(T_1, q) = Expand_i(T_2, q)$
+            \item Wenn $T_1 = T_2$, dann gilt $cost(T_1) = cost(T_2)$
+            \item Wenn $T_1 = T_2$, dann haben $T_1$ und $T_2$ auf jeder Anzahl die gleiche Anzahl an internen Knoten
+        \end{enumerate}
+    \end{korollar}
     \begin{lemma}
-        Offensichtliche Eigenschaften:
-        ...\\
-        $T_1 = T_2 \to cost(T_1) = cost(T_2)$??
-        $T_1 = T_2$ -> gleiche Anzahl an knoten auf jeder Ebene (weil vollständig???)
+        Sei $T$ ein Ebene-$i$-Baum und $T'$ ein Ebene-$i+1$-Baum mit $Trunc_i(T') = T$.
+        Es gibt ein $q$, sodass $Expand_i(T) = T'$.
     \end{lemma}
-    \begin{lemma}
-        Jeder vollständige Baum $T$ kann (up to Equivalence???) mit mehreren $Expand()$ Operationen vom (root baum?) aus konstruiert werden
-    \end{lemma}
+    \begin{proof}
+        Folgt aus der Definition von $Expand_i$.
+    \end{proof}
+    \begin{korollar}
+        Jeder vollständige Ebene-$i$-Baum kann durch $i$ Expand-Operationen vom Wurzel-Baum aus konstruiert werden.
+    \end{korollar}
 
     \begin{lemma}
         WICHTIG \\
         $cost(Fill(T_{opt})) = cost(T_{opt})$ -> ist glaub schon fix \\
-        $Fill(T_{opt})$ wird von der naiven Implementierung gefunden () \\
+        $Fill(T_{opt})$ wird von der naiven Implementierung gefunden weil lemma davor\\
         Für alle $T$ mit $sig_i = (m, l_1, l_2, etc)$ und $m \ge n$ gilt $cost(T) = cost(sig_i)$
         -> Damit ist die naive methode optimal
     \end{lemma}
@@ -362,13 +366,6 @@
 
 
 
-
-    Nein...
-
-    TODO man könnte jetzt bfs machen kurz laufzeit und ist schlecht
-    TODO (wieso darf man bfs, eigenlich doch dijkstra?) des eine ist gar kein bfs!!!!
-
-    \subsection{TODO Titel}
 
     Da dieser Algorithmus für große Eingabealphabete ($n >> 100$) deutlich zu langsam ist und zu viel Speicher verwendet, ...
 
