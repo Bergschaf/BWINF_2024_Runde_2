@@ -226,8 +226,6 @@
     Der innere Teil der While-Schleife hat also eine Laufzeit von $O(r \cdot \log n)$ und damit gilt für die Laufzeit der While-Schleife: $O(n \cdot \log n)$.
     Das gesamte Programm hat also eine asymptotische Laufzeit von $O(t + n \cdot \log n)$
 
-
-
     \subsection{Ungleiche Perlengrößen}
     TODO entweder bei 1 anfangen und bis r oder bei 0 anfagnen und bis r-1
     Im Aufgabenteil b) haben die Perlen unterschiedliche, ganzzahlige Durchmesser $c_1, \dots, c_r$. Wir sortieren die Perlen ab jetzt so, dass gilt: $c_1 \le c_2 \le \dots \le c_r = C$ und wir bezeichnen den Durchmesser der größten Perle $c_r$ mit $C$. \\
@@ -353,6 +351,39 @@
     Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter um die Ebene $i$ zu erreichen darstellt.
     Für $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > m$. D.h. wenn $T$ ein Ebene-$i$-Baumm mit $sig_i(T) = (m, l1, \dots l_C)$ ist und $m \ge n$, dann gilt $cost_i(T) = cost(T)$. \\
     % TODO coole überleitung schritt für schritt aufbauen
+    Um den \glqq Billigsten\grqq~Baum zu finden, konstruieren wir die Bäume Ebene für Ebene, beginnend bei dem \textit{Wurzel-Baum}, der nur aus der Wurzel und deren Kindern besteht.
+    Um die Signatur des Wurzelbaums darzustellen müssen wir zunächst den charakteristischen Vektor einer Perlensammlung definieren:
+    \begin{definition}
+        Der charakteristische Vektor $(d_1, d_2, \dots, d_C)$ einer Perlensammlung mit den Durchmessern $C = (c_1, c_2, \dots, c_r)$ entspricht den Anzahlen, wie oft ein bestimmter Durchmesser in der Perlensammlung vertreten ist:
+        \[d_i = \text{Anzahl von $i$ in $C$}\]
+    \end{definition}
+    \begin{beispiel}
+        Der charakteristische Vektor der Beispieldatei 7 mit den Durchmessern $C = (1, 1, 1, 1, 1, 1, 1, 2, 3, 4)$ beträgt $(7, 1, 1, 1)$ und der charakteristische Vektor der Beispieldatei 5 mit den Durchmessern $C = (1, 1, 2, 2, 3)$ beträgt $(2, 2, 1)$.
+    \end{beispiel}
+    \begin{definition}
+        Der \textbf{Wurzel-Baum} $T_0$ ist ein Ebene-0-Baum, der aus dem Wurzelknoten und dessen $r$ Kindern, die alle Blätter sind, besteht.
+        Die Signatur des Wurzel-Baums ist: \[sig_0(T_0) = (0, d_1, d_2, \dots d_C)\] und $cost_0(T_0) = 0$.
+    \end{definition} % TODO Bild
+    \begin{beispiel}
+        Der Wurzel-Baum der Beispieldatei mit den Perlendurchmessern $C = (1, 1, 2, 2, 3)$ und dem charakteristischen Vektor $D = (2, 2, 1)$ sieht folgendermaßen aus:
+        \begin{forest}
+            for tree={
+                grow                    = south,
+                parent anchor           = north,
+                child anchor            = north,
+                edge                    = {thick, -},
+                l sep                    = 10mm, % level distance
+                s sep                    = 5mm, % sibling distance
+            }
+            [[,[,phantom,tier=3]],
+            [],
+            [,tier=3],
+            [,tier=3, [,phantom,tier=4]],
+            [,tier=4]
+            ]
+        \end{forest}
+    \end{beispiel}
+
     Sei $T$ also ein Ebene-$i$-Baum und $T'$ ein Ebene-$i+1$-Baum, der bis auf Ebene-$i$ identisch zu $T$ ist, also: $Cut_i(T') = T$. $T$ und $T'$ haben also die selbe Anzahl an Knoten auf den Ebenen $0$ bis $i$. Daher ist auch die Anzahl der Knoten auf Ebene $i+1$ identisch, der einzige Unterschied besteht darin, ob diese Knoten Blätter oder interne Knoten sind. In $T$ sind alle diese Knoten Blätter, da $T$ ein Ebene-$i$-Baum ist. In $T'$ könnten auch alle Knoten auf Ebene $i+1$ Blätter sein, es könnte aber auch eine bestimmte Anzahl $q$ an Knoten interne Knoten sein, maximal aber natürlich so viele, wie $T$ Blätter in Ebene $i+1$ hat. Sei $sig_i(T) = (m, l_1, \dots, l_C)$ die Ebene-$i$ Signatur von $T$. Damit können wir sagen, dass $0 \le q \le l_1$, da $l_1$ die Anzahl der Blätter von $T$ auf Ebene $i+1$ ist.
     \begin{definition}
         Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$. Die Expand Operation wandelt $0 \le q \le l_1$ Blätter auf Ebene $i + 1$ in interne Knoten um, indem $r$ Kinder an jedes dieser Blätter angehängt werden:
@@ -360,16 +391,10 @@
     \end{definition}
     Die Expand-Operation legt nicht fest, welche der $l_1$ Blättern zu Knoten werden.
     Da wir uns auf vollständige Bäume beschränken, sind die Kosten dieser Bäume aber gleich, selbst wenn die Bäume selbst geringfügige Unterschiede haben.
-    Um die Änderung der Signatur des Baums zu quantifizieren, müssen wir den charakteristischen Vektor einer Perlensammlung mit den Durchmessen $c_1, c_2, \dots, c_r$) definieren:
-    \begin{definition}
-        Der charakteristische Vektor $(d_1, d_2, \dots, d_C)$ einer Perlensammlung mit den Durchmessern $D = (c_1, c_2, \dots, c_r)$ entspricht den Anzahlen, wie oft ein bestimmter Durchmesser in der Perlensammlung vertreten ist:
-        \[d_i = \text{Anzahl von $i$ in $D$}\]
-    \end{definition}
-    \begin{beispiel}
-        Der charakteristische Vektor der Beispieldatei 7 mit den Durchmessern $D = (1, 1, 1, 1, 1, 1, 1, 2, 3, 4)$ beträgt $(7, 1, 1, 1)$ und der charakteristische Vektor der Beispieldatei 5 mit den Durchmessern $D = (1, 1, 2, 2, 3)$ beträgt $(2, 2, 1)$.
-    \end{beispiel}
+    Um die Änderung der Signatur des Baums zu quantifizieren, können wir den charakteristischen Vektor einer Perlensammlung verwenden:
+
     \begin{lemma}
-        Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$ und $T' = Expand_i(T,q)$ die Erweiterung um $q$. Die Signatur von $T'$ ist dann: \[sig_{i+1}(T') = (m + l_1, l_2, \dots, l_C, 0)) + q \cdot (-1, d_1, d_2, \dots, d_C)\]
+        Sei $T$ ein Ebene-$i$-Baum mit der Signatur $sig_T = (m;l_1,l_2,\dots,l_C)$ und $T' = Expand_i(T,q)$ die Erweiterung um $q$. Die Signatur von $T'$ ist dann: \[sig_{i+1}(T') = (m + l_1, l_2, \dots, l_C, 0) + q \cdot (-1, d_1, d_2, \dots, d_C)\]
         (Multiplikation und Addition werden Elementweise ausgeführt). Die Kosten der Erweiterung betragen:
         \[cost_{i+1}(Expand_i(T,q)) = cost_i(T) + \sum_{m < j \le n}p_j\]
     \end{lemma}
@@ -400,26 +425,194 @@
         Folgt aus der Definition von $Expand_i$ und daraus, dass Äquivalente Bäume auf jeder Ebene die gleiche Anzahl an internen Knoten haben.
     \end{proof}
     \begin{korollar}
-        Jeder vollständige Ebene-$i$-Baum kann bis auf Aquivalenz durch $i$ Expand-Operationen vom Wurzel-Baum aus konstruiert werden.
+        Jeder vollständige Ebene-$i$-Baum kann bis auf Äquivalenz durch $i$ Expand-Operationen vom Wurzel-Baum aus konstruiert werden.
     \end{korollar}
     Da $Fill(T_opt)$ höchstens $n (r -1)$ Blätter hat können wir $Fill(T_opt)$ finden, indem wir vom Wurzel-Baum % TODo Wurzel Baum definieren
     durch $Expand_i$ alle vollständigen Bäume durchsuchen, die $m \le (r - 1)$ Blätter haben.
 
+
+    \begin{algorithm} [H]
+        \caption{\textsc{GetOptimalTree}\,(Frequenzen, Farbengrößen)}
+        \label{alg:optimal_tree}
+        \begin{algorithmic}[1]
+            \Function{GetOptimalTree}{$p,c$}
+                \Comment{Frequenzen und Perlengrößen}
+                \State $n \gets |p|$  \Comment{Anzahl verschiedener Codewörter}
+                \State $C \gets \max(c)$ \Comment{Größte Perle}
+                \State $r \gets |c|$  \Comment{Anzahl Perlen}
+
+                \State // Initialisiere Stack mit Tupel (Signatur, Kosten, Expansionsliste)
+                \State $stack \gets [([0, d_1, d_2, \dots, d_C],\;0,\;[])]$
+                \State $best\_cost \gets +\infty$
+                \State $best\_tree \gets \text{null}$
+                \While{$stack \neq \emptyset$}
+                    \State $(\sigma,\,cost,\,Qs) \gets stack.\mathrm{pop}()$
+                    \State $new\_cost \gets cost \;+\;\sum_{i=\sigma[0]}^{n-1} p[i]$
+                    \If{$new\_cost > best\_cost$}
+                        \State \textbf{continue}
+                    \EndIf
+                    \If{$\sum \sigma > n\,(r-1)$}
+                        \State \textbf{continue}
+                    \EndIf
+                    \If{$\sigma[0] \ge n$}
+                        \If{$cost < best\_cost$}
+                            \State $best\_cost \gets cost$
+                            \State $best\_tree \gets Qs$
+                        \EndIf
+                        \State \textbf{continue}
+                    \EndIf
+
+                    \For{$q = 0$ \textbf{to} $\sigma[1]$}
+                        \State $\sigma'\!\gets \textsc{expand}(\sigma,\,q)$
+                        \State $stack.\mathrm{append}\bigl(\sigma',\;new\_cost,\;Qs + [q]\bigr)$
+                    \EndFor
+                \EndWhile
+                \State \Return $\textsc{generate\_tree}(best\_tree,\;\textit{color\_sizes})$
+            \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+    Als erstes werden die Variablen $n$, $C$ und $r$ in Abhängigkeit von den Frequenzen der Buchstaben und der größen der Farben intitialisiert.
+    Am Anfang enthält der Stack nur den Wurzel-Baum, dessen Signatur die Kosten 0 hat.
+    Im Stack wird außerdem gespeichert, durch welche Erweiterungen (Werte von $q$) der jeweilige Baum erreicht wurde.
+    Die \textit{best\_cost} und \textit{best\_tree} Variablen speichern die Kosten und die Werte der Erweiterungen des bisher besten Baums.
+    ....
+    TODO erklären, dass damit alle gefunden werden
+
+    \subsubsection{Laufzeit}
+    TODO
+
+    \subsection{Optimierung} % TODO besserer Titel
+    Im vorherigen Kapitel haben wir uns der Einfachheit halber auf vollständige Bäume beschränkt.
+    Dadurch mussten wir aber immer Bäume mit bis zu $n(r - 1)$ Blättern betrachten, was vor allem für große $n$ und $r$ zu langer Rechenzeit führt.
+    Da wir die optimalen Bäume trotzdem wie im vorherigen Kapitel Ebene für Ebene generieren wollen, definieren wir die \textit{Reduce}-Funktion um \glqq überschüssige\grqq~Blätter zu entfernen.
+    \begin{definition}
+        Wir reduzieren einen Baum $T$ zu $Reduce(T)$, indem wir nur die $n$ höchsten Blätter behalten und den Rest entfernen.
+        Falls dabei interne Knoten zu Blättern werden, entfernen wir diese ebenfalls (und wiederholen diesen Prozess ggf.).
+    \end{definition}
+    \begin{korollar}
+        Wir können wieder einige offensichtlichen Eigenschaften der \textit{Reduce}-Funktion sammeln:
+        \begin{enumerate}
+            \item Falls $T$ weniger als $n$ Blätter hat, gilt $Reduce(T) = T$
+            \item $Reduce(T)$ ist einzigartig bis auf Äquivalenz
+            \item Für jeden Ebene-$i$-Baum $T$ gilt $cost_i(Reduce(T) = cost_i(T))$
+        \end{enumerate}
+    \end{korollar}
+    Um die Bäume wieder anhand der Signatur zu unterscheiden, müssen wir betrachten, wie sich die Signatur eines Baums $T$ mit $sig_i(T) = (m, l_1, \dots, l_C)$ durch eine Reduktion verändert.
+    Man kann die neue Signatur $sig_i(Reduce(T) = (m', l_1', \dots, l_C'))$ folgendermaßen berechnen: \\
+    \begin{algorithm} [H]
+        \caption{\textsc{Reduce}}
+        \label{alg:reduce}
+        \begin{algorithmic}[1]
+            \State $m' \gets \min\{m, n\}$
+            \State $l_1' \gets \min\{l_j, n - m'\}$
+            \ForAll{$j \in [2, \dots, C]$}
+                \State $l_j' \gets \min\{l_j, n - (m' + \sum^{j-1}_{k=1}l_k')\}$
+            \EndFor
+        \end{algorithmic}
+    \end{algorithm}
+
+    \begin{definition}
+        TODO
+        $S \le S'$ if \[(m + l_1 + \dots + l_C, m + l_1 + \dots + l_{C-1}, \dots, m + l_1, m])\]
+        Lexigraphisch kleiner (linker eintrag zählt am meisten)
+        \[(m' + l_1' + \dots + l_C', m' + l_1' + \dots + l_{C-1}', \dots, m' + l_1', m'])\]
+    \end{definition}
     \begin{lemma}
-
-        WICHTIG \\
-        $cost(Fill(T_{opt})) = cost(T_{opt})$ -> ist glaub schon fix \\
-        $Fill(T_{opt})$ wird von der naiven Implementierung gefunden weil lemma davor\\
-        Für alle $T$ mit $sig_i = (m, l_1, l_2, etc)$ und $m \ge n$ gilt $cost(T) = cost(sig_i)$
-        -> Damit ist die naive methode optimal
+        Sei $T_{opt}$ ein optimaler Baum mit der Höhe $height(T) = h$. $T_{opt}$ kann bis auf Äquivalenz durch $h$-fache Iteration der Funktion $T' = Reduce(Expand(T',q))$ (für bestimmte Werte von $q$) erzeugt werden. % TODO vlt cleverer formulieren
     \end{lemma}
+    \begin{proof}
+        TODO
+    \end{proof}
+    Wir haben also gezeigt, dass wir den optimalen Baum durch mehrfaches Anwenden der \textit{Expand} und \textit{Reduce} Funktionen erzeugen können.
+    Das können wir durch eine modifikation des vorherigen Algorithmus erreichen:
+    \begin{algorithm} [H]
+        \caption{\textsc{GetOptimalTree}\,(Frequenzen, Farbengrößen)}
+        \begin{algorithmic}[1]
+            \Function{GetOptimalTree}{$p,c$}
+                \Comment{Frequenzen und Perlengrößen}
+                \State $n \gets |p|$  \Comment{Anzahl verschiedener Codewörter}
+                \State $C \gets \max(c)$ \Comment{Größte Perle}
+                \State $r \gets |c|$  \Comment{Anzahl Perlen}
+
+                \State // Initialisiere Stack mit Tupel (Signatur, Kosten, Expansionsliste)
+                \State $stack \gets [([0, d_1, d_2, \dots, d_C],\;0,\;[])]$
+                \State $best\_cost \gets +\infty$
+                \State $best\_tree \gets \text{null}$
+                \While{$stack \neq \emptyset$}
+                    \State $(\sigma,\,cost,\,Qs) \gets stack.\mathrm{pop}()$
+                    \State $new\_cost \gets cost \;+\;\sum_{i=\sigma[0]}^{n-1} p[i]$
+                    \If{$new\_cost > best\_cost$}
+                        \State \textbf{continue}
+                    \EndIf
+                    \If{$\sigma[0] \ge n$}
+                        \If{$cost < best\_cost$}
+                            \State $best\_cost \gets cost$
+                            \State $best\_tree \gets Qs$
+                        \EndIf
+                        \State \textbf{continue}
+                    \EndIf
+
+                    \For{$q = 0$ \textbf{to}  $\sigma[1]$}
+                        \State $\sigma'\!\gets \textsc{reduce}(\textsc{expand}(\sigma,\,q))$
+                        \State $stack.\mathrm{append}\bigl(\sigma',\;new\_cost,\;Qs + [q]\bigr)$
+                    \EndFor
+                \EndWhile
+                \State \Return $\textsc{generate\_tree}(best\_tree,\;\textit{color\_sizes})$
+            \EndFunction
+        \end{algorithmic}\label{alg:algorithm}
+    \end{algorithm}
+    Da wir den Reduktionsschritt hinzugefügt haben, müssen wir hier nicht mehr überprüfen, ob die Signatur mehr als $n (r - 1)$ Blätter hat. \\
+    In dem Paper (TODO Quelle) wird eine einfache Optimierung vorgeschlagen, mit der nicht immer alle Werte von $q$ durchlaufen werden müssen.
+    \begin{lemma}
+        Es ist ausreichend, dass $q$ nur die Werte $[0, \dots, \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}]$ durchläuft.
+    \end{lemma}
+    In dem Paper wurde diese Optimierung jedoch nicht bewiesen oder näher erläutert, es wurde lediglich gesagt: \glqq We leave it as an exercise for the reader to check that this is correct.\grqq \\
+    Als vorbildlicher Leser habe ich mir natürlich die Mühe gemacht und mir den Kopf über diesen Beweis zerbrochen:
+    \begin{proof}
+        Der Beweis wird deutlich anschaulicher, wenn man zuerst den Fall $c_1 = c_2 = 1$ und $c_3 = 2$ betrachtet.
+        Sei $sig_i = (m, l_1, l_2)$ also die Signatur eines Ebene-$i$-Baums $T$, den wir nun um $q$ erweitern wollen.
+        Um zu zeigen, dass alle Erweiterungen mit $q > \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}$ redundant sind, setzen wir $q \gets n - (m + l_1) + 1$. \\
+        Sei $T' = Expand(T, q)$ mit der Signatur $sig_{i+1}(T') = (m', l_1', l_2')$.
+        Durch die Regeln der Erweiterung wissen wir:
+        \begin{enumerate}
+            \item $m' = m + l_1 - q$
+            \item $l_1' = l_2 + d_1 \cdot q = l_2 + 2 \cdot q$
+            \item $l_2' = 0 + d_2 \cdot q = q$
+        \end{enumerate}
+        Für die Anzahl der Blätter auf Ebene $0, \dots, i + 1$ gilt jetzt:
+        \begin{equation}
+            \begin{aligned}
+                m + l_1' &= m + l_1 - q + l_2 + 2 \cdot q\\
+                &= m + l_1 + l_2 + q\\
+                &= m + l_1 + l_2 + n - (m + l_1) + 1\\
+                &= l_2 + n + 1
+            \end{aligned}\label{eq:equation}
+        \end{equation}
+        Als nächsten Schritt kürzen wir den Baum mit der \textit{Reduce} Funktion.
+        Da wir bereits auf Ebene $i+1$ mehr als $n$ Blätter haben, werden die Blätter auf den nachfolgenden Ebenen auf jeden Fall gekürzt.
+        Aber auch in der Ebene $i + 1$ müssen $l_2 + 1$ Blätter gekürzt werden.
+        Vor der Expansion waren auf der Ebene $i + 1$ genau $l_2$ Blätter, zu denen wir $q \cdot 2$ Blätter hinzugefügt haben. \\
+        Um den Beweis weiterzuführen müssen wir die Struktur der Ebene $i+1$ betrachten, vor allem die der neu hinzugefügten Blätter.
+        Jedes der $q$ Blätter aus Ebene $i$, das durch unsere Expand-Operation zu einem internen Knoten gemacht wurde, hatte vor der Reduktion $2$ Kinder auf Ebene $i + 1$ und eines auf Ebene $i + 2$.
+        Das Kind auf Ebene $i + 2$ wird durch die Reduktion auf jeden Fall entfernt.
+        Da wir nun $l_2 + 1$ Blätter aus Ebene $i +1$ kürzen müssen
 
 
+        Erstmal für $c_1 = c_2 = 1, c_3 = 2$ \\
+        $sig_i = (m\dots)$
+        -> $q$ darf maximal bis $q = n - (m + l_1)$ -> dass beim reduzieren mindestens zwei dableiben\\
+        Erlaubte Blätter auf der Ebene $i + 2$: $n - (m + l_1)$.
+        Wenn $q$ größer des, dann Blättersituation auf Ebene $i$: $l_1 - q$\\
+        Blätter auf Ebene $i + 1$: $l_2 + 2 \cdot q$ \\
+        Gesamtblätter: $m + l_1 - q + l_2 + 2 \cdot q = m + l_1 + l_2 + q$ \\
+        Wenn $q >n - (m + l_1)$, also $q = n - (m + l_1) + x, x > 0$ \\
+        Gesamtblätter: $l_2 + n + x$ \\
+        Dann werden $l_2$ Blätter wegreduziert und mindestens eins dazu.
+        Des ist aber schlecht, weil dann hat einer der expandierten knoten nur 1 blatt und damit kann der baum nichtmehr optimal sein (bzw. man hätte weniger expandieren sollen)
+    \end{proof}
 
-
-
-
-    Da dieser Algorithmus für große Eingabealphabete ($n >> 100$) deutlich zu langsam ist und zu viel Speicher verwendet, ...
+    \subsection{Heuristik}
+    Da dieser Algorithmus für große Eingabealphabete ($n >> 100$) deutlich zu langsam (Die i32 counter variable ist mehrfach overflowed) ist und zu viel Speicher verwendet, ...
 
 %        Ansatz: aufteilung in häufige und seltende Buchstaben (häufige mit $p > 0.05$)seltene Buchstaben werden in chunks aufgeteilt (z.B. größe 30)
 %        Ein Chunk wird mit dem Algorithmus bearbeiete -> Qs.
@@ -453,6 +646,8 @@
 
     \section{Beispiele}
     Genügend Beispiele einbinden! Die Beispiele von der BwInf-Webseite sollten hier diskutiert werden, aber auch eigene Beispiele sind sehr gut – besonders wenn sie Spezialfälle abdecken. Aber bitte nicht 30 Seiten Programmausgabe hier einfügen!
+
+    TOOD Latex datei der Dokumentation reinwerfen
 
 
     \section{Quellcode}

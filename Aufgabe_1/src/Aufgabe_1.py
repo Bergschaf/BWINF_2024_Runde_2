@@ -233,27 +233,6 @@ def extend(sig, q, D):
     return new_sig
 
 
-def all_sigs_rec(C, n):
-    if C == 1:
-        return [[i] for i in range(n + 1)]
-    else:
-        return [[i] + sig for i in range(n + 1) for sig in all_sigs_rec(C - 1, n - i)]
-
-
-def all_sigs(C, n):
-    return [sig for sig in all_sigs_rec(C, n) if sum(sig[1:]) != 0]
-
-
-def lt_sig(sig1, sig2):
-    sig1 = [sum(sig1[:i + 1]) for i in range(len(sig1))]
-    sig2 = [sum(sig2[:i + 1]) for i in range(len(sig2))]
-    for i in range(len(sig1)):
-        if sig1[i] < sig2[i]:
-            return True
-        if sig1[i] > sig2[i]:
-            return False
-    return False
-
 
 class Encoder:
     def __init__(self, frequencies, color_sizes):
@@ -291,7 +270,7 @@ class Encoder:
         num_visited = 0
         while stack:
             num_visited += 1
-            sig, cost, Qs = stack.popleft()
+            sig, cost, Qs = stack.pop()
             new_cost = cost + sum([p[i] for i in range(sig[0], n)])
             if new_cost > best_cost:
                 continue
@@ -301,6 +280,7 @@ class Encoder:
                 if cost < best_cost:
                     best_cost = cost
                     best_tree = Qs
+                    print(best_cost.__round__(4), len(stack))
                 continue
 
             for q in range(0, sig[1] + 1):
@@ -309,12 +289,47 @@ class Encoder:
         print("Num visited:", num_visited)
         return generate_tree(best_tree,self.color_sizes)
 
+    def encode_reduce(self):
+        return generate_code_from_tree(self.get_tree_reduce(self.frequencies.values()), self.color_sizes)
 
+    def get_tree_reduce(self, frequencies):
+        # Probability for each character of the alphabet
+        p = sorted(frequencies, reverse=True)
+        # The number of different codewords needed to encode the text
+        n = len(p)
+        # The biggest Perl
+        C = max(self.color_sizes)
+        # Occurrences of each color size
+        D = [self.color_sizes.count(i) for i in range(1, C + 1)]
+        # number of pearls
+        r = len(self.color_sizes)
 
-    def encode_simple(self,frequencies=None):
-        if frequencies is None:
-            frequencies = self.frequencies
-        OPT = defaultdict(lambda : float("inf"))
+        print(f"Encode Reduce: N: {n}, C : {C}")
+        stack = collections.deque([([0] + D, 0, [])])  # (sig, cost, Qs(Expansions))
+        best_cost = float("inf")
+        best_tree = None
+        num_visited = 0
+        while stack:
+            num_visited += 1
+            sig, cost, Qs = stack.pop()
+            new_cost = cost + sum([p[i] for i in range(sig[0], n)])
+            if new_cost > best_cost:
+                continue
+
+            if sig[0] >= n:
+                if cost < best_cost:
+                    best_cost = cost
+                    best_tree = Qs
+                    print(best_cost.__round__(4), len(stack))
+                continue
+
+            for q in range(0, min(sig[1], n - sig[0] - sig[1]) + 1):
+            #for q in range(0, min(sig[1], (n - sig[0] - sig[1]) // max(1, D[1])) + 1):
+                new_sig = reduce(extend(sig, q, D), n)
+
+                stack.append((new_sig, new_cost, Qs + [q]))
+        print("Num visited:", num_visited)
+        return generate_tree(best_tree,self.color_sizes)
 
 
     def encode_big_optimize(self, text):
@@ -428,7 +443,7 @@ def parse_file(filename):
 
 if __name__ == '__main__':
 
-    filename = ("Examples/schmuck01.txt")
+    filename = ("Examples/schmuck7.txt")
     color_sizes, text = parse_file(filename)
     #qs = Encoder(get_frequencies(text), color_sizes).encode_bfs(get_frequencies(text).values())
     #print(qs)
@@ -437,7 +452,7 @@ if __name__ == '__main__':
     #code = generate_code_from_tree(root, color_sizes)
     encoder = Encoder(get_frequencies(text), color_sizes)
     #code = encoder.encode_big_optimize(text)
-    code = encoder.encode_naive()
+    code = encoder.encode_reduce() # 134563
     print("Präfixfrei: ", is_prefixfree(code))
     print(len(code), code)
     print(calc_cost(text, code))

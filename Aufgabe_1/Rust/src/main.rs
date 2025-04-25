@@ -40,13 +40,31 @@ pub fn extend(sig: &Vec<usize>, q: usize, D: &Vec<usize>) -> Vec<usize> {
         .collect()
 }
 
-fn encode_bfs(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) {
-    frequencies.sort_by(|a, b| a.partial_cmp(b).unwrap());
+/*
+def reduce(sig, n):
+    new_sig = [min(sig[0], n)]
+    for i in range(1, len(sig)):
+        new_sig.append(min(sig[i], n - sum(new_sig)))
+    return new_sig
+ */
+pub fn reduce(sig: &Vec<usize>, n: usize) -> Vec<usize> {
+    let mut new_sig = vec![sig[0].min(n)];
+    for i in 1..sig.len() {
+        new_sig.push(sig[i].min(n - new_sig.iter().sum::<usize>()));
+    }
+    new_sig
+}
+
+
+fn encode_bfs(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> f64 {
+    frequencies.sort_by(|a, b| b.partial_cmp(a).unwrap());
     let n = frequencies.len();
+
     // biggest pearl
     let C = color_sizes.iter().max().unwrap();
     // number of occurrences of each pearl size
     let mut D = vec![0; *C]; // Initialize a vector of size C+1 with zeros
+    let r = color_sizes.len();
     for &size in &color_sizes {
         D[size - 1] += 1; // Increment the count for each size
     }
@@ -55,28 +73,106 @@ fn encode_bfs(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) {
     let mut possible_results: Vec<(i32, Vec<i32>)> = vec![]; // TODO braucht man eig nd
     let mut best_Qs : Vec<usize> = vec![];
     let mut best_cost = f64::INFINITY;
+
+    // precomute new cost
+    let mut new_cost : Vec<f64> = vec![];
+    for i in 0..n {
+        new_cost.push(0.0);
+        for j in i..n {
+            new_cost[i] += frequencies[j];
+        }
+    }
+    print!("new_cost: {:?}\n", new_cost);
+
+
     while(stack.len() > 0) {
         let (sig, cost, Qs) = stack.pop().unwrap();
         // new_cost = cost + sum([p[i] for i in range(sig[0], n)])
-        let new_cost = cost + sig.iter().skip(1).map(|&p| frequencies[p as usize]).sum::<f64>();
-        if (new_cost > best_cost) {
-            continue;
-        }
-
         if (sig[0] >= n) {
             if (cost < best_cost) {
                 best_cost = cost;
                 best_Qs = Qs.clone();
+                print!("Found new best cost: {}, Qs: {:?}\n", best_cost, best_Qs);
             }
+            continue;
         }
+
+        // If sum sig > n * (r - 1) , then skip
+        if (sig.iter().sum::<usize>() > n * (r - 1)) {
+            continue;
+        }
+
+        let new_cost = cost + new_cost[sig[0]];
+        if (new_cost > best_cost) {
+            continue;
+        }
+
 
         for q in 0..sig[1]+1 {
             let new_sig = extend(&sig, q, &D);
-            stack.push((new_sig.clone(), new_cost, Qs.clone()));
+            stack.push((new_sig.clone(), new_cost, [Qs.clone(), vec![q]].concat()));
         }
 
     }
     print!("Best cost: {}, Qs: {:?}\n", best_cost, best_Qs);
+    return best_cost;
+}
+
+fn encode_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> f64 {
+    frequencies.sort_by(|a, b| b.partial_cmp(a).unwrap());
+    let n = frequencies.len();
+
+    // biggest pearl
+    let C = color_sizes.iter().max().unwrap();
+    // number of occurrences of each pearl size
+    let mut D = vec![0; *C]; // Initialize a vector of size C+1 with zeros
+    let r = color_sizes.len();
+    for &size in &color_sizes {
+        D[size - 1] += 1; // Increment the count for each size
+    }
+    print!("C: {}, D: {:?}\n", C, D);
+    let mut stack: Vec<(Vec<usize>, f64, Vec<usize>)> = vec![([vec![0], (D.clone())].concat(), 0.0, vec![])]; // (sig, cost, Qs)
+    let mut best_Qs : Vec<usize> = vec![];
+    let mut best_cost = 8.1; // f64::INFINITY;
+
+    // precomute new cost
+    let mut new_cost : Vec<f64> = vec![];
+    for i in 0..n {
+        new_cost.push(0.0);
+        for j in i..n {
+            new_cost[i] += frequencies[j];
+        }
+    }
+    let mut visited: i64 = 0;
+    
+    while(stack.len() > 0) {
+        visited += 1;
+        let (sig, cost, Qs) = stack.pop().unwrap();
+        // new_cost = cost + sum([p[i] for i in range(sig[0], n)])
+        if (sig[0] >= n) {
+            if (cost < best_cost) {
+                best_cost = cost;
+                best_Qs = Qs.clone();
+                print!("Found new best cost: {}, Qs: {:?}, stack size: {}, visited: {}\n", best_cost, best_Qs, stack.len(), visited);
+            }
+            continue;
+        }
+
+        let new_cost = cost + new_cost[sig[0]];
+        if (new_cost > best_cost) {
+
+            continue;
+        }
+
+
+        for q in (0..(sig[1]).min(n - sig[0] - sig[1])+1) {
+            let new_sig = reduce(&extend(&sig, q, &D), n);
+            stack.push((new_sig.clone(), new_cost, [Qs.clone(), vec![q]].concat()));
+        }
+
+    }
+    print!("Best cost: {}, Qs: {:?}\n", best_cost, best_Qs);
+    return best_cost;
 }
 
 pub fn parse_file(filename: &str) -> io::Result<(Vec<usize>, String)> {
@@ -124,14 +220,18 @@ pub fn get_frequencies(text: &str) -> HashMap<char, f64> {
         .into_iter()
         .map(|(c, cnt)| (c, cnt as f64 / total))
         .collect()
+
 }
 
 fn main() {
-    let filename = "Examples/schmuck5.txt";
+    let filename = "Examples/schmuck9.txt";
     let (color_sizes, text) = parse_file(filename).expect("Failed to parse file");
-    let frequencies = get_frequencies(&text);
-    // call encode bfs
+    let mut frequencies = get_frequencies(&text);
+    // sort frequencies
     let mut freqs: Vec<f64> = frequencies.values().cloned().collect();
-    encode_bfs(&mut freqs, color_sizes);
+    let best_cost = encode_optimal(&mut freqs, color_sizes);
+    // print best_cost * text_len
+    let text_len = text.chars().count() as f64;
+    println!("Best cost: {:.2}", best_cost * text_len);
 
 }
