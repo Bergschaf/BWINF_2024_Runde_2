@@ -595,20 +595,12 @@
         Um den Beweis weiterzuführen müssen wir die Struktur der Ebene $i+1$ betrachten, vor allem die der neu hinzugefügten Blätter.
         Jedes der $q$ Blätter aus Ebene $i$, das durch unsere Expand-Operation zu einem internen Knoten gemacht wurde, hatte vor der Reduktion $2$ Kinder auf Ebene $i + 1$ und eines auf Ebene $i + 2$.
         Das Kind auf Ebene $i + 2$ wird durch die Reduktion auf jeden Fall entfernt.
-        Da wir nun $l_2 + 1$ Blätter aus Ebene $i +1$ kürzen müssen
-
-
-        Erstmal für $c_1 = c_2 = 1, c_3 = 2$ \\
-        $sig_i = (m\dots)$
-        -> $q$ darf maximal bis $q = n - (m + l_1)$ -> dass beim reduzieren mindestens zwei dableiben\\
-        Erlaubte Blätter auf der Ebene $i + 2$: $n - (m + l_1)$.
-        Wenn $q$ größer des, dann Blättersituation auf Ebene $i$: $l_1 - q$\\
-        Blätter auf Ebene $i + 1$: $l_2 + 2 \cdot q$ \\
-        Gesamtblätter: $m + l_1 - q + l_2 + 2 \cdot q = m + l_1 + l_2 + q$ \\
-        Wenn $q >n - (m + l_1)$, also $q = n - (m + l_1) + x, x > 0$ \\
-        Gesamtblätter: $l_2 + n + x$ \\
-        Dann werden $l_2$ Blätter wegreduziert und mindestens eins dazu.
-        Des ist aber schlecht, weil dann hat einer der expandierten knoten nur 1 blatt und damit kann der baum nichtmehr optimal sein (bzw. man hätte weniger expandieren sollen)
+        Da wir nun $l_2 + 1$ Blätter aus Ebene $i + 1$ kürzen müssen, wird mindestens ein Knoten, der vorher Erweitert wurde, nur noch ein Kind haben. (Da die Ebene $i + 1$ vor der Erweiterung $l_2$ Blätter hatte und $l_2 + 1$ Blätter heraus gekürzt werden müssen.)
+        Durch die Reduktion werden diese Knoten, die nur noch ein Kind haben, dann zu einem Blatt gemacht.
+        Dadurch erreicht man einen Zustand, den man auch mit einer Erweiterung mit einem kleineren $q$ erreicht hätte.
+        Dieser wurde aber schon in einer vorherigen Iteration der Schleife berücksichtigt.
+        Wir haben also für das Beispiel $c_1 = c_2 = 1$ und $c_3 = 2$ gezeigt, dass es genügt, wenn $q$ die Werte $[0, \dots, \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}]$ durchläuft.\\
+        Die Verallgemeinerung dieses Beweises ist trivial und wird daher dem Leser überlassen. (Falls der Leser sich eine Lösung wünscht, ist diese im Anhang zu finden.)
     \end{proof}
 
     \subsection{Heuristik}
@@ -654,4 +646,12 @@
     Unwichtige Teile des Programms sollen hier nicht abgedruckt werden. Dieser Teil sollte nicht mehr als 2–3 Seiten umfassen, maximal 10.
 
 
+    \section{Anhang}
+    Tatsächlich:
+    \begin{lemma}
+        Es ist ausreichend, dass $q$ nur die Werte $[0, \dots, \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}]$ durchläuft.
+    \end{lemma}
+    \begin{proof}
+        TODO
+    \end{proof}
 \end{document}

@@ -133,7 +133,7 @@ fn encode_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> f64 
     print!("C: {}, D: {:?}\n", C, D);
     let mut stack: Vec<(Vec<usize>, f64, Vec<usize>)> = vec![([vec![0], (D.clone())].concat(), 0.0, vec![])]; // (sig, cost, Qs)
     let mut best_Qs : Vec<usize> = vec![];
-    let mut best_cost = 8.1; // f64::INFINITY;
+    let mut best_cost =  f64::INFINITY;
 
     // precomute new cost
     let mut new_cost : Vec<f64> = vec![];
@@ -144,7 +144,7 @@ fn encode_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> f64 
         }
     }
     let mut visited: i64 = 0;
-    
+
     while(stack.len() > 0) {
         visited += 1;
         let (sig, cost, Qs) = stack.pop().unwrap();
@@ -165,7 +165,7 @@ fn encode_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> f64 
         }
 
 
-        for q in (0..(sig[1]).min(n - sig[0] - sig[1])+1) {
+        for q in (0..(sig[1]).min(n - sig.iter().take(color_sizes[1]+1).sum::<usize>())+1) {
             let new_sig = reduce(&extend(&sig, q, &D), n);
             stack.push((new_sig.clone(), new_cost, [Qs.clone(), vec![q]].concat()));
         }

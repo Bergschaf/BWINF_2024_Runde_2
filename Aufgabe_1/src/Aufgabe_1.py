@@ -323,7 +323,7 @@ class Encoder:
                     print(best_cost.__round__(4), len(stack))
                 continue
 
-            for q in range(0, min(sig[1], n - sig[0] - sig[1]) + 1):
+            for q in range(0, min(sig[1], n - sum(sig[i] for i in range(self.color_sizes[1] + 1))) + 1):
             #for q in range(0, min(sig[1], (n - sig[0] - sig[1]) // max(1, D[1])) + 1):
                 new_sig = reduce(extend(sig, q, D), n)
 
