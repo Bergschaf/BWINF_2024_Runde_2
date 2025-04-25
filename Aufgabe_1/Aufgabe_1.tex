@@ -564,6 +564,7 @@
     Da wir den Reduktionsschritt hinzugefügt haben, müssen wir hier nicht mehr überprüfen, ob die Signatur mehr als $n (r - 1)$ Blätter hat. \\
     In dem Paper (TODO Quelle) wird eine einfache Optimierung vorgeschlagen, mit der nicht immer alle Werte von $q$ durchlaufen werden müssen.
     \begin{lemma}
+        \label{lem:reader_1}
         Es ist ausreichend, dass $q$ nur die Werte $[0, \dots, \min\{l_1, n - \left(m + \sum^{c_2}_{j=1} l_j\right)\}]$ durchläuft.
     \end{lemma}
     In dem Paper wurde diese Optimierung jedoch nicht bewiesen oder näher erläutert, es wurde lediglich gesagt: \glqq We leave it as an exercise for the reader to check that this is correct.\grqq \\
@@ -600,61 +601,9 @@
         Dadurch erreicht man einen Zustand, den man auch mit einer Erweiterung mit einem kleineren $q$ erreicht hätte.
         Dieser wurde aber schon in einer vorherigen Iteration der Schleife berücksichtigt.
         Wir haben also für das Beispiel $c_1 = c_2 = 1$ und $c_3 = 2$ gezeigt, dass es genügt, wenn $q$ die Werte $[0, \dots, \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}]$ durchläuft.\\
-        Die Verallgemeinerung dieses Beweises ist trivial und wird daher dem Leser überlassen. (Falls der Leser sich eine Lösung wünscht, ist diese im Anhang zu finden.)
+        Die Verallgemeinerung dieses Beweises ist trivial und wird daher dem Leser überlassen.
+        (Falls der Leser sich eine Lösung wünscht, ist diese im Anhang zu finden: Lemma \ref{lem:reader_2}.)
     \end{proof}
-    \begin{proof}
-        Sei $sig_i(T) = (m, l_1, \dots, l_C)$ wieder die Signatur des Ebene-$i$-Baums $T$, den wir nun um $q$ erweitern wollen.
-        Wir setzten $q \gets n - (m + \sum^{c_2}_{j=1} l_j) + x$ mit $x \in \mathbb N$ und $x > 0$, um zu zeigen, dass alle Erweiterungen mit $q > \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}$ redundant sind. \\
-        Sei $T' = Expand(T, q)$ mit der Signatur $sig_i(T') = (m', l_1', \dots, l_C')$.
-        Durch die Regeln der Erweiterung wissen wir:
-        \begin{enumerate}
-            \item $m' = m + l_1 - q$
-            \item $l_j' = l_{j+1} + q \cdot d_j$
-        \end{enumerate}
-        Entweder ist $c_1 = c_2$ oder $c_1 < c_2$. Wir beschäftigen uns zuerst mit dem Fall, dass $c_1 < c_2$. \\
-
-        Für die Anzahl aller Blätter auf den Ebenen $0, \dots, i + c_2 - 1$ gilt jetzt:
-        \begin{equation}
-            \begin{aligned}
-                m' + \sum^{c_2}_{j=1} l_j' &=  m + l_1 - q + \left(\sum^{c_2-1}_{j=1} l_{j+1} + q \cdot d_j\right)\\
-                %TODO den schritt erklären (weil d_j nur einmal = 1)(NICHT ZWINGED, vlt auch garkeinmal = 1) für j < c_2
-                &= m + l_1 - q + \left(\sum^{c_2-1}_{j=1} l_{j+1}\right) + q\\
-                &= m + l_1 + \left(\sum^{c_2-1}_{j=1} l_{j+1}\right)\\
-            \end{aligned}\label{eq:equation3}
-        \end{equation}
-        Für die Anzahl aller Blätter auf den Ebenen $0, \dots, i + c_2$ gilt jetzt:
-        \begin{equation}
-            \begin{aligned}
-                m' + \sum^{c_2}_{j=1} l_j' &= m + l_1 - q + \sum^{c_2}_{j=1} l_{j+1} + q \cdot d_j\\
-                &= m + l_1 - q + \left(\sum^{c_2-1}_{j=1} l_{j+1} + q \cdot d_j\right) + l_{c_2 + 1} + q \cdot d_{c_2}\\
-                % TODO den schritt erklären (weil d_j nur einmal = 1) für j < c_2
-                &= m + l_1 - q + l_{c_2 + 1} + q \cdot d_{c_2} + \left(\sum^{c_2-1}_{j=1} l_{j+1}\right) + q\\
-                &= m + l_1 + l_{c_2 + 1} + q \cdot d_{c_2} + \sum^{c_2-1}_{j=1} l_{j+1}\\
-                &=m + l_1 + l_{c_2 + 1} + q + q \cdot (d_{c_2} - 1)  + \sum^{c_2-1}_{j=1} l_{j+1} \\
-            &= m + l_1 +  \left(n - (m + \sum^{c_2}_{j=1} l_j) + x\right) + q \cdot (d_{c_2} - 1) + \sum^{c_2-1}_{j=1} l_{j+1} \\
-            &= m + l_{c_2 + 1} +  \left(n - (m + \sum^{c_2}_{j=1} l_j) + x\right) + q \cdot (d_{c_2} - 1) + \sum^{c_2}_{j=1} l_{j} \\
-            &= n + l_{c_2 + 1} + q \cdot (d_{c_2} - 1) + x\\
-            \end{aligned}\label{eq:equation2}
-        \end{equation}
-        Daraus bilden wir die Differenz, um die Anzahl der Blätter auf der Ebene $i + c_2$ zu berechnen:
-
-        \begin{equation}
-            \begin{aligned}
-                \left(m + l_1 + l_{c_2 + 1} + q \cdot d_{c_2} + \sum^{c_2-1}_{j=1} l_{j+1}\right) - \left(m + l_1 + \left(\sum^{c_2-1}_{j=1} l_{j+1}\right)\right) = l_{c_2+1} + q \cdot d_{c_2}
-            \end{aligned}\label{eq:equation132}
-        \end{equation}
-    \end{proof}
-    Um nun mit ...
-    Wir müssen zeigen, dass die Anzahl aller Blätter auf den Ebenen $0, \dots, i + c_2$ größer als $n$ ist und wir reduzieren müssen:
-
-    \begin{equation}
-        \begin{align}
-            m + l_1 + l_{c_2 + 1} + q \cdot d_{c_2} + \sum^{c_2-1}_{j=1} l_{j+1} &=m + l_1 + l_{c_2 + 1} + q + q \cdot (d_{c_2} - 1)  + \sum^{c_2-1}_{j=1} l_{j+1} \\
-            &= m + l_1 +  \left(n - (m + \sum^{c_2}_{j=1} l_j) + x\right) + q \cdot (d_{c_2} - 1) + \sum^{c_2-1}_{j=1} l_{j+1} \\
-            &= m + l_{c_2 + 1} +  \left(n - (m + \sum^{c_2}_{j=1} l_j) + x\right) + q \cdot (d_{c_2} - 1) + \sum^{c_2}_{j=1} l_{j} \\
-            &= n + l_{c_2 + 1} + q \cdot (d_{c_2} - 1) + x\\
-        \end{align}\label{eq:equation4}
-    \end{equation}
 
     \subsection{Heuristik}
     Da dieser Algorithmus für große Eingabealphabete ($n >> 100$) deutlich zu langsam (Die i32 counter variable ist mehrfach overflowed) ist und zu viel Speicher verwendet, ...
@@ -702,7 +651,45 @@
     \section{Anhang}
     Tatsächlich:
     \begin{lemma}
+        \label{lem:reader_2}
         Es ist ausreichend, dass $q$ nur die Werte $[0, \dots, \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}]$ durchläuft.
     \end{lemma}
+    \begin{proof}
+        Sei $sig_i(T) = (m, l_1, \dots, l_C)$ wieder die Signatur des Ebene-$i$-Baums $T$, den wir nun um $q$ erweitern wollen.
+        Wir setzten $q \gets n - (m + \sum^{c_2}_{j=1} l_j) + x$ mit $x \in \mathbb N$ und $x > 0$, um zu zeigen, dass alle Erweiterungen mit $q > \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}$ redundant sind. \\
+        Sei $T' = Expand(T, q)$ mit der Signatur $sig_i(T') = (m', l_1', \dots, l_C')$.
+        Durch die Regeln der Erweiterung wissen wir:
+        \begin{enumerate}
+            \item $m' = m + l_1 - q$
+            \item $l_j' = l_{j+1} + q \cdot d_j$
+        \end{enumerate}
+        Entweder ist $c_1 = c_2$ oder $c_1 < c_2$. Wir beschäftigen uns zuerst mit dem Fall, dass $c_1 < c_2$. \\
+
+        Für die Anzahl aller Blätter auf den Ebenen $0, \dots, i + c_2$ gilt jetzt:
+        \begin{equation}
+            \begin{aligned}
+                m' + \sum^{c_2}_{j=1} l_j' &= m + l_1 - q + \sum^{c_2}_{j=1} l_{j+1} + q \cdot d_j\\
+                &= m + l_1 - q + \left(\sum^{c_2-1}_{j=1} l_{j+1} + q \cdot d_j\right) + l_{c_2 + 1} + q \cdot d_{c_2}\\
+                &\text{Da $c_1 < c_2$ gilt $d_j = 0$ für alle $j \in \{j \in \mathbb N \mid j < c_2 \land j \neq c_1\}$. Es gilt aber $d_{c_1} = 1$.} \\
+                &\text{$q \cdot d_j$ ist in der Summe also nur einmal relevant und kann daher \glqq herausgezogen\grqq~werden.} \\
+                % TODO den schritt erklären (weil d_j nur einmal = 1) für j < c_2
+                &= m + l_1 - q + l_{c_2 + 1} + q \cdot d_{c_2} + \left(\sum^{c_2-1}_{j=1} l_{j+1}\right) + q\\
+                &= m + l_1 + l_{c_2 + 1} + q \cdot d_{c_2} + \sum^{c_2-1}_{j=1} l_{j+1}\\
+                &=m + l_1 + l_{c_2 + 1} + q + q \cdot (d_{c_2} - 1)  + \sum^{c_2-1}_{j=1} l_{j+1} \\
+                &= m + l_1 +  \left(n - (m + \sum^{c_2}_{j=1} l_j) + x\right) + q \cdot (d_{c_2} - 1) + \sum^{c_2-1}_{j=1} l_{j+1} \\
+                &= m + l_{c_2 + 1} +  \left(n - (m + \sum^{c_2}_{j=1} l_j) + x\right) + q \cdot (d_{c_2} - 1) + \sum^{c_2}_{j=1} l_{j} \\
+                &= n + l_{c_2 + 1} + q \cdot (d_{c_2} - 1) + x\\
+            \end{aligned}\label{eq:equation2}
+        \end{equation}
+        Wir können jetzt wieder wie im oberen Beweis vorgehen und den Reduktionsvorgang nachvollziehen. \\
+        Auf allen Ebenen $> i + c_2$ müssen auf jeden Fall alle Blätter gelöscht werden, da schon bis Ebene $i + c_2$ mehr als $n$ Blätter erreicht sind.
+        Da $c_1 \le c_2$ hat jeder Knoten, den wir vorher erweitert haben genau $d_2 + 1$ Kinder.
+        Wir müssen auf jeden Fall wieder die $l_{c_2 + 1}$ Blätter löschen, die bereits vor der Erweiterung da waren.
+        Anschließend müssen wir weitere $q \cdot (d_{c_2} - 1)$ Blätter entfernen.
+        Jeder der Knoten, die wir vorher erweitert haben, hat nun genau ein Kind auf Ebene $i + c_1$ und ein Kind auf Ebene $i + c_2$.
+        Wir müssen aber noch $x > 0$ Blätter auf Ebene $i + c_2$ löschen, d.h.\ es gibt wieder mindestens einen Knoten, der nur ein Kind hat.
+        Durch weitere Reduktion entsteht nun ein Zustand, der auch durch eine Erweiterung mit einem kleineren $q$ erreicht werden könnte (siehe Beweis von Lemma \ref{lem:reader_1}). \\
+        Der Fall $c_1 = c_2$ ist eine triviale Abwandlung dieses Beweises und wird dem Leser überlassen :)
+    \end{proof}
 
 \end{document}
