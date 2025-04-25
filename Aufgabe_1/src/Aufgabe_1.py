@@ -397,15 +397,6 @@ def attach_tree_at_leaf(leaf, root):
     root.parent = leaf.parent
 
 
-def parse_file(filename):
-    with open(filename, "r") as f:
-        lines = f.readlines()
-        color_sizes = lines[1]
-        text = lines[2][:-1] # remove \n
-        color_sizes = list(map(int, color_sizes.split()))
-    return color_sizes, text
-
-
 def get_frequencies(text):
     return {i: text.count(i) / len(text) for i in set(text)}
 
@@ -427,10 +418,17 @@ def assume_equal_probabilites(color_sizes, frequencies):
         if len(get_leaves_rec(root)) >= len(frequencies):
             return generate_code_from_tree(root)
 
+def parse_file(filename):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+        color_sizes = lines[1]
+        text = lines[2][:-1] # remove \n
+        color_sizes = list(map(int, color_sizes.split()))
+    return color_sizes, text
 
 if __name__ == '__main__':
 
-    filename = ("Examples/schmuck8.txt")
+    filename = ("Examples/schmuck01.txt")
     color_sizes, text = parse_file(filename)
     #qs = Encoder(get_frequencies(text), color_sizes).encode_bfs(get_frequencies(text).values())
     #print(qs)

@@ -31,6 +31,7 @@
 
 % Für Algorithmen
 \usepackage{algpseudocode}
+\usepackage{algorithm}      % floating wrapper for algorithms
 
 % Für Quelltext
 \usepackage{listings}
@@ -98,7 +99,7 @@
     Dadurch kann der Text als Aneinanderreihung von Codewörtern (ohne \glqq Komma\grqq~dazwischen) übertragen und eindeutig decodiert werden. \\
     Aufgrund von dieser Eigenschaft können wir den Code als einen Baum darstellen, der $n$ Blätter hat und bei dem jeder Knoten höchstens $r$ Kinder hat.
     \begin{definition}
-        Wir nennen einen solchen Baum mit $n$ blättern und höchstens $r$ Kindern \textbf{valide}, da er eine mögliche Codetabelle darstellt.
+        Wir nennen einen solchen Baum mit $n$ blättern und höchstens $r$ Kindern pro Knoten \textbf{valide}, da er eine mögliche Codetabelle darstellt.
     \end{definition}
     Jedes Blatt eines solchen Baums repräsentiert ein Codewort $w$, dass eindeutig durch den Pfad von der Wurzel des Baums zu diesem Blatt definiert ist. Der Pfad wird durch die Kanten des Baums definiert, die mit den Perlen beschriftet sind. Da alle Perlen gleich groß sind, also die Länge aller Buchstaben des Ausgabealphabets gleich ist, ist die Beschriftung der Kanten beliebig. Es ist lediglich wichtig, dass alle Kanten eines Knotens mit unterschiedlichen Buchstaben beschriftet sind. Die Länge des Codeworts $|w|$ entspricht der Anzahl der Kanten auf dem Pfad von der Wurzel zu diesem Blatt. \\
     Da wir eine optimale Codetabelle (also eine möglichst kurze Perlenkette) erstellen wollen, müssen wir die \glqq Kosten\grqq~eines Baums definieren.
@@ -135,7 +136,7 @@
         Für $n = 4$ werden im ersten Schritt drei Knoten zu einem zusammengefasst. Im nächsten sind nur noch zwei Knoten übrig. Würde man diese Knoten nun zu einem fertigen Baum kombinieren wäre dieser für bestimmte Häufigkeitsverteilungen (z.B. $p_0 = p_1 = p_2 = p_3$) nicht optimal.
             % TODO Bild
     \end{beispiel}
-    Daher muss das Alphabet zuerst mit so vielen Platzhalterbuchstaben, deren Antreffwahrscheinlichkeit 0 ist, aufgefüllt werden, dass gilt: $n \mod (n - 1) = 1$.\\ % (TODO erklären warum genau des oder Quelle)
+    Daher muss das Alphabet zuerst mit so vielen Platzhalterbuchstaben, deren Antreffwahrscheinlichkeit 0 ist, aufgefüllt werden, dass gilt: $n \mod (r - 1) = 1$.\\ % (TODO erklären warum genau des oder Quelle)
     Jetzt können wir mit der Konstruktion beginnen:
     \begin{enumerate}
         \item Erstelle für jeden Buchstaben $o_i$ im Alphabet (inklusive Platzhalter) einen Teilbaum (der aus einem Wurzelknoten besteht) und beschriften diesen mit der Frequenz $p_i$ des Buchstabens $o_i$.
@@ -178,11 +179,58 @@
 
     \subsubsection{Pseudocode}
 
+    \begin{algorithm} [H]
+        \caption{\textsc{ErstelleHuffmanBaum}\,(r, A, p)}
+        \label{alg:huffman-r-ary}
+        \begin{algorithmic}[1]
+            \Function{ErstelleHuffmanBaum}{$r, A, p$}
+                \State /* $r$: max. Kinder pro Knoten; $A$ Alphabet; $p[a]$: Frequenz von Symbol $a$ */
+                \State Initialisiere MinHeap $H$
+                \ForAll{$a \in A$}
+                    \State Erzeuge Blattknoten $node$ mit $node.\text{symbol}\!=\!a$ und $node.\text{freq}\!=\!p[a]$
+                    \State $H.\text{push}(node)$
+                \EndFor
+                \State $n \gets |A|$, \quad $m \gets 0$
+                \While{$(n + m) \bmod (r-1) \neq 1$}
+                    \State Erzeuge Platzhalter‐Blatt $z$ mit $z.\text{freq}=0$
+                    \State $H.\text{push}(z)$
+                    \State $m \gets m + 1$
+                \EndWhile
+
+                \While{$H.\text{size}() > 1$}
+                    \State /* Ziehe die $r$ Bäume mit der kleinsten Frequenz aus dem Heap */
+                    \State $C \gets [\ ]$
+                    \For{$i = 1$ \textbf{to} $r$}
+                        \State $C.\text{append}(H.\text{pop}())$
+                    \EndFor
+                    \State /* Erzeuge neuen inneren Knoten als Wurzel dieser $r$ Kinder */
+                    \State $new\_node.\text{freq} \gets \sum_{c \in C} c.\text{freq}$
+                    \State $new\_node.\text{children} \gets C$
+                    \State $H.\text{push}(new\_node)$
+                \EndWhile
+
+                \State \Return $H.\text{pop}()$  \Comment{Wurzel des fertigen Huffman-Baums}
+            \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+
     \subsubsection{Laufzeit}
+    Die Laufzeitbetrachtung ist ähnlich wie bei binären Huffman Bäumen:\\ % TODO QUelle Wikiepdia
+    Sei $n$ die Länge des Alphabets und $t$ die Länge des Originaltextes.
+    Um die Frequenzen der Buchstaben zu bestimmen, muss der Text einmal durchlaufen werden.
+    Diese Funktion, die im Pseudocode oben nicht aufgeführt ist, hat also eine Asymptotische Laufzeit von $O(t)$.
+    Die For-Schleife, die für jeden Blattknoten einen Buchstaben erzeugt hat eine Laufzeit von $O(n)$. Da $n < t$ erhöht diese For-Schleife die asymptotische Laufzeit aber nicht.
+    Die While-Schleife, die Platzhalterknoten einfügt, iteriert höchstens $(r-1)$ mal. Da $r < n$ (sonst wäre die Codierung trivial) trägt diese While-Schleife auch nicht zur Asymptotischen Laufzeit bei.\\
+    In der Haupt-While-Schleife wird der Heap mit einer anfänglichen Größe von $O(n)$ in jeder iteration um $r-1$ verkleinert, sie hat also eine Laufzeit von $O(\frac n r)$.
+    In der Schleife werden $r$ Knoten aus dem Heap gezogen und einer wieder eingefügt, jeweils mit einer Laufzeit von $O(\log n)$.
+    Der innere Teil der While-Schleife hat also eine Laufzeit von $O(r \cdot \log n)$ und damit gilt für die Laufzeit der While-Schleife: $O(n \cdot \log n)$.
+    Das gesamte Programm hat also eine asymptotische Laufzeit von $O(t + n \cdot \log n)$
+
+
 
     \subsection{Ungleiche Perlengrößen}
     TODO entweder bei 1 anfangen und bis r oder bei 0 anfagnen und bis r-1
-    Im Aufgabenteil b) haben die Perlen $o_1, \cdot, o_r$ unterschiedliche, ganzzahlige Durchmesser $c_1, \cdot, c_r$. Wir sortieren die Perlen ab jetzt so, dass gilt: $c_1 \le c_2 \le \dots \le c_r = C$ und wir bezeichnen den Durchmesser der größten Perle $c_r$ mit $C$. \\
+    Im Aufgabenteil b) haben die Perlen unterschiedliche, ganzzahlige Durchmesser $c_1, \dots, c_r$. Wir sortieren die Perlen ab jetzt so, dass gilt: $c_1 \le c_2 \le \dots \le c_r = C$ und wir bezeichnen den Durchmesser der größten Perle $c_r$ mit $C$. \\
     Wir eine Codetabelle, die mit unterschiedlich großen Perlen erstellt wurde ähnlich wie in Aufgabenteil a) wieder als Baum darstellen.
     \begin{definition}
         Wir bezeichnen die Tiefe eines Knotens $V$ mit $depth(V)$. Die Tiefe des Wurzelknotens ist 0.
@@ -341,7 +389,7 @@
         \begin{enumerate}
             \item Wenn $T_1 = T_2$, dann gilt $Expand_i(T_1, q) = Expand_i(T_2, q)$
             \item Wenn $T_1 = T_2$, dann gilt $cost(T_1) = cost(T_2)$
-            \item Wenn $T_1 = T_2$, dann haben $T_1$ und $T_2$ auf jeder Anzahl die gleiche Anzahl an internen Knoten
+            \item Wenn $T_1 = T_2$, dann haben $T_1$ und $T_2$ auf jeder Ebene die gleiche Anzahl an internen Knoten
         \end{enumerate}
     \end{korollar}
     \begin{lemma}
@@ -349,19 +397,23 @@
         Es gibt ein $q$, sodass $Expand_i(T) = T'$.
     \end{lemma}
     \begin{proof}
-        Folgt aus der Definition von $Expand_i$.
+        Folgt aus der Definition von $Expand_i$ und daraus, dass Äquivalente Bäume auf jeder Ebene die gleiche Anzahl an internen Knoten haben.
     \end{proof}
     \begin{korollar}
-        Jeder vollständige Ebene-$i$-Baum kann durch $i$ Expand-Operationen vom Wurzel-Baum aus konstruiert werden.
+        Jeder vollständige Ebene-$i$-Baum kann bis auf Aquivalenz durch $i$ Expand-Operationen vom Wurzel-Baum aus konstruiert werden.
     \end{korollar}
+    Da $Fill(T_opt)$ höchstens $n (r -1)$ Blätter hat können wir $Fill(T_opt)$ finden, indem wir vom Wurzel-Baum % TODo Wurzel Baum definieren
+    durch $Expand_i$ alle vollständigen Bäume durchsuchen, die $m \le (r - 1)$ Blätter haben.
 
     \begin{lemma}
+
         WICHTIG \\
         $cost(Fill(T_{opt})) = cost(T_{opt})$ -> ist glaub schon fix \\
         $Fill(T_{opt})$ wird von der naiven Implementierung gefunden weil lemma davor\\
         Für alle $T$ mit $sig_i = (m, l_1, l_2, etc)$ und $m \ge n$ gilt $cost(T) = cost(sig_i)$
         -> Damit ist die naive methode optimal
     \end{lemma}
+
 
 
 
@@ -388,6 +440,10 @@
 %
 %        Oder allgemein annahme, dass p_0 = p_1 = p_2, was macht des??
 %        $cost_i(T) = \sum^m_{j=1}|w_j| \cdot p + i \cdot p^{(m + 1 - 1)}$
+
+
+
+    TODO NP schwere?
 
 
     \section{Umsetzung}
