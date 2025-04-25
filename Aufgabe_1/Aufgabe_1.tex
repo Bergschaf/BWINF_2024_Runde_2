@@ -59,7 +59,7 @@
 \newtheorem{korollar}[satz]{Korollar}
 
 % Diese beiden Pakete müssen zuletzt geladen werden
-%\usepackage{hyperref} % Anklickbare Links im Dokument
+\usepackage{hyperref} % Anklickbare Links im Dokument
 \usepackage{cleveref}
 \usepackage{comment}
 
@@ -425,9 +425,10 @@
         Folgt aus der Definition von $Expand_i$ und daraus, dass Äquivalente Bäume auf jeder Ebene die gleiche Anzahl an internen Knoten haben.
     \end{proof}
     \begin{korollar}
+        \label{lem:funktioniert}
         Jeder vollständige Ebene-$i$-Baum kann bis auf Äquivalenz durch $i$ Expand-Operationen vom Wurzel-Baum aus konstruiert werden.
     \end{korollar}
-    Da $Fill(T_opt)$ höchstens $n (r -1)$ Blätter hat können wir $Fill(T_opt)$ finden, indem wir vom Wurzel-Baum % TODo Wurzel Baum definieren
+    Da $Fill(T_{opt})$ höchstens $n (r -1)$ Blätter hat können wir $Fill(T_{opt})$ finden, indem wir vom Wurzel-Baum % TODo Wurzel Baum definieren
     durch $Expand_i$ alle vollständigen Bäume durchsuchen, die $m \le (r - 1)$ Blätter haben.
 
 
@@ -447,10 +448,6 @@
                 \State $best\_tree \gets \text{null}$
                 \While{$stack \neq \emptyset$}
                     \State $(\sigma,\,cost,\,Qs) \gets stack.\mathrm{pop}()$
-                    \State $new\_cost \gets cost \;+\;\sum_{i=\sigma[0]}^{n-1} p[i]$
-                    \If{$new\_cost > best\_cost$}
-                        \State \textbf{continue}
-                    \EndIf
                     \If{$\sum \sigma > n\,(r-1)$}
                         \State \textbf{continue}
                     \EndIf
@@ -461,6 +458,11 @@
                         \EndIf
                         \State \textbf{continue}
                     \EndIf
+                    \State $new\_cost \gets cost \;+\;\sum_{i=\sigma[0]+1}^{n} p_i$
+                    \If{$new\_cost > best\_cost$}
+                        \State \textbf{continue}
+                    \EndIf
+
 
                     \For{$q = 0$ \textbf{to} $\sigma[1]$}
                         \State $\sigma'\!\gets \textsc{expand}(\sigma,\,q)$
@@ -475,13 +477,24 @@
     Am Anfang enthält der Stack nur den Wurzel-Baum, dessen Signatur die Kosten 0 hat.
     Im Stack wird außerdem gespeichert, durch welche Erweiterungen (Werte von $q$) der jeweilige Baum erreicht wurde.
     Die \textit{best\_cost} und \textit{best\_tree} Variablen speichern die Kosten und die Werte der Erweiterungen des bisher besten Baums.
-    ....
-    TODO erklären, dass damit alle gefunden werden
+    Die \textit{While}-Schleife läuft bis alle Bäume besucht oder für zu teuer befunden wurden.
+    Für jedes Element in \textit{stack} werden zuerst überprüft, ob es bereits zu viele Blätter hat, um die Vervollständigung eines optimalen Baums zu sein.\\
+    Falls das erste Element der Signatur (also $m$) bereits größer oder gleich $n$ ist, hat der Baum genug Blätter um alle $n$ Buchstaben zu codieren.
+    Wenn der Baum \glqq billiger\grqq~als der beste Baum ist, der bisher gefunden wurde, werden die Werte von $q$ gespeichert, die verwendet wurden, um den Baum zu erreichen. \\
+    Falls der Baum noch nicht groß genug ist, muss er erweitert werden, das hat aber einen Preis, der nun berechnet und mit dem besten Preis verglichen wird. \\
+    Anschließend wird der Baum für jeden Wert von $q$ erweitert und die Ergebnisse werden wieder an den stack angehängt. \\
+    Nach der \textit{While}-Schleife haben wir die Anzahl der internen Knoten des besten Baums.
+    Dieser wird dann mit der \textsc{generate\_tree} Funktion generiert.
+    Die Codetabelle kann dann über die Pfade zu den $n$ höchsten Blättern generiert werden. \\
+    Da wir in Lemma \ref{lem:funktioniert} gezeigt haben, dass jeder vollständige Baum (und damit auch $Fill(T_{opt})$) durch mehrere \textit{Expand} Operationen erzeugt werden kann, findet Algorithmus \ref{alg:optimal_tree} sicher den optimalen Baum.
 
     \subsubsection{Laufzeit}
-    TODO
+    Da der Algorithmus im Wort-Case alle Signaturen mit $\sum sig \le n (r - 1)$ durchläuft, läuft die \textit{While}-Schleife Asymptotisch $O((n (r - 1))^{C+1})$ mal durch.
+    Die \textit{For}-Schleife läuft $l_1 + 1$, also asymptotisch $O(n(r-1))$ mal durch und die \textit{Expand}-Operation hat eine Laufzeit von $O(C)$.
+    Damit hat dieser Algorithmus eine asymptotische Laufzeit von $O((n(r-1))^{C+2} \cdot C)$. \\
+    TODO genauer so ähnlich wie im paper.
 
-    \subsection{Optimierung} % TODO besserer Titel
+    \subsection{Reduktion auf $n$ Blätter} % TODO besserer Titel
     Im vorherigen Kapitel haben wir uns der Einfachheit halber auf vollständige Bäume beschränkt.
     Dadurch mussten wir aber immer Bäume mit bis zu $n(r - 1)$ Blättern betrachten, was vor allem für große $n$ und $r$ zu langer Rechenzeit führt.
     Da wir die optimalen Bäume trotzdem wie im vorherigen Kapitel Ebene für Ebene generieren wollen, definieren wir die \textit{Reduce}-Funktion um \glqq überschüssige\grqq~Blätter zu entfernen.
@@ -511,12 +524,6 @@
         \end{algorithmic}
     \end{algorithm}
 
-    \begin{definition}
-        TODO
-        $S \le S'$ if \[(m + l_1 + \dots + l_C, m + l_1 + \dots + l_{C-1}, \dots, m + l_1, m])\]
-        Lexigraphisch kleiner (linker eintrag zählt am meisten)
-        \[(m' + l_1' + \dots + l_C', m' + l_1' + \dots + l_{C-1}', \dots, m' + l_1', m'])\]
-    \end{definition}
     \begin{lemma}
         Sei $T_{opt}$ ein optimaler Baum mit der Höhe $height(T) = h$. $T_{opt}$ kann bis auf Äquivalenz durch $h$-fache Iteration der Funktion $T' = Reduce(Expand(T',q))$ (für bestimmte Werte von $q$) erzeugt werden. % TODO vlt cleverer formulieren
     \end{lemma}
@@ -604,6 +611,13 @@
         Die Verallgemeinerung dieses Beweises ist trivial und wird daher dem Leser überlassen.
         (Falls der Leser sich eine Lösung wünscht, ist diese im Anhang zu finden: Lemma \ref{lem:reader_2}.)
     \end{proof}
+
+    \subsubsection{Laufzeit}
+    Der Algorithmus betrachtet im Worst-Case alle Signaturen mit $\sum sig \le n$, also wird die \textit{While}-Schleife $O(n^{C+1})$ mal durchlaufen.
+    Die \textit{For}-Schleife hat wieder eine asymptotische Laufzeit von $O(C \cdot n(r-1))$, da sie $O(n(r-1))$ mal ausgeführt wird und die \textit{Expand} und \textit{Reduce} Operationen jeweils eine Laufzeit von $O(C)$ haben. Insgesamt hat der Algorithmus also eine Asymptotische Laufzeit von $O(C \cdot n(r-1) \cdot n ^ {C + 1})$. \\
+
+
+
 
     \subsection{Heuristik}
     Da dieser Algorithmus für große Eingabealphabete ($n >> 100$) deutlich zu langsam (Die i32 counter variable ist mehrfach overflowed) ist und zu viel Speicher verwendet, ...
