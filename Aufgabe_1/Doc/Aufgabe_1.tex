@@ -5,9 +5,9 @@
 \usepackage[a4paper,margin=2.5cm,footskip=0.5cm]{geometry}
 
 % Die nächsten drei Felder bitte anpassen:
-\newcommand{\Aufgabe}{Aufgabe 1: \LaTeX-Dokument} % Aufgabennummer und Aufgabennamen angeben
-\newcommand{\TeilnahmeId}{?????}                  % Teilnahme-ID angeben
-\newcommand{\Name}{Vor- und Nachname}             % Name des Bearbeiter / der Bearbeiterin dieser Aufgabe angeben
+\newcommand{\Aufgabe}{Aufgabe 1: Schmucknachrichten} % Aufgabennummer und Aufgabennamen angeben
+\newcommand{\TeilnahmeId}{74749}                  % Teilnahme-ID angeben
+\newcommand{\Name}{Christian Krause}             % Name des Bearbeiter / der Bearbeiterin dieser Aufgabe angeben
 
 
 % Kopf- und Fußzeilen
@@ -250,8 +250,10 @@
     TODO (Die tiefsten Knoten sind nicht zwingend Nachbarn, weil c1 = c2 etc)
 
     \subsubsection{Vollständige Bäume}
-    Golin und Rote präsentierten 1998 in ihrem Paper \textit{A Dynamic Programming Algorithm for Constructing
-        Optimal Prefix-Free Codes with Unequal Letter Costs} \cite{golin_dynamic_1998} einen neuen Der und der haben 19irgendwas einen neuen Ansatz vorgestellt... sehr ausführlich hier fokusssiert auf das wesentliche) \\
+    Golin und Rote stellen 1998 in ihrem Paper \cite{golin_dynamic_1998} einen neuen Ansatz zur Berechnung von optimalen Präfixfreien Codes für unterschiedliche Kosten der Buchstaben vor.
+    Da das dem Problem in Aufgabenteil b) entspricht, orientiere ich mich in den folgenden Kapiteln an diesem Paper.
+    Es ist aber anzumerken, dass meine Algorithmen nicht genau denen im Paper entsprechen, sondern durch einen etwas anderen Ansatz in der Praxis deutlich schneller sind.
+    Am Ende diskutiere ich diese Unterschiede noch genauer.\\
     Da es in diesem Aufgabenteil also nicht möglich ist, die Bäume von unten nach oben mit einem Greedy-Algorithmus zu erstellen, müssen wir alle mögliche Lösungen betrachten.
     In diesem Kapitel werden wir uns zuerst auf vollständige Bäume beschränken, indem wir ähnlich wie in Teil a) fehlende Buchstaben durch Platzhalter mit Frequenz 0 ersetzen:
     \begin{definition}
@@ -578,12 +580,12 @@
         \end{algorithmic}\label{alg:algorithm}
     \end{algorithm}
     Da wir den Reduktionsschritt hinzugefügt haben, müssen wir hier nicht mehr überprüfen, ob die Signatur mehr als $n (r - 1)$ Blätter hat. \\
-    In dem Paper (TODO Quelle) wird eine einfache Optimierung vorgeschlagen, mit der nicht immer alle Werte von $q$ durchlaufen werden müssen.
+    In dem Paper von \cite{golin_dynamic_1998} wird eine einfache Optimierung vorgeschlagen, mit der nicht immer alle Werte von $q$ durchlaufen werden müssen.
     \begin{lemma}
         \label{lem:reader_1}
         Es ist ausreichend, dass $q$ nur die Werte $[0, \dots, \min\{l_1, n - \left(m + \sum^{c_2}_{j=1} l_j\right)\}]$ durchläuft.
     \end{lemma}
-    In dem Paper wurde diese Optimierung jedoch nicht bewiesen oder näher erläutert, es wurde lediglich gesagt: \glqq We leave it as an exercise for the reader to check that this is correct.\grqq \\
+    Leider wurde diese Optimierung jedoch nicht bewiesen oder näher erläutert, es wurde lediglich gesagt: \glqq We leave it as an exercise for the reader to check that this is correct.\grqq \\
     Als vorbildlicher Leser habe ich mir natürlich die Mühe gemacht und mir den Kopf über diesen Beweis zerbrochen:
     \begin{proof}
         Der Beweis wird deutlich anschaulicher, wenn man zuerst den Fall $c_1 = c_2 = 1$ und $c_3 = 2$ betrachtet.
@@ -628,10 +630,10 @@
     In der Praxis werden aber deutlich weniger Bäume besucht, da viele bereits durch zu hohe Kosten und und die Obergrenze für $q$ aussortiert werden.
 
     \subsection{Heuristik}
-    Für große Eingabealphabete $n \gg 500$ ist dieser Algorithmus trotzdem deutlich zu langsam.
+    Für große Eingabealphabete ($n \gg 500$) ist dieser Algorithmus trotzdem deutlich zu langsam.
     Daher habe ich eine Heuristik entwickelt, mit der selbst große Codetabellen in kurzer Zeit approximiert werden können. \\
-    Dafür müssen die Buchstaben zuerst anhand einer Cutoff Wahrscheinlichkeit $P_{cut}$ (z.B. $P_{cut} = 0.05$) in häufige und seltene Buchstaben aufgeteilt werden.
-    Alle Buchstaben mit $p_i \ge P_{cut}$ werden ab jetzt als \textit{häufige} Buchstaben bezeichnet, die restlichen Buchstaben mit $p_i < P_{cut}$ sind \textit{seltene} Buchstaben.
+    Dafür müssen die Buchstaben zuerst anhand einer Cutoff-Wahrscheinlichkeit $P_{cut}$ (z.B. $P_{cut} = 0.05$) in häufige und seltene Buchstaben aufgeteilt werden.
+    Alle Buchstaben mit $p_i \ge P_{cut}$ werden ab jetzt als \textit{häufige} Buchstaben $P_h$ bezeichnet, die restlichen Buchstaben mit $p_i < P_{cut}$ sind \textit{seltene} Buchstaben $P_s$:
     \[P_{h} = \{p_i \mid p_i \ge P_{cut}\}~~~~~P_s = \{p_i \mid p_i < P_{cut}\} \text{~~~für alle $p_i$}\]
     Für große $n \gg 500$ gibt es sehr viel mehr seltene Buchstaben, die aufgrund ihrer kleinen Wahrscheinlichkeit aber wenig zur gesamten Codelänge beitragen.
     Die Heuristik beruht auf der Annahme, dass die seltenen Wahrscheinlichkeiten $p_i < P_{cut}$ so geringe Unterschiede haben, dass sie als gleich angesehen werden können.
@@ -653,13 +655,14 @@
     Die Laufzeit der Heuristik beträgt also $O(m^{C+1})$ (TODO überprüfen) mit
     \[m = \max \left\{ S, \left\lfloor   \frac {|P_s|} {S}  \right\rfloor + 1 \right\} \le \max \left\{S, \left\lceil \frac n S \right\rceil \right\}\]
 
-
     \section{Umsetzung}
+
     Hier wird kurz erläutert, wie die Lösungsidee im Programm tatsächlich umgesetzt wurde. Hier können auch Implementierungsdetails erwähnt werden.
     TODO erweiterung: die Kosten der Perlen sind keine ganzen Zahlen mehr, sondern reelle Zahlen.
 
 
     \section{Beispiele}
+
     Genügend Beispiele einbinden! Die Beispiele von der BwInf-Webseite sollten hier diskutiert werden, aber auch eigene Beispiele sind sehr gut – besonders wenn sie Spezialfälle abdecken. Aber bitte nicht 30 Seiten Programmausgabe hier einfügen!
 
     TOOD Latex datei der Dokumentation reinwerfen

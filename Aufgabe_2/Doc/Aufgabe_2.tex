@@ -9,7 +9,7 @@
 \newcommand{\TeilnahmeId}{74749}                  % Teilnahme-ID angeben
 \newcommand{\Name}{Christian Krause}             % Name des Bearbeiter / der Bearbeiterin dieser Aufgabe angeben
 
-
+\usepackage{siunitx}
 % Kopf- und Fußzeilen
 \usepackage{scrlayer-scrpage, lastpage}
 \setkomafont{pageheadfoot}{\large\textrm}
@@ -203,26 +203,14 @@
 
 
     \section{Umsetzung}
-    \begin{lstlisting}[language=Rust]
-enum Instruction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-}
-
-    \end{lstlisting}
 
     \subsection{Breitensuche}
     Ich verwende eine \textit{HashMap} um zu speichern, welche Knoten bereits besucht wurden. Der Schlüssel entspricht dem Knoten der Besucht wurde und der Wert, der hinter dem Schlüssel hinterlegt wird, ist der Knoten, von dem aus der Schlüssel erreicht wurde. Das hat den Vorteil, dass Werte mit Konstanter Laufzeit gesetzt werden können und dass mit konstanter Laufzeit überprüft werden kann, ob ein Knoten bereits besucht wurde.
     Wenn dann der Zielknoten gefunden wurde, kann der Pfad mit der \textit{HashMap} leicht zurückverfolgt werden.
-    \begin{lstlisting}[language=Rust]
-    \end{lstlisting}
 
     \subsection{Bidirektionale Breitensuche}
-    TODO hier ausführlicher Variablen??
     Für die Bidirektionale Breitensuche benötigt man zwei Funktionen; die \textit{forward} und die \textit{backward} Funktion. Die \textit{forward} \glqq erweitert\grqq~einen Knoten entlang der Richtung der Pfeile wie bei der normalen Breitensuche und gibt alle Knoten zurück, die eine Pfadlänge von dem Knoten entfernt sind und noch nicht besucht wurde. \\
-    Die \textit{backward} Funktion muss für einen Knoten alle Knoten finde, von denen aus dieser Knoten mit einer Anweisung erreicht werden kann:
+    Die \textit{backward} Funktion muss für einen Knoten alle Knoten finden, von denen aus dieser Knoten mit einer Anweisung erreicht werden kann:
     \begin{algorithm}[H]
         \label{backward}
         \caption{\textsc{Backward}}
@@ -274,9 +262,50 @@ enum Instruction {
     Wenn Anton oder Bea in ein Loch fallen, gehen sie direkt zum Startfeld zurück. Das bedeutet, wenn die \textit{backward} Funktion alle Felder ermitteln müsste, von denen Anton oder Bea mit einer Anweisung zum Startfeld gelangen können, müsste sie jede Position ausgeben, von der aus ein Loch mit einer Anweisung erreichbar ist. Da das für die meisten Beispieldateien eine sehr große Anzahl an Feldern ist, verwende ich die \textit{backward} Funktion nicht mehr, sobald Anton oder Bea die Position $(0,0)$ Rückwärts besucht haben. Von dort an wird dir Suche nur noch mit der \textit{forward} Funktion fortgeführt. In der Praxis wird aber meistens ein Pfad gefunden, bevor \textit{backward} in einem Labyrinth das Startfeld erreicht. \\
 
     TODO man kann Bidirektionale suche Parallelisierne
+    TODO Bidirektionale Suche Array
+
+
+    \section{Beispiele}
+    \begin{tabular}{||c | c | c | c||}
+        Nummer des Labyrinths & Länge der Optimalen Anweisungssequenz & Laufzeit BFS & Laufzeit BidiBFS \\
+        0                     & 8                                     & $9 \mu s$    & $25 \mu s$       \\
+        \hline
+        1                     & 31                                    & $75 \mu s$   & $120 \mu s$      \\
+        \hline
+        2                     & 66                                    & $2.4 ms$     & $2.6 ms$         \\
+        \hline
+        3                     & 164                                   & $89 ms$      & $56 ms$          \\
+        \hline
+        4                     & 14384                                 & $113 s$      & $37 s$           \\
+        \hline
+        5                     & TODO                                  & TODO         & TODO             \\
+        \hline
+        6                     & 1844                                  & $66 s$       & $107 s$          \\
+        \hline
+        7                     & -                                     & TODO         & TODO             \\
+        \hline
+        8                     & 472                                   & TODO         & $106 s$          \\
+        \hline
+        9                     & TODO                                  & TODO         & TODO             \\
+    \end{tabular}
+
+    \subsection{Interessante Beispiele}
+
+    \subsubsection{Beispieldatei 4}
+    TODO visualisierung alles wird abgelaufen
+
+    \subsubsection{Beispieldatei 6}
+    Nur Löcher -> BFS ist schneller (und er geht in ein loch rein)
+    Backward hört auf, weil startknoten erreicht
+
+    \subsubsection{Beispieldatei 7}
+    Keine Lösung
 
 
     \section{Erweiterung}
+    Bis jetzt ging es immer darum einen beliebigen optimalen Pfad in dem Graphen $G = (V, E)$ zu finden.
+    Eine interessante Frage ist aber auch, wie viele optimale Pfade es gibt.
+
     Mehrere Pfade? -> Ist die Intersection zwischen Frontier und Visited größer 1?
 
 

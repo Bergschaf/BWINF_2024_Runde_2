@@ -54,7 +54,6 @@ def encode_huffman(r, frequencies):
 
     return generate_code_from_tree(minHeap[0])
 
-
 def parse_file(filename):
     with open(filename, "r") as f:
         lines = f.readlines()
@@ -63,14 +62,11 @@ def parse_file(filename):
         color_sizes = list(map(int, color_sizes.split()))
     return color_sizes, text
 
-
 def get_frequencies(text):
     return {i: text.count(i) / len(text) for i in text}
 
-
 def calc_cost(text, code):
     return sum(len(code[i]) * text.count(i) for i in set(text))
-
 
 def print_code(code, text):
     for letter, c in sorted(code.items(), key=lambda x: text.count(x[0]) - 0.1 * len(x[1]), reverse=True):
