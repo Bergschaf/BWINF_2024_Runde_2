@@ -3,4 +3,12 @@ name = "Rust"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
+[dependencies.pyo3]
+version = "0.24"
+default-features = true
+features = ["extension-module", "auto-initialize"]
+
+[lib]
+name = "rust_encoder"
+crate-type = ["cdylib"]
+path = "src/main.rs"

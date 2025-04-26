@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
+use pyo3::prelude::*;
 
 pub fn extend(sig: &Vec<usize>, q: usize, D: &Vec<usize>) -> Vec<usize> {
     // Build new_sig in signed form to handle -1
@@ -118,7 +119,7 @@ fn encode_bfs(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> f64 {
     return best_cost;
 }
 
-fn encode_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> f64 {
+fn encode_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> Vec<usize> {
     frequencies.sort_by(|a, b| b.partial_cmp(a).unwrap());
     let n = frequencies.len();
 
@@ -172,7 +173,7 @@ fn encode_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>) -> f64 
 
     }
     print!("Best cost: {}, Qs: {:?}\n", best_cost, best_Qs);
-    return best_cost;
+    return best_Qs;
 }
 
 pub fn parse_file(filename: &str) -> io::Result<(Vec<usize>, String)> {
@@ -223,15 +224,18 @@ pub fn get_frequencies(text: &str) -> HashMap<char, f64> {
 
 }
 
-fn main() {
-    let filename = "Examples/schmuck9.txt";
-    let (color_sizes, text) = parse_file(filename).expect("Failed to parse file");
-    let mut frequencies = get_frequencies(&text);
-    // sort frequencies
-    let mut freqs: Vec<f64> = frequencies.values().cloned().collect();
-    let best_cost = encode_optimal(&mut freqs, color_sizes);
-    // print best_cost * text_len
-    let text_len = text.chars().count() as f64;
-    println!("Best cost: {:.2}", best_cost * text_len);
 
+#[pyfunction]
+fn encode_optimal_py(freqs: Vec<f64>, sizes: Vec<usize>) -> PyResult<Vec<usize>> {
+    // Call the Rust implementation
+    let mut freqs_mut = freqs;
+    let res = encode_optimal(&mut freqs_mut, sizes);
+    Ok(res)
+}
+
+#[pymodule]
+fn rust_encoder(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    // Add the encode_optimal_py function as `encode_optimal`
+    m.add_function(wrap_pyfunction!(encode_optimal_py, m)?)?;
+    Ok(())
 }

@@ -62,6 +62,7 @@
 \usepackage{hyperref} % Anklickbare Links im Dokument
 \usepackage{cleveref}
 \usepackage{comment}
+\usepackage{stmaryrd}
 
 % Daten für die Titelseite
 \title{\textbf{\Huge\Aufgabe}}
@@ -492,7 +493,7 @@
     Da der Algorithmus im Wort-Case alle Signaturen mit $\sum sig \le n (r - 1)$ durchläuft, läuft die \textit{While}-Schleife Asymptotisch $O((n (r - 1))^{C+1})$ mal durch.
     Die \textit{For}-Schleife läuft $l_1 + 1$, also asymptotisch $O(n(r-1))$ mal durch und die \textit{Expand}-Operation hat eine Laufzeit von $O(C)$.
     Damit hat dieser Algorithmus eine asymptotische Laufzeit von $O((n(r-1))^{C+2} \cdot C)$. \\
-    TODO genauer so ähnlich wie im paper.
+    In der Praxis werden aber sehr viel weniger Knoten besucht, da ein großer Teil bereits durch zu hohe Kosten ausgeschlossen werden kann.
 
     \subsection{Reduktion auf $n$ Blätter} % TODO besserer Titel
     Im vorherigen Kapitel haben wir uns der Einfachheit halber auf vollständige Bäume beschränkt.
@@ -614,37 +615,34 @@
 
     \subsubsection{Laufzeit}
     Der Algorithmus betrachtet im Worst-Case alle Signaturen mit $\sum sig \le n$, also wird die \textit{While}-Schleife $O(n^{C+1})$ mal durchlaufen.
-    Die \textit{For}-Schleife hat wieder eine asymptotische Laufzeit von $O(C \cdot n(r-1))$, da sie $O(n(r-1))$ mal ausgeführt wird und die \textit{Expand} und \textit{Reduce} Operationen jeweils eine Laufzeit von $O(C)$ haben. Insgesamt hat der Algorithmus also eine Asymptotische Laufzeit von $O(C \cdot n(r-1) \cdot n ^ {C + 1})$. \\
+    Die \textit{For}-Schleife hat wieder eine asymptotische Laufzeit von $O(C \cdot n(r-1))$, da sie $O(n(r-1))$ mal ausgeführt wird und die \textit{Expand} und \textit{Reduce} Operationen jeweils eine Laufzeit von $O(C)$ haben. Insgesamt hat der Algorithmus also eine Asymptotische Laufzeit von $O(C \cdot n(r-1) \cdot n ^ {C + 1})$. \\ TODO stimmt des überhautp??
 
-
-
+    In der Praxis werden aber deutlich weniger Bäume besucht, da viele bereits durch zu hohe Kosten und und die Obergrenze für $q$ aussortiert werden.
 
     \subsection{Heuristik}
-    Da dieser Algorithmus für große Eingabealphabete ($n >> 100$) deutlich zu langsam (Die i32 counter variable ist mehrfach overflowed) ist und zu viel Speicher verwendet, ...
-
-%        Ansatz: aufteilung in häufige und seltende Buchstaben (häufige mit $p > 0.05$)seltene Buchstaben werden in chunks aufgeteilt (z.B. größe 30)
-%        Ein Chunk wird mit dem Algorithmus bearbeiete -> Qs.
-%        SUmme der einzelnen Chunks + häufige Buchstaben in den Algorithmus -> Qs -> Blätter mit den Bäumen von den chunks ersetzten
-%        -> codes erstellen
-%
-%
-%        Ansatz: p_0 = p_1 = p_2 etc:
-%
-%
-%        (    TODO Optimierung: kleinen Baum mit höhe h bauen (wo alle probabiliteis gleich sind) -> n Blätter -> im n dinger zusammenfassen dann algorithmus machen und kleine bäume wieder hinbasteln
-%        TODo einfach großen algorithmus auf die kleinen Bäume anwedne
-%        Da die Frequenz dieser Buchstaben, die sehr selten vorkommen sehr ähnlich ist, können wir das Problem vereinfachen, in dem wir annehmen, dass die Wahr
-%        -> eigentlich das gleiche mit p_0 = p_1 = p_2
-%
-%
-%        TODO oder irgendwie die "dichte" optimieren (height (tiefster knoten) / N))
-%
-%        Oder allgemein annahme, dass p_0 = p_1 = p_2, was macht des??
-%        $cost_i(T) = \sum^m_{j=1}|w_j| \cdot p + i \cdot p^{(m + 1 - 1)}$
-
-
-
-    TODO NP schwere?
+    Für große Eingabealphabete $n \gg 500$ ist dieser Algorithmus trotzdem deutlich zu langsam.
+    Daher habe ich eine Heuristik entwickelt, mit der selbst große Codetabellen in kurzer Zeit approximiert werden können. \\
+    Dafür müssen die Buchstaben zuerst anhand einer Cutoff Wahrscheinlichkeit $P_{cut}$ (z.B. $P_{cut} = 0.05$) in häufige und seltene Buchstaben aufgeteilt werden.
+    Alle Buchstaben mit $p_i \ge P_{cut}$ werden ab jetzt als \textit{häufige} Buchstaben bezeichnet, die restlichen Buchstaben mit $p_i < P_{cut}$ sind \textit{seltene} Buchstaben.
+    \[P_{h} = \{p_i \mid p_i \ge P_{cut}\}~~~~~P_s = \{p_i \mid p_i < P_{cut}\} \text{~~~für alle $p_i$}\]
+    Für große $n \gg 500$ gibt es sehr viel mehr seltene Buchstaben, die aufgrund ihrer kleinen Wahrscheinlichkeit aber wenig zur gesamten Codelänge beitragen.
+    Die Heuristik beruht auf der Annahme, dass die seltenen Wahrscheinlichkeiten $p_i < P_{cut}$ so geringe Unterschiede haben, dass sie als gleich angesehen werden können.
+    Da es trotzdem noch deutlich zu viele seltenen Wahrscheinlichkeiten gibt, um einen passenden Baum mit der Funktion \ref{alg:algorithm} zu generieren, werden die seltenen Wahrscheinlichkeiten anhand einer größe $S$ in \glqq Chunks\grqq~aufgeteilt.
+    Für einen der Chunks wird dann mit der \textit{GetOptimalTree} Funktion ein optimaler Baum $T_c$ generiert, mit der Eingabe: $(p_1, \dots, p_s) = \textit{Chunks}[0]$.
+    \[T_c = \textit{GetOptimalTree}((p_0, p_1, \dots, p_s), (c_1, c_2, \dots c_r))\]
+    Anschließend wird für die häufigen Buchstaben und die Summen der Chunks der Haupt-Baum $T$ mit $|P_h| + |Chunks|$ Blättern generiert:
+    \[p_1, \dots, p_{|P_h|} = P_h~~~~~~p_{|P_h| + i} = \sum \textit{Chunks}[i]\]
+    \[T = \textit{GetOptimalTree}((p_0, p_1, \dots, p_{|P_h| + |Chunks|}), (c_1, c_2, \dots c_r)\]
+    Die höchsten $|P_h|$ Blätter von $T$ sind für die häufigen Buchstaben \glqq reserviert\grqq.
+    An die restlichen $|Chunks|$ Blätter wird jeweils eine Kopie von $T_c$ angehängt. \\
+    Wie \glqq optimal\grqq~der fertige Baum ist, hängt hauptsächlich von der Chunkgröße $S$ ab.
+    Da der vorherige Algorithmus sehr schnell abläuft, kann auch ein Bereich an Chunkgrößen ausprobiert werden, um eine gute Approximation zu finden.
+    \subsubsection{Laufzeit}
+    Die \textit{GetOptimalTree} Funktion wird zweimal aufgerufen, einmal $n = S$ und einmal mit
+    \[n = |P_h| + |Chunks| = |P_h| +  \left\lfloor   \frac {|P_s|} {S}  \right\rfloor + 1\]
+    Da $|P_h| \le 20$ (für $P_{cut} = 0.05$), muss $|P_h|$ in der Laufzeitbetrachtung nicht beachtet werden.
+    Die Laufzeit der Heuristik beträgt also $O(m^{C+1})$ (TODO überprüfen) mit
+    \[m = \max \left\{ S, \left\lfloor   \frac {|P_s|} {S}  \right\rfloor + 1 \right\} \le \max \left\{S, \left\lceil \frac n S \right\rceil \right\}\]
 
 
     \section{Umsetzung}
@@ -677,7 +675,8 @@
             \item $m' = m + l_1 - q$
             \item $l_j' = l_{j+1} + q \cdot d_j$
         \end{enumerate}
-        Entweder ist $c_1 = c_2$ oder $c_1 < c_2$. Wir beschäftigen uns zuerst mit dem Fall, dass $c_1 < c_2$. \\
+        Entweder ist $c_1 = c_2$ oder $c_1 < c_2$.
+        Wir beschäftigen uns zuerst mit dem Fall, dass $c_1 < c_2$. \\
 
         Für die Anzahl aller Blätter auf den Ebenen $0, \dots, i + c_2$ gilt jetzt:
         \begin{equation}

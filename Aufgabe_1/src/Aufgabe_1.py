@@ -2,6 +2,7 @@ import collections
 from collections import defaultdict
 from treelib import Node, Tree
 import graphviz
+import rust_encoder
 
 
 class Node:
@@ -280,7 +281,7 @@ class Encoder:
                 if cost < best_cost:
                     best_cost = cost
                     best_tree = Qs
-                    print(best_cost.__round__(4), len(stack))
+                    #print(best_cost.__round__(4), len(stack))
                 continue
 
             for q in range(0, sig[1] + 1):
@@ -320,7 +321,7 @@ class Encoder:
                 if cost < best_cost:
                     best_cost = cost
                     best_tree = Qs
-                    print(best_cost.__round__(4), len(stack))
+                    #print(best_cost.__round__(4), len(stack))
                 continue
 
             for q in range(0, min(sig[1], n - sum(sig[i] for i in range(self.color_sizes[1] + 1))) + 1):
@@ -328,13 +329,19 @@ class Encoder:
                 new_sig = reduce(extend(sig, q, D), n)
 
                 stack.append((new_sig, new_cost, Qs + [q]))
-        print("Num visited:", num_visited)
+        #print("Num visited:", num_visited)
         return generate_tree(best_tree,self.color_sizes)
 
+    def get_tree_rust(self, frequencies):
+        qs = rust_encoder.encode_optimal_py(frequencies, self.color_sizes)
+        return generate_tree(qs, color_sizes)
+
+    def encode_rust(self):
+        return generate_code_from_tree(self.get_tree_rust(list(self.frequencies.values())), self.color_sizes)
 
     def encode_big_optimize(self, text):
         n = len(self.frequencies)
-        max_leaves = 50
+        max_leaves = 40
         min_chunk_size = n // max_leaves + 1
         best_cost = float("inf")
         best_code = None
@@ -361,41 +368,10 @@ class Encoder:
             chunks.append(not_common[i * chunk_size: (i + 1) * chunk_size])
         chunks.append(not_common[(len(not_common) // chunk_size) * chunk_size:])
 
-        chunk_root = self.get_tree_naive(chunks[0])
+        chunk_root = self.get_tree_rust(chunks[0])
 
-        main_root = self.get_tree_naive(common + [sum(c) for c in chunks])
+        main_root = self.get_tree_rust(common + [sum(c) for c in chunks])
         main_root = attach_tree_at_leaves(main_root, chunk_root, len(common), color_sizes)
-        return generate_code_from_tree(main_root, self.color_sizes)
-
-    def encode_big_assume_eq_probabilities(self):
-        """
-        Assume that a chunk of uncommon characters has the same probability
-        :return:
-        """
-        cutoff = 0.05
-        common = [i for i in self.frequencies.values() if i > cutoff]
-        print(f"N: {len(self.frequencies)}, C : {max(self.color_sizes)}")
-        print(f"Common: {len(common)}, Not Common: {len(self.frequencies) - len(common)}")
-        not_common = sorted(i for i in self.frequencies.values() if i <= cutoff)
-        chunk_size_upper_bound = 50
-        prev_root, prev_len_leaves = None, 0
-        for i in range(1, chunk_size_upper_bound):
-            chunk_root = generate_full_tree_to_height(self.color_sizes, i)
-            chunk_leaves = get_leaves_rec(chunk_root)
-            if len(chunk_leaves) >= chunk_size_upper_bound:
-                break
-            prev_root, prev_len_leaves = chunk_root.copy(), len(chunk_leaves)
-        print("Chunk size:", prev_len_leaves)
-        # split not common in chunks of chunk_size
-        chunks = []
-        for i in range((len(not_common) // prev_len_leaves)):
-            chunks.append(not_common[i * prev_len_leaves: (i + 1) * prev_len_leaves])
-        chunks.append(not_common[(len(not_common) // prev_len_leaves) * prev_len_leaves:])
-        print(not_common)
-        print(len(chunks[0]), chunks)
-
-        main_root = self.get_tree_naive(common + [sum(c) for c in chunks])
-        main_root = attach_tree_at_leaves(main_root, prev_root, len(common), color_sizes)
         return generate_code_from_tree(main_root, self.color_sizes)
 
 
@@ -443,36 +419,16 @@ def parse_file(filename):
 
 if __name__ == '__main__':
 
-    filename = ("Examples/schmuck7.txt")
+    filename = ("Examples/schmuck8.txt")
     color_sizes, text = parse_file(filename)
-    #qs = Encoder(get_frequencies(text), color_sizes).encode_bfs(get_frequencies(text).values())
-    #print(qs)
-    #oot=  generate_tree(qs, color_sizes)
-    #print(len(get_leaves_rec(root)))
-    #code = generate_code_from_tree(root, color_sizes)
+
     encoder = Encoder(get_frequencies(text), color_sizes)
     #code = encoder.encode_big_optimize(text)
-    code = encoder.encode_reduce() # 134563
+    #code = encoder.encode_reduce() # 134563
+    code = encoder.encode_rust()
+
+    #code = generate_code_from_tree(generate_tree([2, 6, 15, 33, 31, 0, 0], color_sizes), color_sizes)
     print("Präfixfrei: ", is_prefixfree(code))
     print(len(code), code)
     print(calc_cost(text, code))
     exit()
-
-
-
-    encoder = Encoder(get_frequencies(text), color_sizes)
-
-    codes = encoder.encode_big()
-    # root, codes = (generate_tree(color_sizes, Qs))
-
-    # graphviz.render("dot", "png","test.dot")
-    occurrences = [text.count(i) for i in set(text)]
-    occurrences = sorted(occurrences, reverse=True)
-    costs = sorted(i[1] for i in codes)
-    total_cost = 0
-    for i in range(len(occurrences)):
-        total_cost += occurrences[i] * costs[i]
-    print(total_cost)
-    print(total_cost / len(text))
-
-    # TODO des ist vlt op: https://en.wikipedia.org/wiki/Asymmetric_numeral_systems
