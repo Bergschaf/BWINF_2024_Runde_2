@@ -261,45 +261,124 @@
     Bei der \textit{backward} Funktion müssen einige edge-cases beachtet werden. Die \textit{shift} Funktion (in der Lösungsidee als $f(p,a)$ definiert für eine Anweisung $a \in A$ und eine Position $p$) verändert eine Position normalerweise nicht, falls sie bereits den Endzustand $p = (n-1, m-1)$ erreicht hat. Wenn in der \textit{backward} Funktion allerdings Positionen \glqq Rückwärts\grqq~vom Endzustand aus verschoben werden sollen, ist das ein Problem. Drum verwende ich im Pseudocode die \textit{shift'} Funktion, die diese Bedingung nicht beachtet. Im Quellcode heißt diese Funktion \textit{shift\_without\_end\_fix}. \\
     Wenn Anton oder Bea in ein Loch fallen, gehen sie direkt zum Startfeld zurück. Das bedeutet, wenn die \textit{backward} Funktion alle Felder ermitteln müsste, von denen Anton oder Bea mit einer Anweisung zum Startfeld gelangen können, müsste sie jede Position ausgeben, von der aus ein Loch mit einer Anweisung erreichbar ist. Da das für die meisten Beispieldateien eine sehr große Anzahl an Feldern ist, verwende ich die \textit{backward} Funktion nicht mehr, sobald Anton oder Bea die Position $(0,0)$ Rückwärts besucht haben. Von dort an wird dir Suche nur noch mit der \textit{forward} Funktion fortgeführt. In der Praxis wird aber meistens ein Pfad gefunden, bevor \textit{backward} in einem Labyrinth das Startfeld erreicht. \\
 
-    TODO man kann Bidirektionale suche Parallelisierne
-    TODO Bidirektionale Suche Array
+    \subsubsection{Optimierung}
+    In meiner Implementierung der Bidirektionalen Breitensuche verwende ich für jede Richtung eine Hashmap, um zu speicher welche Knoten bereits besucht wurden (Entspricht den \textit{visited} variablen in Algorithmus \ref{alg:bidirectional-search}).
+    Um den Pfad später wieder zurückzuverfolgen, speichere ich in der Hashmap den Knoten, von dem aus der aktuelle Knoten erreicht wurde.
+    Um zu überprüfen, ob bereits ein Pfad gefunden wurden, muss für jeden neuen Knoten überprüft werden, ob dieser bereits in der \textit{visited}-Hashmap der anderen Richtung enthalten ist.
+    Die HashMap-Operationen haben zwar eine theoretische Laufzeit von $O(1)$, in der praxis sind diese vor allem für große Labyrinthe, bei denen viele Knoten besucht werden aber langsamer.
+    Eine Möglichkeit, den Bidirektionalen BFS-Algorithmus zu optimieren, ist daher ein Array $A$ zu verwenden, um die besuchten Knoten und deren Herkunft.
+    Um den Speicherplatzverbrauch dieses Arrays zu minimieren, kann sollte aber nicht für jeden Zustand der Herkunftszustand gespeichert werden.
+    Für ein Labyrinth mit den Seitenlängen $n$ und $m$ und $i16$ Variablen für die Koordinaten der Positionen hätte dieses Array die Größe:
+    \[
+        |A| = n^2 m^2 \cdot ((2 + 2) + (2 + 2)) = n^2 m^2 \cdot 16
+    \]
+    Für das größte Labyrinth mit $n = m = 250$ hätte dieses Array eine Größe von über $62gb$, was für die meisten Computer nicht mehr in den Arbeitsspeicher passt. \\
+    Daher speichere ich in $A$ nur die Anweisung, durch die ein bestimmter Zustand erreicht wurde, die 4-Bits einnimmt.
+    Für die Bidirektionale Suche ist aber auch wichtig, von welcher Richtung aus der Zustand erreicht wurde, was auch in dem Array gespeichert werden muss.
+    Anhand der Anweisungen kann der Pfad nach der Suche theoretisch zurückverfolgt werden.
+    Wenn Anton und Bea in ein Loch gefallen sind, ergibt sich allerdings ein Problem, da allein durch die Anweisung nicht zurückverfolgt werden kann, in welches Loch die Person gefallen ist.
+    D.h. es muss im Array gespeichert werden, ob Anton oder Bea vor der Zustandsänderung in ein Loch gefallen sind.
+    In einer getrennten Hashmap wird dann gespeichert, in welches Loch die Person gefallen ist.
+    Da solche Fälle aber selten sind, wäre diese Hashmap kein signifikanter zusätzlicher Speicherplatzverbrauch.
+
+    \subsection{Weitere Optimierungsmöglichkeiten}
+    Eine Möglichkeit wäre, den A* Algorithmus zu verwenden, um die Suche mit einer Heuristik zu beschleunigen.
+    Dabei könnte man folgende Heuristik verwenden.
+    \[h((x_0, y_0), (x_1, x_1)) = \max\{(n - x_0 + m - y_0 - 2), (n - x_1 + m - y_1 - 2)\}\]
+    Der Term $(n - x_0 + m - y_0 - 2)$ repräsentiert die minimale Anzahl an Anweisungen, die benötigt sind, dass Anton sein Ziel erreicht.
+    Die Heuristik nimmt das maximum der Minimalen Anweisungen für Bea und Anton, was den Pfad nicht überschätzt.
+    In der Praxis ist der Pfad aber deutlich länger, weshalb die Heuristik nicht sehr gut ist und die Suche nicht signifikant beschleunigt.\\
+
+    Eine andere Möglichkeit wäre, die Bidirektionale Suche zu parallelisieren.
+    Da die Reihenfolge, in der die Knoten vorwärts bzw.\ Rückwärts expandiert werden egal ist, könnten die \textit{Expand\_by\_one} in Algorithmus~\ref{alg:bidirectional-search} auf mehreren Threads gleichzeitig ausgeführt werden.
 
 
     \section{Beispiele}
+    In der folgenden Tabelle sieht man die Anzahl an Anweisungen des optimalen Pfads durch das entsprechende Labyrinth gemeinsam mit der Laufzeit der normalen und der bidirektionalen Breitensuche. TODO Laufzeit von BidiBFs array
     \begin{tabular}{||c | c | c | c||}
-        Nummer des Labyrinths & Länge der Optimalen Anweisungssequenz & Laufzeit BFS & Laufzeit BidiBFS \\
-        0                     & 8                                     & $9 \mu s$    & $25 \mu s$       \\
+        Nummer des Labyrinths & Anweisungen & Laufzeit BFS         & Laufzeit BidiBFS \\
+        0                     & 8           & $9 \mu s$            & $25 \mu s$       \\
         \hline
-        1                     & 31                                    & $75 \mu s$   & $120 \mu s$      \\
+        1                     & 31          & $75 \mu s$           & $120 \mu s$      \\
         \hline
-        2                     & 66                                    & $2.4 ms$     & $2.6 ms$         \\
+        2                     & 66          & $2.4 ms$             & $2.6 ms$         \\
         \hline
-        3                     & 164                                   & $89 ms$      & $56 ms$          \\
+        3                     & 164         & $89 ms$              & $56 ms$          \\
         \hline
-        4                     & 14384                                 & $113 s$      & $37 s$           \\
+        4                     & 14384       & $113 s$              & $37 s$           \\
         \hline
-        5                     & TODO                                  & TODO         & TODO             \\
+        5                     & 1308        & TODO                 & $1782$           \\
         \hline
-        6                     & 1844                                  & $66 s$       & $107 s$          \\
+        6                     & 1844        & $66 s$               & $107 s$          \\
         \hline
-        7                     & -                                     & TODO         & TODO             \\
+        7                     & -           & $14ms$               & $30ms$           \\
         \hline
-        8                     & 472                                   & TODO         & $106 s$          \\
+        8                     & 472         & (Abbruch nach 20min) & $106 s$          \\
         \hline
-        9                     & TODO                                  & TODO         & TODO             \\
+        9                     & 1012        & (Abbruch nach 15min) & $150 s$          \\
     \end{tabular}
 
     \subsection{Interessante Beispiele}
+    Um einige Beispiele genauer zu betrachten, gibt das Programm ein Bild aus, in dem der Pfad in beiden Labyrinthen eingezeichnet ist:
+    \begin{figure} [H]
+        \label{fig:2}
+        \centering
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \includegraphics[width=.4\linewidth]{Assets/test2_1}
+        \end{minipage}%
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \includegraphics[width=.4\linewidth]{Assets/test2_2}
+        \end{minipage}
+        \caption{Die Labyrinthe aus Beispieldatei 2}
+    \end{figure}
+    In Abbildung~\ref{fig:2} sieht die Wände in schwarz eingezeichnet, die Löcher rot und die Pfade als Farbverlauf von Blau über Orange nach Grün.
+    Dieser Farbverlauf hat den vorteil, dass man bei sehr Langen Pfaden erkennen kann, wann Anton und Bea sich an welchem Punkt befunden haben.
+    Ein gutes Beispiel dafür ist Beispieldatei 4:
+    \begin{figure} [H]
+        \label{fig:4}
+        \centering
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \includegraphics[width=.9\linewidth]{Assets/test4_1}
+        \end{minipage}%
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \includegraphics[width=.9\linewidth]{Assets/test4_2}
+        \end{minipage}
+        \caption{Die Labyrinthe aus Beispieldatei 4}
+    \end{figure}
+    Da Anton und Bea auf ihren wegen durch dieses Labyrinth jedes Feld besucht haben, sieht man gut, wie sie parallel verschiedene Bereiche des Labyrinths durchlaufen haben. \\
+    Bei Beispieldatei 6 fällt auf, dass die normale Breitensuche deutlich schneller war als die Bidirektionale Breitensuche:
+    \begin{figure} [H]
+        \label{fig:6}
+        \centering
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \includegraphics[width=.9\linewidth]{Assets/test6_1}
+        \end{minipage}%
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \includegraphics[width=.9\linewidth]{Assets/test6_2}
+        \end{minipage}
+        \caption{Die Labyrinthe aus Beispieldatei 6}
+    \end{figure}
+    Man sieht, dass die Labyrinthe in dieser Beispieldatei ausschließlich aus Löchern bestehen.
+    Die die Rückwärts-Suche der Bidirektionalen Breitensuche abbricht, sobald sie das Startfeld erreicht hat, wurde ein großer Teil dieser Suche nur von der \textit{Forward} Funktion ausgeführt, die aufgrund der implementierung etwas langsamer ist als die normale Breitensuche.
+    Das Startfeld wurde von der Rückwärts-Suche in diesem Beispiel sehr schnell erreicht, da es keine Wände gibt und die Rückwärts suche Löcher nicht beachten muss. \\
+    Aber auch die Pfade dieser Beispieldatei sind sehr interessant.
+    Am Farbverlauf sieht man, dass Anton im ersten Labyrinth auf sehr schnellem Weg ins Ziel gekommen ist und dort gewartet hat.
+    Bea ist dagegen für einen gewissen Zeitraum im Startbereich geblieben und ist immer wieder in Löcher gelaufen (und musste damit zurück zum Startfeld) und ist erst Später ins Ziel gekommen. \\
+    In Beispieldatei 7 hat die Suche keine Lösung ergeben.
+    \begin{figure}[H]
+        \label{fig:7}
+        \centering
+        \includegraphics[width=.9\linewidth]{Assets/test7_2}
 
-    \subsubsection{Beispieldatei 4}
-    TODO visualisierung alles wird abgelaufen
-
-    \subsubsection{Beispieldatei 6}
-    Nur Löcher -> BFS ist schneller (und er geht in ein loch rein)
-    Backward hört auf, weil startknoten erreicht
-
-    \subsubsection{Beispieldatei 7}
-    Keine Lösung
+        \caption{Das zweite Labyrinth der Beispeldatei 7}
+    \end{figure}
+    Man sieht in Abbildung~\ref{fig:7}, dass Bea nicht zum Ziel kommen kann, da der Pfad auf der Ebene der gelb eingezeichneten Linie durch Wände und ein Loch blockiert wird.
 
 
     \section{Erweiterung}
