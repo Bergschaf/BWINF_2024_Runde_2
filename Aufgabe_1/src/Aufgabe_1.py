@@ -419,7 +419,7 @@ def parse_file(filename):
 
 if __name__ == '__main__':
 
-    filename = ("Examples/schmuck8.txt")
+    filename = ("Examples/schmuck00.txt")
     color_sizes, text = parse_file(filename)
 
     encoder = Encoder(get_frequencies(text), color_sizes)

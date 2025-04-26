@@ -1,5 +1,6 @@
 import heapq
 
+
 class Node:
     def __init__(self, p, a=None):
         """
@@ -13,12 +14,13 @@ class Node:
     def __lt__(self, other):
         return self.p < other.p
 
+
 def generate_code_from_tree(root):
     codes = {}
-    stack = [(root, [])] # (node, turns to get there)
+    stack = [(root, [])]  # (node, turns to get there)
     while stack:
         node, code = stack.pop()
-        for i,c in enumerate(node.children):
+        for i, c in enumerate(node.children):
             if c.a is not None:
                 codes[c.a] = code + [i]
             else:
@@ -65,17 +67,21 @@ def parse_file(filename):
 def get_frequencies(text):
     return {i: text.count(i) / len(text) for i in text}
 
+
 def calc_cost(text, code):
     return sum(len(code[i]) * text.count(i) for i in set(text))
 
 
+def print_code(code, text):
+    for letter, c in sorted(code.items(), key=lambda x: text.count(x[0]) - 0.1 * len(x[1]), reverse=True):
+        print(f"{letter}({text.count(letter)}):\t {c}")
+    print(f"Gesamtlänge der Perlenkette: {calc_cost(text, code)}")
+
+
 if __name__ == '__main__':
-    filename = "../Examples/schmuck9.txt"
+    filename = "../Examples/schmuck00.txt"
 
     color_sizes, text = parse_file(filename)
-    #if not len(set(color_sizes)) == 1:
-    #    raise Exception("Unterschiedliche Perlengrößen!")
 
     code = encode_huffman(len(color_sizes), get_frequencies(text))
-    print(code)
-    print(calc_cost(text, code))
+    print_code(code, text)

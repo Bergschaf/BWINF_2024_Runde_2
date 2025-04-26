@@ -58,6 +58,14 @@
 \newtheorem{beispiel}[satz]{Beispiel}
 \newtheorem{korollar}[satz]{Korollar}
 
+\usepackage[%
+    backend=biber,
+    style=authortitle,
+    sorting=nyt,
+]{biblatex}
+\addbibresource{main.bib}
+
+
 % Diese beiden Pakete müssen zuletzt geladen werden
 \usepackage{hyperref} % Anklickbare Links im Dokument
 \usepackage{cleveref}
@@ -90,8 +98,7 @@
     TODO vlt kurzfassung/zusammenfassung
 
     \subsection{Huffman Codierung}
-    TODO Quelle vlt: https://people.eng.unimelb.edu.au/ammoffat/abstracts/compsurv19moffat.pdf\\
-    David Huffman hat 1952 eine Methode veröffentlicht, die heute als \textit{Huffman Codierung} bekannt ist.
+    David Huffman hat 1952 eine Methode veröffentlicht, die heute als \textit{Huffman Codierung} bekannt ist\autocite{noauthor_huffman-kodierung_2025}.
     Er stellte eine Methode vor, um eine optimale Präfixfreie Codierung für einen bestimmten Text zu finden.
     Dabei geht man von einem Alphabet $A$ mit $n$ verschiedenen Zeichen $a_1, \dots, a_n \in A$ aus, gemeinsam mit der Häufigkeitsverteilung der Zeichen $p_i = \frac {\text{Häufigkeit von $a_i$ im zu codierenden Text}} {\text{Länge des Textes}}$. Man nennt diese Antreffwahrscheinlichkeit $p_i$ eines Zeichens auch \textit{Frequenz} oder \textit{Gewichtung}.
     Wir nehmen an, dass das Alphabet nach absteigender Häufigkeit sortiert ist ist, also $p_i \ge p_{i + 1}$ für alle $0 \le i < n - 1$.
@@ -243,7 +250,8 @@
     TODO (Die tiefsten Knoten sind nicht zwingend Nachbarn, weil c1 = c2 etc)
 
     \subsubsection{Vollständige Bäume}
-    TODO Quelle hier (TODO vlt kuuz auf Paper eingehen) Der und der haben 19irgendwas einen neuen Ansatz vorgestellt... sehr ausführlich hier fokusssiert auf das wesentliche) \\
+    Golin und Rote präsentierten 1998 in ihrem Paper \textit{A Dynamic Programming Algorithm for Constructing
+        Optimal Prefix-Free Codes with Unequal Letter Costs} \cite{golin_dynamic_1998} einen neuen Der und der haben 19irgendwas einen neuen Ansatz vorgestellt... sehr ausführlich hier fokusssiert auf das wesentliche) \\
     Da es in diesem Aufgabenteil also nicht möglich ist, die Bäume von unten nach oben mit einem Greedy-Algorithmus zu erstellen, müssen wir alle mögliche Lösungen betrachten.
     In diesem Kapitel werden wir uns zuerst auf vollständige Bäume beschränken, indem wir ähnlich wie in Teil a) fehlende Buchstaben durch Platzhalter mit Frequenz 0 ersetzen:
     \begin{definition}
@@ -637,6 +645,7 @@
     An die restlichen $|Chunks|$ Blätter wird jeweils eine Kopie von $T_c$ angehängt. \\
     Wie \glqq optimal\grqq~der fertige Baum ist, hängt hauptsächlich von der Chunkgröße $S$ ab.
     Da der vorherige Algorithmus sehr schnell abläuft, kann auch ein Bereich an Chunkgrößen ausprobiert werden, um eine gute Approximation zu finden.
+
     \subsubsection{Laufzeit}
     Die \textit{GetOptimalTree} Funktion wird zweimal aufgerufen, einmal $n = S$ und einmal mit
     \[n = |P_h| + |Chunks| = |P_h| +  \left\lfloor   \frac {|P_s|} {S}  \right\rfloor + 1\]
@@ -704,5 +713,9 @@
         Durch weitere Reduktion entsteht nun ein Zustand, der auch durch eine Erweiterung mit einem kleineren $q$ erreicht werden könnte (siehe Beweis von Lemma \ref{lem:reader_1}). \\
         Der Fall $c_1 = c_2$ ist eine triviale Abwandlung dieses Beweises und wird dem Leser überlassen :)
     \end{proof}
+
+
+    \section{Literatur}
+    \printbibliography[heading=none]
 
 \end{document}
