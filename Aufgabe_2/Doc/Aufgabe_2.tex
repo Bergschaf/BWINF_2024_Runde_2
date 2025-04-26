@@ -294,29 +294,33 @@
 
 
     \section{Beispiele}
-    In der folgenden Tabelle sieht man die Anzahl an Anweisungen des optimalen Pfads durch das entsprechende Labyrinth gemeinsam mit der Laufzeit der normalen und der bidirektionalen Breitensuche. TODO Laufzeit von BidiBFs array
-    \begin{tabular}{||c | c | c | c||}
-        Nummer des Labyrinths & Anweisungen & Laufzeit BFS         & Laufzeit BidiBFS \\
-        0                     & 8           & $9 \mu s$            & $25 \mu s$       \\
-        \hline
-        1                     & 31          & $75 \mu s$           & $120 \mu s$      \\
-        \hline
-        2                     & 66          & $2.4 ms$             & $2.6 ms$         \\
-        \hline
-        3                     & 164         & $89 ms$              & $56 ms$          \\
-        \hline
-        4                     & 14384       & $113 s$              & $37 s$           \\
-        \hline
-        5                     & 1308        & TODO                 & $1782$           \\
-        \hline
-        6                     & 1844        & $66 s$               & $107 s$          \\
-        \hline
-        7                     & -           & $14ms$               & $30ms$           \\
-        \hline
-        8                     & 472         & (Abbruch nach 20min) & $106 s$          \\
-        \hline
-        9                     & 1012        & (Abbruch nach 15min) & $150 s$          \\
-    \end{tabular}
+    In der folgenden Tabelle sieht man die Anzahl an Anweisungen des optimalen Pfads durch das entsprechende Labyrinth gemeinsam mit der Laufzeit der normalen und der bidirektionalen Breitensuche. TODO Laufzeit von BidiBFs array \\
+
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{||c | c | c | c||}
+            Nummer des Labyrinths & Anweisungen & Laufzeit BFS         & Laufzeit BidiBFS \\
+            0                     & 8           & $9 \mu s$            & $25 \mu s$       \\
+            \hline
+            1                     & 31          & $75 \mu s$           & $120 \mu s$      \\
+            \hline
+            2                     & 66          & $2.4 ms$             & $2.6 ms$         \\
+            \hline
+            3                     & 164         & $89 ms$              & $56 ms$          \\
+            \hline
+            4                     & 14384       & $113 s$              & $37 s$           \\
+            \hline
+            5                     & 1308        & TODO                 & $1782$           \\
+            \hline
+            6                     & 1844        & $66 s$               & $107 s$          \\
+            \hline
+            7                     & -           & $14ms$               & $30ms$           \\
+            \hline
+            8                     & 472         & (Abbruch nach 20min) & $106 s$          \\
+            \hline
+            9                     & 1012        & (Abbruch nach 15min) & $150 s$          \\
+        \end{tabular}
+    \end{figure}
 
     \subsection{Interessante Beispiele}
     Um einige Beispiele genauer zu betrachten, gibt das Programm ein Bild aus, in dem der Pfad in beiden Labyrinthen eingezeichnet ist:
