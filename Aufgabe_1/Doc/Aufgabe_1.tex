@@ -398,12 +398,14 @@
     Diese Signatur wird es uns später erlauben, alle möglichen Bäume zu betrachten und dabei aber kleine Unterschiede, die nichts an den Kosten eines Baums ändern, zu vernachlässigen.
 
     \begin{beispiel}
+        Sei $T = Cut_2(T)$ ein Ebene-2-Baum mit $c_1 = c_2 = 1, c_3 = 2$ und der Signatur $sig_2(T) = (3, 6, 2)$ (links).
+        In der Mitte sieht man den Baum $Cut_1(T)$ mit der Signatur $sig_1(Cut_1(T)) = (0, 5, 2)$.
+        Ganz rechts sieht man den Baum $Cut_0(T)$ mit der Signatur $sig_0(Cut_0(T)) = (0, 1, 2)$.
+        \begin{figure}[H]
 
-    \begin{figure}[H]
-        \centering
-                \begin{minipage}{.3\textwidth}
             \centering
-            \begin{forest} baseline
+
+            \begin{forest}
                 for tree={
                     grow                    = south,
                     parent anchor           = north,
@@ -412,74 +414,41 @@
                     l sep                    = 10mm, % level distance
                     s sep                    = 5mm, % sibling distance
                 }
-                [
-                [
-                [$\frac 1 5$, tier=2, [,phantom,tier=3]]
-                [$\frac 1 5$, tier=2]
-                [$\frac 1 5$, tier=3]
+                [,phantom, [[
+                [, tier=2, [,phantom,tier=3]]
+                [, tier=2, [, [,phantom, tier=4]] [] [,tier=4]]
+                [, tier=3]
                 ]
                 [
-                [$\frac 1 5$, tier=2]
-                [$\frac 1 4$, tier=2]
-                [$0$, tier=3]
+                [, tier=2]
+                [, tier=2]
+                [, tier=3]
                 ]
-                [$0$, tier=2]
+                [, tier=2,[, [,phantom, tier=4]] [] [,tier=4]]
                 ]
-            \end{forest}
-            %\captionof{figure}{$Cut_1(T)$ mit $sig_1 = (0, 5, 2)$}
-        \end{minipage}%
-        \begin{minipage}{.3\textwidth}
-            \centering
-            \begin{forest} baseline
-                for tree={
-                    grow                    = south,
-                    parent anchor           = north,
-                    child anchor            = north,
-                    edge                    = {thick, -},
-                    l sep                    = 10mm, % level distance
-                    s sep                    = 5mm, % sibling distance
-                }
-                [
-                [
-                [$\frac 1 5$, tier=2, [,phantom,tier=3]]
-                [$\frac 1 5$, tier=2]
-                [$\frac 1 5$, tier=3]
-                ]
-                [
-                [$\frac 1 5$, tier=2]
-                [$\frac 1 4$, tier=2]
-                [$0$, tier=3]
-                ]
-                [$0$, tier=2]
-                ]
-            \end{forest}
-            %\captionof{figure}{$Cut_1(T)$ mit $sig_1 = (0, 5, 2)$}
-        \end{minipage}%
-        \begin{minipage}{.2\textwidth}
-            \centering
-            \begin{forest}baseline
-                for tree={
-                    grow                    = south,
-                    parent anchor           = north,
-                    child anchor            = north,
-                    edge                    = {thick, -},
-                    l sep                    = 10mm, % level distance
-                    s sep                    = 10mm, % sibling distance
-                }
-                [
-                [
 
+                [
+                [
+                [, tier=2, [,phantom,tier=3]]
+                [, tier=2]
+                [, tier=3]
                 ]
-                [ [, phantom, tier=2]
-
+                [
+                [, tier=2]
+                [, tier=2]
+                [, tier=3]
                 ]
                 [, tier=2]
                 ]
-            \end{forest}
-            %\captionof{figure}{$Cut_0(T)$ mit $sig_0(T) = (0, 2, 1)$}
-        \end{minipage}
-    \end{figure}
 
+                [
+                []
+                [ [, phantom, tier=2]]
+                [, tier=2]
+                ]]
+            \end{forest}%
+
+        \end{figure}
     \end{beispiel}
 
 
@@ -727,7 +696,7 @@
         \end{algorithmic}\label{alg:algorithm}
     \end{algorithm}
     Da wir den Reduktionsschritt hinzugefügt haben, müssen wir hier nicht mehr überprüfen, ob die Signatur mehr als $n (r - 1)$ Blätter hat. \\
-    In dem Paper\autocitecite{golin_dynamic_1998} wird eine einfache Optimierung vorgeschlagen, mit der nicht immer alle Werte von $q$ durchlaufen werden müssen.
+    In dem Paper\autocite{golin_dynamic_1998} wird eine einfache Optimierung vorgeschlagen, mit der nicht immer alle Werte von $q$ durchlaufen werden müssen.
     \begin{lemma}
         \label{lem:reader_1}
         Es ist ausreichend, dass $q$ nur die Werte $\left[0, \dots, \min\left\{l_1, n - \left(m + \sum^{c_2}_{j=1} l_j\right)\right\}\right]$ durchläuft.
