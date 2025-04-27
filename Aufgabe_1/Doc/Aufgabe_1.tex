@@ -635,7 +635,7 @@
 
     \subsubsection{Laufzeit}
     Der Algorithmus betrachtet im Worst-Case alle Signaturen mit $\sum sig \le n$, nach Lemma~\ref{lem:chooose} wird die \textit{While}-Schleife also $O({{n + C + 1}\choose{C + 1}})$ mal durchlaufen.
-    Die \textit{For}-Schleife hat eine asymptotische Laufzeit von $O(C \cdot (n + 1))$, da sie (aufgrund Lemma~\ref{lem:reader_1}) höchstens $n + 1$ mal ausgeführt wird und die \textit{Expand} und \textit{Reduce} Operationen jeweils eine Laufzeit von $O(C)$ haben. Insgesamt hat der Algorithmus also eine Asymptotische Laufzeit von \[O\left(C \cdot (n + 1) \cdot {{n + C + 1}\choose{C + 1}}\right).\] \\
+    Die \textit{For}-Schleife hat eine asymptotische Laufzeit von $O(C \cdot (n + 1))$, da sie (aufgrund Lemma~\ref{lem:reader_1}) höchstens $n + 1$ mal ausgeführt wird und die \textit{Expand} und \textit{Reduce} Operationen jeweils eine Laufzeit von $O(C)$ haben. Insgesamt hat der Algorithmus also eine Asymptotische Laufzeit von \[O\left(C \cdot (n + 1) \cdot {{n + C + 1}\choose{C + 1}}\right) \le O(n^{C+2}).\] \\ % TODO Beweis
     In der Praxis werden aber deutlich weniger Bäume besucht, da viele bereits durch zu hohe Kosten und und die Obergrenze für $q$ aussortiert werden.
 
     \subsection{Speicherplatz}
