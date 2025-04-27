@@ -107,7 +107,6 @@ fn encode_optimal_py(freqs: Vec<f64>, sizes: Vec<usize>, silent: bool) -> PyResu
 
 #[pymodule]
 fn rust_encoder(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    // Add the encode_optimal_py function as `encode_optimal`
     m.add_function(wrap_pyfunction!(encode_optimal_py, m)?)?;
     Ok(())
 }

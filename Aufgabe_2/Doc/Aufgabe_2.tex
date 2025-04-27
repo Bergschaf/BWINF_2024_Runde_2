@@ -41,7 +41,12 @@
     Contextuals = Alternate,
     Ligatures = TeX,
 ]
-
+\usepackage[%
+    backend=biber,
+    style=authortitle,
+    sorting=nyt,
+]{biblatex}
+\addbibresource{main.bib}
 \lstset{
     basicstyle = \ttfamily,
     columns = flexible,
@@ -89,25 +94,14 @@
 
     \vspace{0.5cm}
 
-    \textbf{Anleitung:} Trage oben in den Zeilen 8 bis 10 die Aufgabennummer, die Teilnahme-ID und die/den Bearbeiterin/Bearbeiter dieser Aufgabe mit Vor- und Nachnamen ein.
-    Vergiss nicht, auch den Aufgabennamen anzupassen (statt "`\LaTeX-Dokument"')!
-
-    Dann kannst du dieses Dokument mit deiner \LaTeX-Umgebung übersetzen.
-
-    Die Texte, die hier bereits stehen, geben ein paar Hinweise zur
-    Einsendung. Du solltest sie aber in deiner Einsendung wieder entfernen!
-
 
     \section{Lösungsidee}
-    \dots Einleitung
+    Ich habe mich damit beschäftigt, einen Algorithmus zu entwickeln, der eine optimale Lösung für die Aufgabenstellung berechnen kann.
+    Eine optimale Lösung ist hier die kürzeste Anweisungssequenz, die Anton und Bea ins Ziel bringt.
+    In diesem Abschnitt wird direkt der Aufgabenteil b) behandelt, der Algorithmus ist aber auch für Labyrinthe ohne Gruben geeignet.
 
-    Annahmen:
-    Das Labyrinth ist von Wänden umgeben
-    \dots
-
-    \subsection{Breitensuche}
-    Zuerst habe ich mich damit beschäftigt, einen Algorithmus zu entwickeln, der eine optimale Lösung für die Aufgabenstellung berechnen kann. Eine optimale Lösung ist hier die kürzeste Anweisungssequenz, die Anton und Bea ins Ziel bringt. In diesem Abschnitt wird direkt der Aufgabenteil b) behandelt (TOOD besser formulieren). \\
-    TODO vlt section Modellierung hier? \\
+    \subsection{Modellierung}
+    Im folgenden arbeite ich mit der Annahme, dass die Labyrinthe von Wänden umgeben sind. \\
     Jeder Zustand, in dem sich Anton und Bea befinden, kann als Tupel der jeweiligen Koordinaten dargestellt werden: $((x_0,y_0), (x_1, y_1))$.
     $(x_0,y_0)$ ist hier die Position von Anton (der sich in Labyrinth 1 befindet), $(x_1, y_1)$ beschreibt die Position von Bea im zweiten Labyrinth.
     Am Anfang herrscht der Zustand $S_0 = ((0,0), (0,0))$, da sich beide auf ihrem Startfeld befinden. Chris kann nun vier mögliche Anweisungen geben, die einen neuen Zustand herbeiführen würden. Wenn Anton und Bea beide ihr Zielfeld erreicht haben, befindet wir uns in dem Zustand $S_{end} = ((n-1, m-1), (n-1, m-1))$.\\
@@ -115,13 +109,13 @@
     \[ V = \{((x_0, y_0), (x_1, y_1)) \in ((\mathbb{N} \times \mathbb{N}) \times (\mathbb{N} \times \mathbb{N}))\mid 0 \le x_0, x_1 < n \land 0 \le y_0, y_1 < m\}\]
     Von jedem Knoten gehen vier Kanten aus, eine für jede Anweisung, die Chris geben könnte. Die Menge der Anweisungen $A$ kann formal als Menge an Funktionen dargestellt werden, die eine Position $p = (x_0, y_0)$ in eine neue Position $p'$ (die oben, unten, rechts oder links von $p$ ist) überführt: \[A = \{(x_0, y_0) \mapsto (x_0 + 1, y_0), (x_0, y_0) \mapsto (x_0 - 1, y_0), (x_0, y_0) \mapsto (x_0, y_0 + 1), (x_0, y_0) \mapsto (x_0, y_0 - 1)\}\]
     Ob Anton und Bea diese Anweisung ausführen können, hängt natürlich davon ab, ob sie die neue Position erreichen können, ohne gegen eine Wand zu stoßen oder in eine Grube zu fallen. Formal führen Anton und Bea an der Position $p$ bei jeder Anweisung $a \in A$ folgende Funktion aus, um ihre neue Position $p'$ zu bestimmen:
-    \[f(p, a) =
+    \[p' = f(p, a) =
     \begin{cases}
-        p & \text{Falls zwischen $p$ und $a(p)$ eine Wand ist oder das Zielfeld erreicht ist (also $p = (n-1, m-1)$)} \\
-        (0, 0)  & \text {Falls $a(p)$ eine Grube ist}\\
+        p & \parbox[t]{.6\textwidth}{Falls zwischen $p$ und $a(p)$ eine Wand ist oder \\ das Zielfeld erreicht ist (also $p = (n-1, m-1)$).} \\
+        (0, 0)  & \text {Falls $a(p)$ eine Grube ist.}\\
         a(p) & \text{ansonsten} \\
     \end{cases}\]
-    Da wir annehmen, dass das Labyrinth von Wänden umgeben ist, kann gibt es keine Position $p$, von der aus man mit einer Anweisung $a \in A$, eine Position $f(p,a)$ außerhalb des Labyrinths erreichen kann. \\
+    Da wir annehmen, dass das Labyrinth von Wänden umgeben ist, gibt es keine Position $p$, von der aus man mit einer Anweisung $a \in A$, eine Position $f(p,a)$ erreichen kann, die außerhalb des Labyrinths liegt. \\
     Um auf die zwei Positionen eines Zustands $S \in V, S = (p_0, p_1)$ zuzugreifen, schreibe ich ab jetzt $S[0] = p_0$ für die Position von Anton und $S[1] = p_1$ für die Position von Bea.\\
     Die Zustandsänderung des Zustands $S \in V$, die durch die Anweisung $a \in A$ hervorgerufen wird, ist also: \[S' = (f(S[0], a), f(S[1], a)).\] Zwischen zwei Zuständen $S \in V$ und $S' \in V$ existiert also eine Kante, wenn $S'$ durch die Anwendung einer Anweisung $a \in A$ auf $S$ erreicht werden kann:
     \[E = \{(S, S') \in (V \times V) \mid \exists a \in A, S' = (f(S[0], a), f(S[1], a)\}\]
@@ -131,28 +125,79 @@
     Die Länge eines solchen Pfades entspricht der Anzahl der durchlaufenen Anweisungen.\\
     Der kürzeste Pfad von $S_0$ zu $S_{end}$ entspricht also einer kürzesten Anweisungssequenz, die Anton und Bea ins Ziel bringt. Die Aufgabenstellung lässt sich also darauf reduzieren, den kürzesten Pfad von $S_0$ zu $S_{end}$ in dem oben beschriebenen Graph zu finden. \\
     Da der Graph nicht gewichtet ist, kann dieser Pfad mit einer Breitensuche gefunden werden.\\
+
+
+    \section{Breitensuche}
+
+
+
     In der Implementierung können alle Schleifen, also Kanten die einen Knoten mit sich selbst verbinden, ignoriert werden, da sie mit Anweisungen zusammenhängen, die den Zustand nicht ändern (z.B. da Anton und Bea beide gegen eine Wand laufen). \\
     Außerdem muss man beachten, dass Anton und Bea warten, wenn sie ihr Zielfeld bereits erreicht haben. Wenn also eine der Koordinaten die Position $(n-1,m-1)$ erreicht hat, wird diese von den Anweisungen von Chris nicht mehr verändert. Da nun nur noch eine Person ihr Ziel finden muss, würde es keinen Sinn machen, Anwendungen auszuführen, mit denen diese Person gegen eine Wand laufen würde. Dies muss aber in der Praxis nicht extra überprüft werden, da sich der Gesamtzustand in diesen Fällen nicht ändern würde (da eine Person gegen die Wand läuft und die andere wartet). Solche Anweisungen werden sowieso herausgefiltert.
-    \subsubsection{Laufzeitkomplexität} (TODO Löcher abziehen, weil da kann man ja nicht sein??)(TODO Pseudocode zum Laufzeit erklären)
-    Die Breitensuche hat eine Zeitkomplexität von $O(\|E\| + \|V\|)$, wobei $\|E\|$ die Anzahl der Kanten und $\|V\|$ die Anzahl der Knoten im Graphen ist. (TOOD Quelle) \\
-    Der oben beschriebene Graph besitzt einen Knoten für jede Mögliche Kombination an Positionen von Anton und Bea. Bea und Anton können jeweils $n \cdot m$ verschiedene Positionen einnehmen, d.h. insgesamt hat der Graph $\|V\| = n^2 m^2$ Knoten.
-    Jeder Knoten hat höchstens vier ausgehende Kanten (da Schleifen nicht betrachtet werden müssen): $\|E\| \le 4 \cdot n ^2 m^2$. Damit entspricht die worst-case Laufzeit $O(n^2 m^2 + 4 \cdot n^2 m^2) = O(n^2 m^2)$.
+        \begin{algorithm}[H]
+        \begin{algorithmic}[1]
+            \Function{BFS}{Labyrinth1, Labyrinth2}
+                \State visited $\gets$ leeres Dictionary
+                \State visited[$S_0$] $\gets$ null
+                \State queue $\gets$ leere Warteschlange
+                \State queue.\Call{enqueue}{$S_0$}
 
-    \subsubsection{Speicherplatzverbrauch}
-    TODO $O(\| V \|) = O(n^2 m^2)$ -> viel
+                \While{queue nicht leer}
+                    \State S $\gets$ queue.\Call{popfirst}{}
+                    \If{$S = S_{end}$}
+                        \State \textbf{break}
+                    \EndIf
+                    \For{jede Anweisung $a \in A$}
+                        \State S' $\gets$ (f(S[0], a), f(S[1], a))
+                        \If{$S' = S$}
+                            \State \textbf{continue}
+                        \EndIf
+                        \If{$S' \in$  visited}
+                            \State \textbf{continue}
+                        \EndIf
+                        \State visited[$S'$] $\gets$ $S$
+                        \State queue.\Call{enqueue}{S'}
+                    \EndFor
+                \EndWhile
+                \If{$S_{end} \notin$ visited}
+                    \State \Call{Print}{``No path found''}
+                \Else
+                    \State \Return \Comment{Verfolge Pfad anhand der visited Hashmap zurück}
+                \EndIf
+            \EndFunction
+        \end{algorithmic}\label{alg:bfs}
+    \end{algorithm}
+    Am Anfang werden die Variablen \textit{visited} und \textit{queue} initialisiert. Die \textit{visited}-Variable ist eine Hashmap, die alle Knoten speichert, die bereits besucht wurden. Der Schlüssel ist der Knoten, der besucht wurde und der Wert ist der Knoten, von dem aus dieser Knoten erreicht wurde. Die \textit{queue} ist eine Warteschlange, die alle Knoten speichert, die noch besucht werden müssen.\\
+    In der While-Schleife wird immer der erste Knoten $S$ aus der Warteschlange entfernt.
+    Falls dieser der Zielknoten ist, ist die Suche abgeschlossen.\\
+    Ansonsten wird für jede Anweisung der Zustand $S'$ berechnet, der durch die Anwendung der Anweisung auf $S$ erreicht werden kann.
+    Falls dieser Zustand $S$ nicht ändert (weil Anton und Bea gegen die Wand laufen) oder schon besucht wurde, wird die Anweisung übersprungen.\\
+    Ansonsten wird $S'$ in die \textit{visited}-Hashmap eingetragen und zur Warteschlange hinzugefügt.\\
+    Wenn die Warteschlange leer ist, aber der Zielknoten nicht besucht wurde, gibt es keinen Pfad von $S_0$ zu $S_{end}$ und die Suche wird abgebrochen.
+    Falls ein Pfad gefunden wurde, kann er anhand der \textit{visited} Hashmap zurückverfolgt werden.
 
-
-    TODO Datenstrukturen für visited (array ist schlecht, hashtable (Python set ist besser))
+    \subsubsection{Laufzeitkomplexität}
+    Im Worst-Case besucht die Breitensuche jeden Knoten genau einmal, die While-Schleife wird also $O(\|V\|)$ mal ausgeführt.
+    Die For-Schleife in der While-Schleife läuft für jede Anweisung einmal, also $O(4) = O(1)$ mal.
+    Da die Operationen in der For-Schleife (mit der Hashmap und der Warteschlange) mit einer theoretischen Laufzeit von $O(1)$ ausgeführt werden können, ist die Laufzeit der For-Schleife insgesamt $O(1)$.
+    Damit hat der gesamte Algorithmus eine Laufzeit von $O(\|V\|)$. \\
+    Der oben beschriebene Graph besitzt einen Knoten für jede Mögliche Kombination an Positionen von Anton und Bea.
+    Bea und Anton können jeweils $n \cdot m$ verschiedene Positionen einnehmen, d.h. insgesamt hat der Graph $\|V\| = n^2 m^2$ Knoten, d.h. die Laufzeit ist $O(n^2 m^2)$. \\
+    Das stimmt auch mit der allgemein bekannten Laufzeit für Breitensuche von $O(\|E\| + \|V\|)$ überein, da jeder Knoten höchstens vier ausgehende Kanten hat: $\|E\| \le 4 \cdot n ^2 m^2$.
+    Die Wort-Case Laufzeit ist also: \[O(n^2 m^2 + 4 \cdot n^2 m^2) = O(n^2 m^2).\]
+    Die Breitensuche hat im Wort-Case einen Speicherplatzverbrauch von $O(\|V\|) =  O(n^2 m^2)$, da alle besuchten Knoten in der \textit{visited}-Hashmap gespeichert werden müssen.
 
     \subsection{Bidirektionale Breitensuche}
-    Der oben beschriebene Algorithmus hat zwar die bestmögliche Asymptotische Laufzeit für einen Algorithmus, der einen optimalen Pfad findet (TODO Stimmt das?), lässt sich aber in der Praxis noch weiter optimieren, nämlich durch das Verfahren der Bidirektionalen Breitensuche. Dabei wird die Breitensuche nicht nur von dem Startknoten $S_0$ aus gestartet, sondern gleichzeitig auch \glqq rückwärts\grqq~von $S_{end}$ aus. Sobald die Breitensuche aus der einen Richtung einen Knoten besucht, der von der anderen Richtung aus schon besucht wurde, ist ein kürzester Pfad gefunden und die Suche ist abgeschlossen.
+    Die Breitensuche hat die bestmögliche asymptotische Laufzeit für einen Algorithmus, der einen optimalen Pfad in einem Graphen findet, der nicht gewichtet ist. \\
+    In der Praxis lässt sie sich aber noch weiter optimieren, nämlich durch das Verfahren der Bidirektionalen Breitensuche.
+    Dabei wird die Breitensuche nicht nur von dem Startknoten $S_0$ aus gestartet, sondern gleichzeitig auch \glqq rückwärts\grqq~von $S_{end}$ aus.
+    Sobald die Breitensuche aus der einen Richtung einen Knoten besucht, der von der anderen Richtung aus schon besucht wurde, ist ein kürzester Pfad gefunden und die Suche ist abgeschlossen.
     Dabei muss aber genauer auf die Reihenfolge geachtet werden, in der die Knoten besucht werden.
-    Die normale Breitensuche funktioniert nämlich mit einer Datenstruktur, die wie eine Warteschlange (Queue) nach dem First-in Last-out prinzip funktioniert. Das bedeutet, dass ein neuer Knoten, der zu der Warteschlange hinzugefügt wurde erst besucht wird, wenn alle anderen Knoten, die vorher hinzugefügt wurden bereits aus der Warteschlange entfert sind. (TODO bild queue) Das bedeutet, dass zuerst alle Knoten, die $i$ Kanten von $S_0$ entfernt sind, besucht werden, bevor ein Knoten in der Entfernung $i+1$ besucht wird. Darus folgt auch die Optimalität der Breitensuche, da so sicher der kürzeste Pfad gefunden wird. \\
-% TODO vlt pseudocode
+    Die normale Breitensuche funktioniert nämlich mit einer Datenstruktur, die wie eine Warteschlange (Queue) nach dem First-in Last-out prinzip funktioniert. Das bedeutet, dass ein neuer Knoten, der zu der Warteschlange hinzugefügt wurde erst besucht wird, wenn alle anderen Knoten, die vorher hinzugefügt wurden bereits aus der Warteschlange entfert sind.
+    Das bedeutet, dass zuerst alle Knoten, die $i$ Kanten von $S_0$ entfernt sind, besucht werden, bevor ein Knoten in der Entfernung $i+1$ besucht wird.
+    Daraus folgt auch die Optimalität der Breitensuche, da so sicher der kürzeste Pfad gefunden wird. \\
 
-
-    Würde man bei der bidirektionalen Breitensuche dieses Verfahren vom Startknoten aus und vom Zielknoten aus rückwärts anwenden, könnte es passieren, dass ein Pfad gefunden wird, der um eine Kante zu lang ist (TODO QUelle die eien internetseite). \\
-    Darum müssen die Knoten von jeder Breitensuche \glqq Ebene für Ebene\grqq~besucht werden:
+    Würde man bei der bidirektionalen Breitensuche dieses Verfahren vom Startknoten aus und vom Zielknoten aus rückwärts anwenden, könnte es passieren, dass ein Pfad gefunden wird, der um eine Kante zu lang ist. \\
+    Darum müssen die Knoten von jeder Breitensuche aus \glqq Ebene für Ebene\grqq~besucht werden:
     \begin{algorithm}[H]
         \caption{Bidirektionale Suche}
         \label{alg:bidirectional-search}
@@ -188,25 +233,26 @@
 
     \subsubsection{Laufzeit}
     Asymptotisch ist die Laufzeit von bidirektionaler Breitensuche gleich wie die der normalen Breitensuche, im Wort-Case muss jeder Knoten und jede Kante besucht werden, also $O(\|V\| + \|E\|)$.
-    \begin{figure}
+    \begin{figure}[H]
         \label{fig:1}
         \centering
-        \includegraphics[width=0.7\textwidth]{Assets/Bidirectional_Search_in_1966}
-        \caption {TODO QUelle: }
+        \includegraphics[width=0.7\textwidth]{Assets/zeichnung}
+        \caption {Links: normale Breitensuche, Rechts: Bidirektionale Breitensuche}
     \end{figure}
-    TODO Quelle. \url{https://en.wikipedia.org/wiki/Bidirectional_search#/media/File:Bidirectional_Search_in_1966.png}
 
     Intuitiv ist Bidirektionale Breitensuche aber schneller, da meistens weniger Knoten besucht werden müssen (siehe Bild \ref{fig:1}). \\
-    Mathematisch lässt sich das schwer quantifizieren, man kann allerdings eine andere Obergrenze der Laufzeit der Breitensuche betrachten. Sei $d$ die Länge des Pfades, der gefunden werden muss und $b$ die Durchschnittliche Anzahl an ausgehenden Kanten eines Knotens, in unserem Fall $d = 4$. Die Laufzeit von Breitensuche lässt sich durch $O(b^d)$ begrenzen. Die zwei Breitensuchen treffen sich aber schon nach $D/2$ Schritten in der Mitte (wenn man beide Richtungen immer abwechselnd um eine Ebene erweitert). Die Laufzeit der Bidirektionalen Breitensuche lässt sich also durch $O(b^{\frac d 2})$ begrenzen. (TODO Quelle) \\
+    Mathematisch lässt sich das schwer quantifizieren, man kann allerdings eine andere Obergrenze der Laufzeit der Breitensuche betrachten. Sei $d$ die Länge des Pfades, der gefunden werden muss und $b$ die Durchschnittliche Anzahl an ausgehenden Kanten eines Knotens, in unserem Fall $d = 4$.
+    Die Laufzeit von Breitensuche lässt sich durch $O(b^d)$ begrenzen, da, bis der Zielknoten gefunden wurde, auf jeder \glqq Ebene\grqq die Anzahl der besuchten Knoten um den Faktor $b$ steigt.\\
+    Die zwei Breitensuchen der Bidirektionalen Breitensuche treffen sich aber schon nach $D/2$ Schritten in der Mitte (wenn man beide Richtungen immer abwechselnd um eine Ebene erweitert).
+    Die Laufzeit der Bidirektionalen Breitensuche lässt sich also durch $O(b^{\frac d 2})$ begrenzen. \\
     Für die Pfadlänge in unserem Graphen gilt allerdings $d > m + n$, und da $m^2 n^2  \le 4^{\frac {n + m} 2}$ für alle $n, m \in \mathbb N$ ist $O(n^2 m^2)$ eine deutlich bessere Abschätzung für die Laufzeit der Bidirektionalen Breitensuche als $O(b^{\frac d 2})$.
     Im Beispielteil wird sich zeigen, dass Bidirektionale Breitensuche in den meisten Fällen trotzdem deutlich schneller ist.
 
-
     \section{Umsetzung}
-
     \subsection{Breitensuche}
     Ich verwende eine \textit{HashMap} um zu speichern, welche Knoten bereits besucht wurden. Der Schlüssel entspricht dem Knoten der Besucht wurde und der Wert, der hinter dem Schlüssel hinterlegt wird, ist der Knoten, von dem aus der Schlüssel erreicht wurde. Das hat den Vorteil, dass Werte mit Konstanter Laufzeit gesetzt werden können und dass mit konstanter Laufzeit überprüft werden kann, ob ein Knoten bereits besucht wurde.
-    Wenn dann der Zielknoten gefunden wurde, kann der Pfad mit der \textit{HashMap} leicht zurückverfolgt werden.
+    Wenn dann der Zielknoten gefunden wurde, kann der Pfad mit der \textit{HashMap} leicht zurückverfolgt werden. \\
+    Für die Warteschlange verwende ich eine \textit{Deque} (Double-ended Queue), die es mit konstanter Laufzeit ermöglicht, Knoten hinten anzuhängen und vorne zu entfernen.
 
     \subsection{Bidirektionale Breitensuche}
     Für die Bidirektionale Breitensuche benötigt man zwei Funktionen; die \textit{forward} und die \textit{backward} Funktion. Die \textit{forward} \glqq erweitert\grqq~einen Knoten entlang der Richtung der Pfeile wie bei der normalen Breitensuche und gibt alle Knoten zurück, die eine Pfadlänge von dem Knoten entfernt sind und noch nicht besucht wurde. \\
@@ -259,7 +305,7 @@
     Wenn alle notwendigen Bedingungen gegeben sind, kann \textit{new\_pos} in die \textit{backward\_visited} Hashmap eingetragen werden. Als Wert wird \textit{current} eingetragen, wodurch später der Pfad zurückverfolgt werden kann. \\
     Anschließend wird überprüft, ob der Knoten \textit{new\_pos} bereits aus der anderen Richtung besucht wurde. Wenn dies der Fall ist, ist ein kürzester Pfad gefunden und der verbindende Knoten wird zurückgegeben. Von ihm aus kann nun durch die HashMaps \textit{forward\_visited} und \textit{backward\_visited} der Pfad in beide Richtungen zurückverfolgt werden. \\
     Bei der \textit{backward} Funktion müssen einige edge-cases beachtet werden. Die \textit{shift} Funktion (in der Lösungsidee als $f(p,a)$ definiert für eine Anweisung $a \in A$ und eine Position $p$) verändert eine Position normalerweise nicht, falls sie bereits den Endzustand $p = (n-1, m-1)$ erreicht hat. Wenn in der \textit{backward} Funktion allerdings Positionen \glqq Rückwärts\grqq~vom Endzustand aus verschoben werden sollen, ist das ein Problem. Drum verwende ich im Pseudocode die \textit{shift'} Funktion, die diese Bedingung nicht beachtet. Im Quellcode heißt diese Funktion \textit{shift\_without\_end\_fix}. \\
-    Wenn Anton oder Bea in ein Loch fallen, gehen sie direkt zum Startfeld zurück. Das bedeutet, wenn die \textit{backward} Funktion alle Felder ermitteln müsste, von denen Anton oder Bea mit einer Anweisung zum Startfeld gelangen können, müsste sie jede Position ausgeben, von der aus ein Loch mit einer Anweisung erreichbar ist. Da das für die meisten Beispieldateien eine sehr große Anzahl an Feldern ist, verwende ich die \textit{backward} Funktion nicht mehr, sobald Anton oder Bea die Position $(0,0)$ Rückwärts besucht haben. Von dort an wird dir Suche nur noch mit der \textit{forward} Funktion fortgeführt. In der Praxis wird aber meistens ein Pfad gefunden, bevor \textit{backward} in einem Labyrinth das Startfeld erreicht. \\
+    Wenn Anton oder Bea in ein Loch fallen, gehen sie direkt zum Startfeld zurück. Das bedeutet, wenn die \textit{backward} Funktion alle Felder ermitteln müsste, von denen Anton oder Bea mit einer Anweisung zum Startfeld gelangen können, müsste sie jede Position ausgeben, von der aus ein Loch mit einer Anweisung erreichbar ist. Da das für die meisten Beispieldateien eine sehr große Anzahl an Feldern ist, verwende ich die \textit{backward} Funktion nicht mehr, sobald Anton oder Bea die Position $(0,0)$ Rückwärts besucht haben. Von dort an wird dir Suche nur noch mit der \textit{forward} Funktion fortgeführt. In der Praxis wird aber meistens ein Pfad gefunden, bevor \textit{backward} in einem Labyrinth das Startfeld erreicht.
 
     \subsubsection{Optimierung}
     In meiner Implementierung der Bidirektionalen Breitensuche verwende ich für jede Richtung eine Hashmap, um zu speicher welche Knoten bereits besucht wurden (Entspricht den \textit{visited} variablen in Algorithmus \ref{alg:bidirectional-search}).
@@ -287,7 +333,7 @@
     \[h((x_0, y_0), (x_1, x_1)) = \max\{(n - x_0 + m - y_0 - 2), (n - x_1 + m - y_1 - 2)\}\]
     Der Term $(n - x_0 + m - y_0 - 2)$ repräsentiert die minimale Anzahl an Anweisungen, die benötigt sind, dass Anton sein Ziel erreicht.
     Die Heuristik nimmt das maximum der Minimalen Anweisungen für Bea und Anton, was den Pfad nicht überschätzt.
-    In der Praxis ist der Pfad aber deutlich länger, weshalb die Heuristik nicht sehr gut ist und die Suche nicht signifikant beschleunigt.\\
+    In der Praxis ist der Pfad aber deutlich länger, weshalb die Heuristik nicht sehr gut ist und die Suche nicht signifikant beschleunigen würde.\\
 
     Eine andere Möglichkeit wäre, die Bidirektionale Suche zu parallelisieren.
     Da die Reihenfolge, in der die Knoten vorwärts bzw.\ Rückwärts expandiert werden egal ist, könnten die \textit{Expand\_by\_one} in Algorithmus~\ref{alg:bidirectional-search} auf mehreren Threads gleichzeitig ausgeführt werden.
@@ -337,8 +383,8 @@
         \end{minipage}
         \caption{Die Labyrinthe aus Beispieldatei 2}
     \end{figure}
-    In Abbildung~\ref{fig:2} sieht die Wände in schwarz eingezeichnet, die Löcher rot und die Pfade als Farbverlauf von Blau über Orange nach Grün.
-    Dieser Farbverlauf hat den vorteil, dass man bei sehr Langen Pfaden erkennen kann, wann Anton und Bea sich an welchem Punkt befunden haben.
+    In Abbildung~\ref{fig:2} sieht man die Wände schwarz eingezeichnet, die Löcher rot und die Pfade als Farbverlauf von Blau über Orange nach Grün.
+    Dieser Farbverlauf hat den Vorteil, dass man bei sehr langen Pfaden erkennen kann, wann Anton und Bea sich an welchem Punkt befunden haben.
     Ein gutes Beispiel dafür ist Beispieldatei 4:
     \begin{figure} [H]
         \label{fig:4}
@@ -369,11 +415,11 @@
         \caption{Die Labyrinthe aus Beispieldatei 6}
     \end{figure}
     Man sieht, dass die Labyrinthe in dieser Beispieldatei ausschließlich aus Löchern bestehen.
-    Die die Rückwärts-Suche der Bidirektionalen Breitensuche abbricht, sobald sie das Startfeld erreicht hat, wurde ein großer Teil dieser Suche nur von der \textit{Forward} Funktion ausgeführt, die aufgrund der implementierung etwas langsamer ist als die normale Breitensuche.
+    Die die Rückwärts-Suche der Bidirektionalen Breitensuche abbricht, sobald sie das Startfeld erreicht hat, wurde ein großer Teil dieser Suche nur von der \textit{Forward} Funktion ausgeführt, die Aufgrund der Implementierung etwas langsamer ist als die normale Breitensuche.
     Das Startfeld wurde von der Rückwärts-Suche in diesem Beispiel sehr schnell erreicht, da es keine Wände gibt und die Rückwärts suche Löcher nicht beachten muss. \\
     Aber auch die Pfade dieser Beispieldatei sind sehr interessant.
     Am Farbverlauf sieht man, dass Anton im ersten Labyrinth auf sehr schnellem Weg ins Ziel gekommen ist und dort gewartet hat.
-    Bea ist dagegen für einen gewissen Zeitraum im Startbereich geblieben und ist immer wieder in Löcher gelaufen (und musste damit zurück zum Startfeld) und ist erst Später ins Ziel gekommen. \\
+    Bea ist dagegen für einen gewissen Zeitraum im Startbereich geblieben und ist immer wieder in Löcher gefallen (und musste dadurch zurück zum Startfeld) und ist erst Später ins Ziel gekommen. \\
     In Beispieldatei 7 hat die Suche keine Lösung ergeben.
     \begin{figure}[H]
         \label{fig:7}
@@ -396,4 +442,7 @@
     TODO die Personen bleiben im Zielfeld nicht stehen
     TODO nicht nur zwei labyrinthe
     TODO mehrdimensionale Labyrinthe
+
+    \printbibliography
+
 \end{document}

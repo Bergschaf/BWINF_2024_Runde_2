@@ -138,11 +138,65 @@
         Würde man diesen Knoten zu einem Blatt machen, hätte man einen Baum mit der gleichen Anzahl an Blättern aber geringeren Kosten.
     \end{proof}
     Das gilt im allgemeinen Fall bei Bäumen mit $r > 2$ Kindern aber nicht.
-    Für die allgemein bekannte Konstruktion eines binären Huffman Baums werden wiederholt zwei Teilbäume zu einem zusammengefasst, bis schließlich nur noch einer übrig ist. % TODO vlt kurz beschreiben was passiert
+    Für die allgemein bekannte Konstruktion eines binären Huffman Baums werden wiederholt zwei Teilbäume zu einem zusammengefasst, bis schließlich nur noch einer übrig ist.
     Im allgemeinen Fall müssen immer $r$ Teilbäume zu einem zusammengefasst werden, was aber nicht für jede Anzahl an Buchstaben $n$ im Alphabet immer funktioniert.
     \begin{beispiel}
-        Für $n = 4$ werden im ersten Schritt drei Knoten zu einem zusammengefasst. Im nächsten sind nur noch zwei Knoten übrig. Würde man diese Knoten nun zu einem fertigen Baum kombinieren wäre dieser für bestimmte Häufigkeitsverteilungen (z.B. $p_0 = p_1 = p_2 = p_3$) nicht optimal.
-            % TODO Bild
+        Für $n = 4$ und $r = 3$ werden im ersten Schritt drei Knoten zu einem zusammengefasst. Im nächsten sind nur noch zwei Knoten übrig. Würde man diese Knoten nun zu einem fertigen Baum kombinieren wäre dieser für bestimmte Häufigkeitsverteilungen (z.B. $p_0 = p_1 = p_2 = p_3$) nicht optimal (Siehe Abbildung).
+        \begin{figure}
+            \label{tree:mit_platzhalter}
+
+            \centering
+            \begin{minipage}{.5\textwidth}
+                \label{tree:suboptimal}
+
+                \centering
+                \begin{forest}
+                    for tree={
+                        grow                    = south,
+                        parent anchor           = north,
+                        child anchor            = north,
+                        edge                    = {thick, -},
+                        l sep                    = 10mm, % level distance
+                        s sep                    = 5mm, % sibling distance
+                    }
+                    [
+                    [
+                    [$0.25$, tier=2]
+                    [$0.25$, tier=2]
+                    [$0.25$, tier=3]
+                    ]
+                    [$0.25$]
+
+                    ]
+                \end{forest}
+                \captionof{figure}{Suboptimaler Baum}
+            \end{minipage}%
+            \begin{minipage}{.5\textwidth}
+                \centering
+                \begin{forest}
+                    for tree={
+                        grow                    = south,
+                        parent anchor           = north,
+                        child anchor            = north,
+                        edge                    = {thick, -},
+                        l sep                    = 10mm, % level distance
+                        s sep                    = 10mm, % sibling distance
+                    }
+                    [
+                    [
+                    [$0.25$, tier=2]
+                    [$0.25$, tier=2]
+                    [$0$, tier=3]
+                    ]
+                    [$0.25$]
+                    [$0.25$]
+
+
+                    ]
+                \end{forest}
+                \captionof{figure}{Optimaler Baum mit Platzhalterknoten}
+            \end{minipage}
+        \end{figure}
     \end{beispiel}
     Daher muss das Alphabet zuerst mit so vielen Platzhalterbuchstaben, deren Antreffwahrscheinlichkeit 0 ist, aufgefüllt werden, dass gilt: $n \mod (r - 1) = 1$.
     Da bei jeder Iteration, bei der $r$ Knoten zu einem zusammengefasst werden, die Gesamtanzahl der Knoten um $r-1$ reduziert wird, stellt diese Formel sicher, dass am Ende genau ein Knoten übrig bleibt.
@@ -153,10 +207,11 @@
         \item Beschrifte einen neuen Knoten mit der Summe der Antreffwahrscheinlichkeiten der $r$ gewählten Teilbäume und erstelle einen neuen Teilbaum mit dem neuen Knoten als Wurzel und den gewählten Teilbäumen als Kinder.
         \item Wiederhole Schritt 2 und 3, bis nur noch ein Baum übrig ist.
     \end{enumerate}
+    Aufgrund der Platzhalterknoten entsteht nun ein optimaler, vollständiger Baum (siehe Abbildung).
 
     \subsubsection{Beweis der Optimalität}
     Der Standartbeweis für die Optimalität von binären Huffman Bäumen kann leicht verallgemeinert werden.
-    Dazu müssen wir zuerst das \glqq Sibling-Lemma\grqq~auf $r-$när Bäume verallgemeinern: % TODO Sibling lemma
+    Dazu müssen wir zuerst das \glqq Sibling-Lemma\grqq~auf $r-$när Bäume verallgemeinern:
     \begin{lemma}
         Seien $l_1, l_2, \dots l_r$ die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit (In dieser Auswahl können auch die Platzhalterbuchstaben enthalten sein).
         Sie sind in einem Huffman Baum \glqq Geschwister\grqq, also Kinder des gleichen Knotens $Y$ und liegen auf der untersten Ebene des Baums.
@@ -166,14 +221,12 @@
         Wenn $l_1, \dots l_r$ nicht auf der untersten Ebene des Baums liegen würden, dann müsste es einen internen Knoten $X$ geben, dessen Antreffwahrscheinlichkeit kleiner ist als die des Knotens $Y$, dessen Kinder $l_1, \dots l_r$ sind.
         Da der Baum vollständig ist, müsste aber mindestens einer der Kinder von $X$ eine geringere Antreffwahrscheinlichkeit haben als einer der Kinder  $l_1, \dots l_r$ von $Y$.
         Das widerspricht aber unserer anfänglichen Annahme, dass $l_1, \dots l_r$ die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit sind. Daher können wir sagen, dass $l_1, \dots l_r$ immer auf der untersten Ebene des Baums liegen.
-            % TODO so ein Bild wie hier: https://opendsa-server.cs.vt.edu/ODSA/Books/CS3/html/HuffProof.html
     \end{proof}
-    % TODO irgendwo sagen, was r-när meint
     Damit können wir nun mithilfe von Induktion über die Größe $n$ des Alphabets den Beweis durchführen:
     \begin{satz}
         Die oben beschriebene Konstruktion für $r-$näre Huffman Bäume liefert einen optimalen Baum und damit eine bestmögliche Codetabelle.
     \end{satz}
-    \begin{proof} % TODO stimmt des letzt mit contradiction?????
+    \begin{proof}
         \textit{Induktionsanfang}:
         Für $n \le r$ ist ein Huffman Baum offensichtlich optimal. \\
         \textit{Induktionshypothese}: Alle Huffman Bäume mit $< n$ Blättern sind optimal. \\
@@ -223,7 +276,7 @@
     \end{algorithm}
 
     \subsubsection{Laufzeit}
-    Die Laufzeitbetrachtung verläuft ähnlich wie bei binären Huffman Bäumen\autocite{noauthor_huffman-kodierung_2025}:\\ % TODO QUelle Wikiepdia
+    Die Laufzeitbetrachtung verläuft ähnlich wie bei binären Huffman Bäumen\autocite{noauthor_huffman-kodierung_2025}:\\
     Sei $n$ die Länge des Alphabets und $t$ die Länge des Originaltextes.
     Um die Frequenzen der Buchstaben zu bestimmen, muss der Text einmal durchlaufen werden.
     Diese Funktion, die im Pseudocode oben nicht aufgeführt ist, hat also eine asymptotische Laufzeit von $O(t)$.
@@ -242,11 +295,11 @@
     \end{definition}
     Bis jetzt waren die Kinder $v_1$ bis $v_r$ eines Knotens $V$ immer genau eine Ebene tiefer als $V$, also $|v_i| = |V| - 1$.
     Wir wollen die Eigenschaft, dass die Pfadlänge von der Wurzel eines Baumes zu einem Blatt $|w|$ der Länge der entsprechenden Aneinanderreihung an Perlen entspricht aber natürlich weiterhin erhalten. Wenn wir also die Kinder $v_1$ bis $v_r$ des Knotens $V$ mit den Perlen $o_1$ bis $o_{r}$ beschriften $v_i \to o_i$, soll gelten: $|V| = |v_i| + c_i$.
-    Daraus resultieren sogenannte \textit{schiefe} (engl. lopsided) Bäume (Siehe Bild TODO). \\
+    Daraus resultieren sogenannte \textit{schiefe} (engl. lopsided) Bäume (Siehe Abbildung \ref{fig:test1}). \\
     Die oben beschriebene Huffman-Codierung deckt den Spezialfall $c_1 = c_2 \dots = c_r$ ab, im allgemeinen Fall produziert sie jedoch keine optimalen Bäume.
     Das liegt dran, dass sich der Beweis für die Optimalität von Huffman-Bäumen darauf stützt, dass die $r$ tiefsten Knoten Geschwister sind.
-    Das ist in einem schiefen Baum im allgemeinen aber nicht der Fall.
-    % TODO Bild  
+    Das ist in einem schiefen Baum im Allgemeinen aber nicht der Fall.
+
     \subsubsection{Vollständige Bäume}
     Golin und Rote stellen 1998 in ihrem Paper \glqq A dynamic programming algorithm for constructing optimal prefix-free codes with unequal letter costs\grqq\autocite{golin_dynamic_1998}~ einen neuen Ansatz zur Berechnung von optimalen Präfixfreien Codes für unterschiedliche Kosten der Buchstaben vor.
     Da das dem Problem in Aufgabenteil b) entspricht, orientiere ich mich in den folgenden Kapiteln an diesem Paper.
@@ -336,7 +389,6 @@
     \begin{definition}
         Wir kürzen einen Baum $T$ zu dem Ebene-$i$-Baum $Cut_i(T)$, indem wir alle Knoten entfernen, deren Eltern tiefer als Ebene-$i$ liegen: \[Cut_i(T) = T - \{v \in T \mid |parent(v)| > i\}\].
     \end{definition}
-    TODO Beispiel
     \begin{definition}
         Die Signatur einer Ebene $i$ des Baums $T$ ist das $C + 1$-Tupel \[sig_i(T) = (m, l_1,l2_, \dots, l_C)\]
         wobei $m = |\{v \in T \mid v \text{ ist ein Blatt und } |v| \le i\}|$ der Anzahl der Blätter von $T$ mit einer Tiefe von höchstens $i$ enspricht und
@@ -345,8 +397,91 @@
     \end{definition}
     Diese Signatur wird es uns später erlauben, alle möglichen Bäume zu betrachten und dabei aber kleine Unterschiede, die nichts an den Kosten eines Baums ändern, zu vernachlässigen.
 
+    \begin{beispiel}
 
-    TODO Beispiele mit signatur und expand
+    \begin{figure}[H]
+        \centering
+                \begin{minipage}{.3\textwidth}
+            \centering
+            \begin{forest} baseline
+                for tree={
+                    grow                    = south,
+                    parent anchor           = north,
+                    child anchor            = north,
+                    edge                    = {thick, -},
+                    l sep                    = 10mm, % level distance
+                    s sep                    = 5mm, % sibling distance
+                }
+                [
+                [
+                [$\frac 1 5$, tier=2, [,phantom,tier=3]]
+                [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=3]
+                ]
+                [
+                [$\frac 1 5$, tier=2]
+                [$\frac 1 4$, tier=2]
+                [$0$, tier=3]
+                ]
+                [$0$, tier=2]
+                ]
+            \end{forest}
+            %\captionof{figure}{$Cut_1(T)$ mit $sig_1 = (0, 5, 2)$}
+        \end{minipage}%
+        \begin{minipage}{.3\textwidth}
+            \centering
+            \begin{forest} baseline
+                for tree={
+                    grow                    = south,
+                    parent anchor           = north,
+                    child anchor            = north,
+                    edge                    = {thick, -},
+                    l sep                    = 10mm, % level distance
+                    s sep                    = 5mm, % sibling distance
+                }
+                [
+                [
+                [$\frac 1 5$, tier=2, [,phantom,tier=3]]
+                [$\frac 1 5$, tier=2]
+                [$\frac 1 5$, tier=3]
+                ]
+                [
+                [$\frac 1 5$, tier=2]
+                [$\frac 1 4$, tier=2]
+                [$0$, tier=3]
+                ]
+                [$0$, tier=2]
+                ]
+            \end{forest}
+            %\captionof{figure}{$Cut_1(T)$ mit $sig_1 = (0, 5, 2)$}
+        \end{minipage}%
+        \begin{minipage}{.2\textwidth}
+            \centering
+            \begin{forest}baseline
+                for tree={
+                    grow                    = south,
+                    parent anchor           = north,
+                    child anchor            = north,
+                    edge                    = {thick, -},
+                    l sep                    = 10mm, % level distance
+                    s sep                    = 10mm, % sibling distance
+                }
+                [
+                [
+
+                ]
+                [ [, phantom, tier=2]
+
+                ]
+                [, tier=2]
+                ]
+            \end{forest}
+            %\captionof{figure}{$Cut_0(T)$ mit $sig_0(T) = (0, 2, 1)$}
+        \end{minipage}
+    \end{figure}
+
+    \end{beispiel}
+
 
     Über die Signatur eines Ebene-$i$-Baums können wir nun die Kosten dieser Ebene definieren, was uns später dabei helfen wird, den \glqq billigsten\grqq{} Baum zu finden.
     \begin{definition}
@@ -354,7 +489,6 @@
         \[cost_i(T) = \sum^m_{j=1} |w_j| \cdot p_j + i \cdot \sum^n_{j=m + 1}p_j\]
         wobei $|w_1| \le \dots \le |w_m|$ die $m$ höchsten Blätter nach Tiefe geordnet sind.
     \end{definition}
-    %    TODO igendwo explizit sagen, dass $|w_i| $tiefe vom blatt
     Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter, um die Ebene $i$ zu erreichen, darstellt.
     Für $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > n$. D.h. wenn $T$ ein Ebene-$i$-Baumm mit $sig_i(T) = (m, l1, \dots l_C)$ ist und $m \ge n$, dann gilt $cost_i(T) = cost(T)$. \\
     % TODO coole überleitung schritt für schritt aufbauen
@@ -643,7 +777,6 @@
 
     \subsection{Speicherplatz}
     TODO
-
 
     \subsection{Heuristik}
     Für große Eingabealphabete ($n \gg 500$) ist dieser Algorithmus trotzdem deutlich zu langsam.

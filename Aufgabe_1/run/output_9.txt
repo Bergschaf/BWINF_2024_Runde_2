@@ -6600,3 +6600,62 @@ Found new best cost: 8.246231155778807, Qs: [1, 2, 4, 8, 15, 29, 30, 40, 69, 36,
 Found new best cost: 8.246231155778805, Qs: [1, 2, 4, 8, 15, 29, 30, 40, 66, 36, 10, 0, 0, 0], stack size: 241, visited: 506721215296
 Found new best cost: 8.246012672055844, Qs: [1, 2, 4, 8, 15, 29, 30, 39, 69, 39, 1, 0, 0], stack size: 237, visited: 507255602665
 Found new best cost: 8.246012672055842, Qs: [1, 2, 4, 8, 15, 29, 30, 39, 64, 43, 6, 0, 0, 0], stack size: 241, visited: 507258023101
+Found new best cost: 8.245794188332882, Qs: [1, 2, 4, 8, 15, 29, 29, 47, 61, 41, 0, 0, 0], stack size: 237, visited: 536945403240
+Found new best cost: 8.24579418833288, Qs: [1, 2, 4, 8, 15, 29, 29, 47, 57, 44, 4, 0, 0, 0], stack size: 240, visited: 536947318369
+Found new best cost: 8.24557570460992, Qs: [1, 2, 4, 8, 15, 29, 29, 46, 64, 39, 0, 0, 0], stack size: 237, visited: 537351247719
+Found new best cost: 8.245357220886959, Qs: [1, 2, 4, 8, 15, 29, 29, 46, 64, 38, 0, 0, 0], stack size: 236, visited: 537351247912
+Found new best cost: 8.245357220886957, Qs: [1, 2, 4, 8, 15, 29, 29, 46, 63, 40, 0, 0, 0], stack size: 237, visited: 537351535294
+Found new best cost: 8.245138737163995, Qs: [1, 2, 4, 8, 15, 29, 29, 46, 63, 39, 1, 0, 0], stack size: 237, visited: 537351535487
+Found new best cost: 8.245138737163993, Qs: [1, 2, 4, 8, 15, 29, 29, 46, 62, 40, 0, 0, 0, 0], stack size: 236, visited: 537351867497
+Found new best cost: 8.245138737163991, Qs: [1, 2, 4, 8, 15, 29, 29, 46, 56, 48, 1, 0, 0, 0], stack size: 239, visited: 537355240205
+Found new best cost: 8.244920253441032, Qs: [1, 2, 4, 8, 15, 29, 29, 45, 65, 38, 1, 0, 0], stack size: 237, visited: 537779711973
+Found new best cost: 8.24470176971807, Qs: [1, 2, 4, 8, 15, 29, 29, 45, 65, 38, 0, 0, 0], stack size: 236, visited: 537779711976
+Found new best cost: 8.244701769718068, Qs: [1, 2, 4, 8, 15, 29, 29, 45, 64, 39, 0, 0, 0, 0], stack size: 236, visited: 537779999432
+Found new best cost: 8.244701769718066, Qs: [1, 2, 4, 8, 15, 29, 29, 45, 58, 47, 1, 0, 0, 0], stack size: 239, visited: 537782980581
+Found new best cost: 8.244483285995107, Qs: [1, 2, 4, 8, 15, 29, 29, 44, 67, 37, 0, 0, 0], stack size: 236, visited: 538229980437
+Found new best cost: 8.244264802272143, Qs: [1, 2, 4, 8, 15, 29, 29, 44, 66, 38, 0, 0, 0], stack size: 236, visited: 538230233061
+Found new best cost: 8.244264802272141, Qs: [1, 2, 4, 8, 15, 29, 29, 44, 62, 41, 3, 0, 0, 0], stack size: 238, visited: 538231723282
+Found new best cost: 8.24404631854918, Qs: [1, 2, 4, 8, 15, 29, 29, 43, 68, 37, 0, 0, 0], stack size: 236, visited: 538703220963
+Found new best cost: 8.24382783482622, Qs: [1, 2, 4, 8, 15, 29, 29, 43, 68, 36, 1, 0, 0], stack size: 236, visited: 538703221158
+Found new best cost: 8.243827834826218, Qs: [1, 2, 4, 8, 15, 29, 29, 43, 68, 36, 0, 0, 0, 0], stack size: 235, visited: 538703221164
+Found new best cost: 8.243827834826217, Qs: [1, 2, 4, 8, 15, 29, 29, 43, 64, 40, 3, 0, 0, 0], stack size: 238, visited: 538704515886
+Found new best cost: 8.243609351103256, Qs: [1, 2, 4, 8, 15, 29, 29, 42, 69, 36, 1, 0, 0], stack size: 236, visited: 539199050135
+Found new best cost: 8.243390867380294, Qs: [1, 2, 4, 8, 15, 29, 29, 42, 68, 38, 0, 0, 0], stack size: 236, visited: 539199307210
+Found new best cost: 8.243390867380292, Qs: [1, 2, 4, 8, 15, 29, 29, 42, 68, 36, 4, 0, 0], stack size: 238, visited: 539199307614
+Found new best cost: 8.243172383657331, Qs: [1, 2, 4, 8, 15, 29, 29, 41, 68, 39, 1, 0, 0], stack size: 237, visited: 539718936099
+Found new best cost: 8.24317238365733, Qs: [1, 2, 4, 8, 15, 29, 29, 41, 68, 38, 3, 0, 0], stack size: 238, visited: 539718936301
+Found new best cost: 8.242953899934367, Qs: [1, 2, 4, 8, 15, 29, 29, 40, 68, 41, 0, 0, 0], stack size: 237, visited: 540261762178
+Found new best cost: 8.242953899934365, Qs: [1, 2, 4, 8, 15, 29, 29, 40, 53, 58, 9, 0, 0, 0], stack size: 248, visited: 540278096027
+Found new best cost: 8.242735416211408, Qs: [1, 2, 4, 8, 15, 29, 29, 39, 68, 42, 1, 0, 0], stack size: 238, visited: 540828916934
+Found new best cost: 8.242735416211406, Qs: [1, 2, 4, 8, 15, 29, 29, 39, 68, 41, 3, 0, 0], stack size: 239, visited: 540828917139
+Found new best cost: 8.242735416211405, Qs: [1, 2, 4, 8, 15, 29, 29, 39, 68, 38, 7, 0, 0, 0], stack size: 240, visited: 540828917884
+Found new best cost: 8.242735416211403, Qs: [1, 2, 4, 8, 15, 29, 29, 39, 65, 36, 19, 0, 0, 0], stack size: 247, visited: 540830597637
+Found new best cost: 8.242516932488442, Qs: [1, 2, 4, 8, 15, 29, 28, 46, 67, 35, 0, 0, 0], stack size: 235, visited: 572073889423
+Found new best cost: 8.24229844876548, Qs: [1, 2, 4, 8, 15, 29, 28, 46, 66, 37, 0, 0, 0], stack size: 236, visited: 572074105124
+Found new best cost: 8.242079965042516, Qs: [1, 2, 4, 8, 15, 29, 28, 46, 65, 38, 0, 0, 0], stack size: 236, visited: 572074357683
+Found new best cost: 8.242079965042514, Qs: [1, 2, 4, 8, 15, 29, 28, 46, 61, 41, 3, 0, 0, 0], stack size: 238, visited: 572075849053
+Found new best cost: 8.241861481319553, Qs: [1, 2, 4, 8, 15, 29, 28, 45, 67, 37, 0, 0, 0], stack size: 236, visited: 572531451365
+Found new best cost: 8.241642997596593, Qs: [1, 2, 4, 8, 15, 29, 28, 45, 67, 36, 1, 0, 0], stack size: 236, visited: 572531451559
+Found new best cost: 8.24164299759659, Qs: [1, 2, 4, 8, 15, 29, 28, 45, 67, 36, 0, 0, 0, 0], stack size: 235, visited: 572531451565
+Found new best cost: 8.241642997596589, Qs: [1, 2, 4, 8, 15, 29, 28, 45, 63, 40, 3, 0, 0, 0], stack size: 238, visited: 572532747350
+Found new best cost: 8.24142451387363, Qs: [1, 2, 4, 8, 15, 29, 28, 44, 68, 36, 1, 0, 0], stack size: 236, visited: 573011538012
+Found new best cost: 8.241206030150668, Qs: [1, 2, 4, 8, 15, 29, 28, 44, 67, 38, 0, 0, 0], stack size: 236, visited: 573011795195
+Found new best cost: 8.241206030150666, Qs: [1, 2, 4, 8, 15, 29, 28, 44, 67, 36, 4, 0, 0], stack size: 238, visited: 573011795596
+Found new best cost: 8.241206030150664, Qs: [1, 2, 4, 8, 15, 29, 28, 44, 66, 36, 4, 0, 0, 0], stack size: 237, visited: 573012096501
+Found new best cost: 8.240987546427704, Qs: [1, 2, 4, 8, 15, 29, 28, 43, 68, 38, 0, 0, 0], stack size: 236, visited: 573514501036
+Found new best cost: 8.240987546427702, Qs: [1, 2, 4, 8, 15, 29, 28, 43, 68, 35, 4, 0, 0, 0], stack size: 237, visited: 573514501675
+Found new best cost: 8.240769062704741, Qs: [1, 2, 4, 8, 15, 29, 28, 43, 67, 39, 1, 0, 0], stack size: 237, visited: 573514805090
+Found new best cost: 8.24076906270474, Qs: [1, 2, 4, 8, 15, 29, 28, 43, 67, 38, 3, 0, 0], stack size: 238, visited: 573514805291
+Found new best cost: 8.240550578981777, Qs: [1, 2, 4, 8, 15, 29, 28, 42, 68, 39, 1, 0, 0], stack size: 237, visited: 574041085284
+Found new best cost: 8.240332095258815, Qs: [1, 2, 4, 8, 15, 29, 28, 42, 67, 41, 0, 0, 0], stack size: 237, visited: 574041446647
+Found new best cost: 8.240332095258813, Qs: [1, 2, 4, 8, 15, 29, 28, 42, 52, 63, 1, 0, 0], stack size: 245, visited: 574057767396
+Found new best cost: 8.240113611535856, Qs: [1, 2, 4, 8, 15, 29, 28, 41, 67, 42, 1, 0, 0], stack size: 238, visited: 574591344956
+Found new best cost: 8.240113611535854, Qs: [1, 2, 4, 8, 15, 29, 28, 41, 67, 41, 3, 0, 0], stack size: 239, visited: 574591345159
+Found new best cost: 8.240113611535852, Qs: [1, 2, 4, 8, 15, 29, 28, 41, 67, 38, 7, 0, 0, 0], stack size: 240, visited: 574591345903
+Found new best cost: 8.24011361153585, Qs: [1, 2, 4, 8, 15, 29, 28, 41, 64, 36, 19, 0, 0, 0], stack size: 247, visited: 574593025802
+Found new best cost: 8.239895127812892, Qs: [1, 2, 4, 8, 15, 29, 28, 40, 67, 44, 0, 0, 0], stack size: 238, visited: 575165699147
+Found new best cost: 8.23989512781289, Qs: [1, 2, 4, 8, 15, 29, 28, 40, 67, 42, 4, 0, 0], stack size: 240, visited: 575165699558
+Found new best cost: 8.239895127812888, Qs: [1, 2, 4, 8, 15, 29, 28, 40, 67, 40, 5, 0, 0, 0], stack size: 239, visited: 575165700064
+Found new best cost: 8.23967664408993, Qs: [1, 2, 4, 8, 15, 29, 28, 39, 67, 45, 1, 0, 0], stack size: 239, visited: 575763923888
+Found new best cost: 8.239676644089927, Qs: [1, 2, 4, 8, 15, 29, 28, 39, 67, 44, 3, 0, 0], stack size: 240, visited: 575763924094
+Found new best cost: 8.239676644089926, Qs: [1, 2, 4, 8, 15, 29, 28, 39, 65, 47, 1, 0, 0, 0], stack size: 239, visited: 575765293840
