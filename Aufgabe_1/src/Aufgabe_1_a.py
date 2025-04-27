@@ -1,4 +1,5 @@
 import heapq
+import time
 
 
 class Node:
@@ -39,7 +40,8 @@ def encode_huffman(r, frequencies):
         heapq.heappush(minHeap, Node(p, a))
     n = len(frequencies)
     m = 0
-    while (n + m) % (r - 1) != 1: m += 1
+    if r > 2:
+        while (n + m) % (r - 1) != 1: m += 1
 
     for _ in range(m):
         heapq.heappush(minHeap, Node(0))
@@ -72,12 +74,22 @@ def print_code(code, text):
     for letter, c in sorted(code.items(), key=lambda x: text.count(x[0]) - 0.1 * len(x[1]), reverse=True):
         print(f"{letter}({text.count(letter)}):\t {c}")
     print(f"Gesamtlänge der Perlenkette: {calc_cost(text, code)}")
+    print()
 
 
 if __name__ == '__main__':
-    filename = "../Examples/schmuck00.txt"
+    examples = [
+        "../Examples/schmuck0.txt",
+        "../Examples/schmuck00.txt",
+        "../Examples/schmuck01.txt",
+    ]
+    for filename in examples:
+        print(f"Beispiel: {filename}")
+        color_sizes, text = parse_file(filename)
 
-    color_sizes, text = parse_file(filename)
-
-    code = encode_huffman(len(color_sizes), get_frequencies(text))
-    print_code(code, text)
+        start = time.time()
+        code = encode_huffman(len(color_sizes), get_frequencies(text))
+        end = time.time()
+        print(f"Berechnungszeit: {(end - start) * 1000:.2f} ms")
+        print("Anzahl Farben:", len(color_sizes))
+        print_code(code, text)

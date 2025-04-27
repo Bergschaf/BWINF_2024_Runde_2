@@ -1,4 +1,5 @@
-import collections
+import contextlib
+import time
 from collections import defaultdict
 import rust_encoder
 
@@ -20,11 +21,6 @@ class Node:
         if not self.parent:
             return ""
         return f"{self.parent.__repr__()} {self.number}"
-
-    def visualize(self, tree):
-        tree.create_node(self.id(), self.id(), parent=self.parent.id() if self.parent else None)
-        for c in self.children:
-            c.visualize(tree)
 
     def get_depth(self, color_sizes):
         if not self.parent:
@@ -56,12 +52,10 @@ class Node:
         new_children = []
         for c in self.children:
             c_copy = c.copy()
-            c_copy.parent = new_node      # <— fix up the parent
+            c_copy.parent = new_node
             new_children.append(c_copy)
         new_node.children = new_children
         return new_node
-
-
 
     def delete(self):
         """
@@ -95,12 +89,19 @@ class Node:
             c.fill_up_to_height(h, color_sizes)
 
 
-def generate_tree(Qs, color_sizes):
+def generate_tree(Qs: list[int], color_sizes: list[int]):
+    """
+    Generiert einen vollständigen Baum
+    :param Qs: Anzahl an internen Knoten pro Ebene (Werte von q, mit denen Erweitert wurde)
+    :param color_sizes: Größen der Perlen
+    :return:
+    """
     color_sizes = sorted(color_sizes)
     root = Node(None, 0)
     Levels = defaultdict(list)
     Levels[0].append(root)
     for i, c in enumerate(color_sizes):
+        # Die neuen Kinder werden anhand der Position der Perlengröße in der color_sizes Liste nummeriert
         root.children.append(Node(root, i))
         Levels[c].append(root.children[-1])
 
@@ -109,6 +110,7 @@ def generate_tree(Qs, color_sizes):
             continue
         for j, n in enumerate(Levels[i + 1]):
             for ii, c in enumerate(color_sizes):
+                # Die neuen Kinder werden anhand der Position der Perlengröße in der color_sizes Liste nummeriert
                 n.children.append(Node(n, ii))
                 Levels[c + i + 1].append(n.children[-1])
             if j + 1 == q:
@@ -117,6 +119,9 @@ def generate_tree(Qs, color_sizes):
 
 
 def get_leaves_rec(node):
+    """
+    Gibt eine Liste alle Blätter zurück, die Kinder dieses Knotens sind
+    """
     if not node.children:
         return [node]
     else:
@@ -125,11 +130,10 @@ def get_leaves_rec(node):
             a.extend(get_leaves_rec(c))
         return a
 
+
 def get_nodes_rec(node):
     """
-    Returns all nodes that are children of this node
-    :param node:
-    :return:
+    Gibt eine Liste aller Knoten zurück, die Kinder dieses Knotens sind
     """
     if not node.children:
         return [node]
@@ -139,32 +143,32 @@ def get_nodes_rec(node):
             a.extend(get_nodes_rec(c))
         return a
 
+
 def generate_code_from_tree(root, color_sizes):
     """
-    :param root:
-    :return: [(code, cost), (code, cost), ...]
+    Gibt alle Codekombinationen zurück, die die Blätter dieses Baums ausdrücken
+    :returns: [(code, cost), ...]
     """
     leaves = get_leaves_rec(root)
     # get codes
     codes = []
     for l in leaves:
         code = []
+        # Der Code besteht aus den nummern der Knoten auf dem Pfad von der Wurzel des Baums zu dem entsprechenden Blatt
         while l.parent:
             code.append(l.number)
             l = l.parent
         cost = 0
         for c in code:
             cost += color_sizes[c]
-
-
+        # Der code wird hier umgedreht, da er sonst von der Wurzel zu dem Blatt gehen würde
         codes.append((code[::-1], cost))
-    return  codes
+    return codes
+
 
 def is_prefixfree(codes):
     """
-    Check if the codes are prefix free
-    :param codes:
-    :return:
+    Überprüft, ob eine Liste an Codes präfixfrei ist
     """
     for i in range(len(codes)):
         for j in range(i + 1, len(codes)):
@@ -172,12 +176,12 @@ def is_prefixfree(codes):
                 return False
     return True
 
+
 def attach_tree_at_leaves(main_root, sub_root, fixed_slots, color_sizes):
     """
-    Attach the sub_tree at the leaves of the main_tree
-    :param main_root:
-    :param sub_root:
-    :return:
+    Hängt an jedes Blatt des Hauptbaums eine Kopie von sub_root an
+    :param fixed_slots: Anzahl der obersten Blätter die nicht ersetzt werden sollen,
+                        da sie zu häufigen Buchstaben gehören
     """
     leaves = get_leaves_rec(main_root)
     leaves = sorted(leaves, key=lambda x: x.get_depth(color_sizes))
@@ -188,7 +192,6 @@ def attach_tree_at_leaves(main_root, sub_root, fixed_slots, color_sizes):
         s_r.parent = leaf.parent
         s_r.number = leaf.number
     return main_root
-
 
 
 def reduce_tree_to_height(root, h):
@@ -206,18 +209,29 @@ def reduce_tree_to_height(root, h):
     return root.reduce()
 
 
-
 def calc_cost(text, codes):
+    """
+    Berechnet die Kosten einer Liste an Codes, wenn sie optimal zu den Buchstaben zugewiesen werden
+    """
+    # Die Häufigkeiten werden absteigend sortiert
     occurrences = [text.count(i) for i in set(text)]
     occurrences = sorted(occurrences, reverse=True)
+
+    # Die Kosten werden aufsteigend sortiert
     costs = sorted(i[1] for i in codes)
+
     total_cost = 0
     for i in range(len(occurrences)):
+        # Da die Häufigkeiten absteigend und die Kosten aufsteigend sortiert sind, ist diese Zuweisung optimal
         total_cost += occurrences[i] * costs[i]
     return total_cost
 
 
 def reduce(sig, n):
+    """
+    Wendet die Reduktionsregel auf eine Signatur an.
+    (Alle Blätter, die nicht zu den n höchsten Blättern gehören werden abgeschnitten.)
+    """
     new_sig = [min(sig[0], n)]
     for i in range(1, len(sig)):
         new_sig.append(min(sig[i], n - sum(new_sig)))
@@ -225,6 +239,9 @@ def reduce(sig, n):
 
 
 def extend(sig, q, D):
+    """
+    Erweitert die Signatur um q, indem q interne Knoten auf Ebene i+1 zu internen Knoten werden
+    """
     new_sig = [sig[0] + sig[1]] + sig[2:] + [0]
     x = ([-1] + D)
     for i in range(len(new_sig)):
@@ -232,119 +249,175 @@ def extend(sig, q, D):
     return new_sig
 
 
-
 class Encoder:
+    """
+    Enthält verschiedene Methoden, um eine Codetabelle für die gegebenen Frequenzen zu erstellen.
+    """
+
     def __init__(self, frequencies, color_sizes):
         self.frequencies = frequencies
         self.num_colors = len(color_sizes)
         self.color_sizes = sorted(color_sizes)
 
     def encode_naive(self):
+        """
+        Alle vollständigen Binärbäume mit m <= n * (r - 1) Blättern werden durchsucht
+        """
         return generate_code_from_tree(self.get_tree_naive(self.frequencies.values()), self.color_sizes)
 
-    def get_tree_naive(self, frequencies): # TODO das ist nd bfs
+    def get_tree_naive(self, frequencies):
         """
-        Naive Methode: alle vollen Binärbäume werden mit Binärsuche durchsucht
-
-        TODO Asymptotische Laufzeit von dem Ding hiers
-
-        Beweis, dass es optimal ist
-        :return:
+        Alle vollständigen Binärbäume mit m <= n * (r - 1) Blättern werden durchsucht
         """
-        # Probability for each character of the alphabet
+        # Frequenzen für jeden Buchstaben
         p = sorted(frequencies, reverse=True)
-        # The number of different codewords needed to encode the text
+        # Die Anzahl der verschiedenen Buchstaben im Alphabet
         n = len(p)
-        # The biggest Perl
+        # Die größte Perle
         C = max(self.color_sizes)
-        # Occurrences of each color size
+        # Anzahl, wie oft jede Perlengröße vorkommt
         D = [self.color_sizes.count(i) for i in range(1, C + 1)]
-        # number of pearls
+        # Anzahl der verschiedenen Perlen
         r = len(self.color_sizes)
 
         print(f"N: {n}, C : {C}")
-        stack = collections.deque([([0] + D, 0, [])])  # (sig, cost, Qs(Expansions))
+        # Speichert die Signatur, die Kosten und die Anzahl der Blätter, die gerade bearbeitet werden
+        stack = [([0] + D, 0, [])]  # [(sig, cost, Qs (Expansions)), ...]
+
+        # Der bisher beste Baum
         best_cost = float("inf")
         best_tree = None
-        num_visited = 0
+
         while stack:
-            num_visited += 1
             sig, cost, Qs = stack.pop()
-            new_cost = cost + sum([p[i] for i in range(sig[0], n)])
-            if new_cost > best_cost:
-                continue
+
             if sum(sig) > n * (r - 1):
+                # Der Baum hat zu viele Blätter, um Fill(T_opt) zu sein
                 continue
+
             if sig[0] >= n:
+                # Der Baum hat genug Blätter, um alle Buchstaben zu codieren
                 if cost < best_cost:
                     best_cost = cost
                     best_tree = Qs
-                    #print(best_cost.__round__(4), len(stack))
+                continue
+
+            # Die neuen Kosten des Baums
+            new_cost = cost + sum([p[i] for i in range(sig[0], n)])
+            if new_cost > best_cost:
+                # Der Baum ist zu teuer
                 continue
 
             for q in range(0, sig[1] + 1):
+                # Der Baum wird für jedes q erweitert
                 new_sig = extend(sig, q, D)
                 stack.append((new_sig, new_cost, Qs + [q]))
-        print("Num visited:", num_visited)
-        return generate_tree(best_tree,self.color_sizes)
+
+        # Der beste Baum wird anhand der Anzahlen an inneren Knoten auf jeder Ebene (Werte von q) generiert
+        return generate_tree(best_tree, self.color_sizes)
 
     def encode_reduce(self):
+        # Alle Bäume mit m <= n Blättern werden durchsucht
         return generate_code_from_tree(self.get_tree_reduce(self.frequencies.values()), self.color_sizes)
 
     def get_tree_reduce(self, frequencies):
         # Probability for each character of the alphabet
+        # Frequenzen für jeden Buchstaben
         p = sorted(frequencies, reverse=True)
-        # The number of different codewords needed to encode the text
+        # Die Anzahl der verschiedenen Buchstaben im Alphabet
         n = len(p)
-        # The biggest Perl
+        # Die größte Perle
         C = max(self.color_sizes)
-        # Occurrences of each color size
+        # Anzahl, wie oft jede Perlengröße vorkommt
         D = [self.color_sizes.count(i) for i in range(1, C + 1)]
-        # number of pearls
-        r = len(self.color_sizes)
 
         print(f"Encode Reduce: N: {n}, C : {C}")
-        stack = collections.deque([([0] + D, 0, [])])  # (sig, cost, Qs(Expansions))
+
+        print(f"N: {n}, C : {C}")
+        # Speichert die Signatur, die Kosten und die Anzahl der Blätter, die gerade bearbeitet werden
+        stack = [([0] + D, 0, [])]  # [(sig, cost, Qs (Expansions)), ...]
+
         best_cost = float("inf")
         best_tree = None
-        num_visited = 0
+
         while stack:
-            num_visited += 1
             sig, cost, Qs = stack.pop()
+
+            if sig[0] >= n:
+                # Der Baum hat genug Blätter, um alle Buchstaben zu codieren
+                if cost < best_cost:
+                    best_cost = cost
+                    best_tree = Qs
+                continue
+
             new_cost = cost + sum([p[i] for i in range(sig[0], n)])
             if new_cost > best_cost:
                 continue
 
-            if sig[0] >= n:
-                if cost < best_cost:
-                    best_cost = cost
-                    best_tree = Qs
-                    #print(best_cost.__round__(4), len(stack))
-                continue
-
             for q in range(0, min(sig[1], n - sum(sig[i] for i in range(self.color_sizes[1] + 1))) + 1):
-            #for q in range(0, min(sig[1], (n - sig[0] - sig[1]) // max(1, D[1])) + 1):
+                # Der Baum wird für jedes q erweitert (die erweiterung ist hier angewandt, d.h. es werden keine
+                # "unnötigen" Werte von q durchlaufen
+
+                # Der Baum wird erweitert und danach auf n Blätter reduziert
                 new_sig = reduce(extend(sig, q, D), n)
-
                 stack.append((new_sig, new_cost, Qs + [q]))
-        #print("Num visited:", num_visited)
-        return generate_tree(best_tree,self.color_sizes)
 
-    def get_tree_rust(self, frequencies):
-        qs = rust_encoder.encode_optimal_py(frequencies, self.color_sizes)
+        # Der beste Baum wird anhand der Anzahlen an inneren Knoten auf jeder Ebene (Werte von q) generiert
+        return generate_tree(best_tree, self.color_sizes)
+
+    def get_tree_rust(self, frequencies, silent=True):
+        """
+        Die get_tree_reduce Funktion in Rust implementiert
+        """
+        qs = rust_encoder.encode_optimal_py(frequencies, self.color_sizes, silent)
         return generate_tree(qs, color_sizes)
 
-    def encode_rust(self):
-        return generate_code_from_tree(self.get_tree_rust(list(self.frequencies.values())), self.color_sizes)
+    def encode_rust(self, silent=True):
+        """
+        Die encode_reduce Funktion in Rust implementiert
+        """
+        return generate_code_from_tree(self.get_tree_rust(list(self.frequencies.values()),silent), self.color_sizes)
 
-    def encode_big_optimize(self, text):
+
+
+    def heuristic(self, chunk_size=50):
+        cutoff = 0.05  # Alle Buchstaben, die häufiger vorkommen, sind häufige Buchstaben
+
+        # Die häufigen Buchstaben
+        common = [i for i in self.frequencies.values() if i > cutoff]
+
+        # Die seltenen Buchstaben
+        not_common = sorted(i for i in self.frequencies.values() if i <= cutoff)
+
+        # Die seltenen Buchstaben werden in chunks aufgeteilt
+        chunks = []
+        for i in range((len(not_common) // chunk_size)):
+            chunks.append(not_common[i * chunk_size: (i + 1) * chunk_size])
+        chunks.append(not_common[(len(not_common) // chunk_size) * chunk_size:])
+
+        # Für den ersten Chunk wird ein optimaler Baum generiert
+        chunk_root = self.get_tree_rust(chunks[0])
+
+        # Für die häufigen Buchstaben und die Summen der Chunks wird ein Baum generiert
+        main_root = self.get_tree_rust(common + [sum(c) for c in chunks])
+
+        # Der chunk_root Baum wird an die passenden Blätter des main_root Baums angehängt
+        main_root = attach_tree_at_leaves(main_root, chunk_root, len(common), color_sizes)
+
+        # Der code wird anhand des fertigen Baums generiert
+        return generate_code_from_tree(main_root, self.color_sizes)
+
+    def optimize_heuristic(self, text):
+        """
+        Versucht einen möglichst guten Baum mit der heuristik zu finden, indem die chunk_size optimiert wird
+        """
         n = len(self.frequencies)
         max_leaves = 40
         min_chunk_size = n // max_leaves + 1
         best_cost = float("inf")
         best_code = None
         for i in range(min_chunk_size, max_leaves):
-            codes = self.encode_big(i)
+            codes = self.heuristic(i)
             cost = calc_cost(text, codes)
             if cost < best_cost:
                 best_cost = cost
@@ -353,80 +426,52 @@ class Encoder:
         return best_code
 
 
-    def encode_big(self, chunk_size=50):
-        cutoff = 0.05
-        common = [i for i in self.frequencies.values() if i > cutoff]
-        #print(f"N: {len(self.frequencies)}, C : {max(self.color_sizes)}")
-        #print(f"Common: {len(common)}, Not Common: {len(self.frequencies) - len(common)}")
-        not_common = sorted(i for i in self.frequencies.values() if i <= cutoff)
-
-        # split not common in chunks of chunk_size
-        chunks = []
-        for i in range((len(not_common) // chunk_size)):
-            chunks.append(not_common[i * chunk_size: (i + 1) * chunk_size])
-        chunks.append(not_common[(len(not_common) // chunk_size) * chunk_size:])
-
-        chunk_root = self.get_tree_rust(chunks[0])
-
-        main_root = self.get_tree_rust(common + [sum(c) for c in chunks])
-        main_root = attach_tree_at_leaves(main_root, chunk_root, len(common), color_sizes)
-        return generate_code_from_tree(main_root, self.color_sizes)
-
-
-
-def attach_tree_at_leaf(leaf, root):
-    """
-    Replace the leaf with root
-    :param leaf:
-    :param root:
-    :return:
-    """
-    leaf.parent.children.remove(leaf)
-    leaf.parent.children.append(root)
-    root.parent = leaf.parent
-
-
-def get_frequencies(text):
-    return {i: text.count(i) / len(text) for i in set(text)}
-
-
-def generate_full_tree_to_height(color_sizes, h):
-    root = Node(None, None)
-    root.fill_up_to_height(h, color_sizes)
-    reduce_tree_to_height(root, h)
-    return root
-
-def assume_equal_probabilites(color_sizes, frequencies):
-    """
-    :param color_sizes:
-    :param frequencies:
-    :return:
-    """
-    for i in range(1, len(frequencies)):
-        root = generate_full_tree_to_height(color_sizes, i)
-        if len(get_leaves_rec(root)) >= len(frequencies):
-            return generate_code_from_tree(root)
-
 def parse_file(filename):
+    """
+    Liest eine Beispieldatei ein
+    """
     with open(filename, "r") as f:
         lines = f.readlines()
         color_sizes = lines[1]
-        text = lines[2][:-1] # remove \n
+        text = lines[2][:-1]  # remove \n
         color_sizes = list(map(int, color_sizes.split()))
     return color_sizes, text
 
+
+def get_frequencies(text):
+    """
+    Gibt die Frequenzen der Buchstaben in dem Text zurück
+    """
+    return {i: text.count(i) / len(text) for i in set(text)}
+
+def print_code(code, text, color_sizes):
+    """
+    Gibt den Code und die Kosten aus
+    """
+    code = sorted(code, key=lambda x: x[1])
+    print("Größe der Perlen: ", color_sizes)
+    print("Bucsthabe(Häufigkeit): Code (Größe des Codes)")
+    letters = sorted((i for i in set(text)), key=lambda x: text.count(x), reverse=True)
+    for letter, c in zip(letters, code):
+        print(f"{letter}({text.count(letter)}):\t {c[0]} ({c[1]})")
+    print("----------------------------------------")
+    print(f"Gesamtlänge der Perlenkette: {calc_cost(text, code)}")
+    print()
+
+
 if __name__ == '__main__':
-
-    filename = ("Examples/schmuck9.txt")
-    color_sizes, text = parse_file(filename)
-
-    encoder = Encoder(get_frequencies(text), color_sizes)
-    #code = encoder.encode_big_optimize(text)
-    #code = encoder.encode_reduce() # 134563
-    code = encoder.encode_rust()
-
-    #code = generate_code_from_tree(generate_tree([2, 6, 15, 33, 31, 0, 0], color_sizes), color_sizes)
-    print("Präfixfrei: ", is_prefixfree(code))
-    print(len(code), code)
-    print(calc_cost(text, code))
-    exit()
+    should_print_code = False
+    for i in range(9):
+        filename = f"Examples/schmuck{i}.txt"
+        color_sizes, text = parse_file(filename)
+        encoder = Encoder(get_frequencies(text), color_sizes)
+        start = time.time()
+        code = encoder.encode_reduce() #(silent=True)
+        end = time.time()
+        print(f"Beispiel: {filename}")
+        print(f"Dauer: {(end - start) * 1000:.2f} ms")
+        if should_print_code:
+            print_code(code, text, color_sizes)
+        else:
+            print(f"Gesamtlänge der Perlenkette: {calc_cost(text, code)}")
+            print()
