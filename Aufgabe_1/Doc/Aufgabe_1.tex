@@ -67,7 +67,7 @@
 
 
 % Diese beiden Pakete müssen zuletzt geladen werden
-\usepackage{hyperref} % Anklickbare Links im Dokument
+\usepackage[hidelinks]{hyperref} % Anklickbare Links im Dokument
 \usepackage{cleveref}
 \usepackage{comment}
 \usepackage{stmaryrd}
@@ -166,7 +166,6 @@
                     [$0.25$, tier=3]
                     ]
                     [$0.25$]
-
                     ]
                 \end{forest}
                 \captionof{figure}{Suboptimaler Baum}
@@ -190,8 +189,6 @@
                     ]
                     [$0.25$]
                     [$0.25$]
-
-
                     ]
                 \end{forest}
                 \captionof{figure}{Optimaler Baum mit Platzhalterknoten}
@@ -426,7 +423,6 @@
                 ]
                 [, tier=2,[, [,phantom, tier=4]] [] [,tier=4]]
                 ]
-
                 [
                 [
                 [, tier=2, [,phantom,tier=3]]
@@ -440,7 +436,6 @@
                 ]
                 [, tier=2]
                 ]
-
                 [
                 []
                 [ [, phantom, tier=2]]
@@ -460,8 +455,7 @@
     \end{definition}
     Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter, um die Ebene $i$ zu erreichen, darstellt.
     Für $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > n$. D.h. wenn $T$ ein Ebene-$i$-Baumm mit $sig_i(T) = (m, l1, \dots l_C)$ ist und $m \ge n$, dann gilt $cost_i(T) = cost(T)$. \\
-    % TODO coole überleitung schritt für schritt aufbauen
-    Um den \glqq billigsten\grqq~Baum zu finden, konstruieren wir die Bäume Ebene für Ebene, beginnend bei dem \textit{Wurzel-Baum}, der nur aus der Wurzel und deren Kindern besteht.
+    Um nun den \glqq billigsten\grqq~Baum zu finden, konstruieren wir die Bäume Ebene für Ebene, beginnend bei dem \textit{Wurzel-Baum}, der nur aus der Wurzel und deren Kindern besteht.
     Um die Signatur des Wurzel-Baums darzustellen, müssen wir zunächst den charakteristischen Vektor einer Perlensammlung definieren:
     \begin{definition}
         Der charakteristische Vektor $(d_1, d_2, \dots, d_C)$ einer Perlensammlung mit den Durchmessern $C = (c_1, c_2, \dots, c_r)$ entspricht den Anzahlen, wie oft ein bestimmter Durchmesser in der Perlensammlung vertreten ist:
@@ -473,7 +467,7 @@
     \begin{definition}
         Der \textbf{Wurzel-Baum} $T_0$ ist der Ebene-0-Baum, der aus dem Wurzelknoten und dessen $r$ Kindern, die alle Blätter sind, besteht.
         Die Signatur des Wurzel-Baums ist: \[sig_0(T_0) = (0, d_1, d_2, \dots d_C)\] und $cost_0(T_0) = 0$.
-    \end{definition} % TODO Bild
+    \end{definition}
     \begin{beispiel}
         Der Wurzel-Baum der Beispieldatei mit den Perlendurchmessern $C = (1, 1, 2, 2, 3)$ und dem charakteristischen Vektor $D = (2, 2, 1)$ sieht folgendermaßen aus:
         \begin{figure}[H]
@@ -512,7 +506,15 @@
         \[cost_{i+1}(Expand_i(T,q)) = cost_i(T) + \sum_{m < j \le n}p_j\]
     \end{lemma}
     \begin{proof}
+        Die erste gleichung entsteht durch zwei Operationen: Das \glqq Verschieben\grqq\ der Signatur um eine Ebene nach unten und das Erweitern des Baums.
+        \[sig_{i+1}' = (m + l_1, l_2, \dots, l_C, 0)\]
+        Die Signatur $sig_{i+1}'$ ist das Ergebnis des Verschiebens.
+        Bei der Erweiterung werden $q$ Blätter auf Ebene $i + 1$ zu internen Knoten umgewandelt, weshalb $q$ von der Anzahl dieser Blätter abgezogen wird.
+        An diese neuen internen Knoten werden jeweils $r$ Blätter angehängt.
+        Für jeden neuen internen Knoten entstehen daher $d_1$ neue Blätter auf Ebene $i+2$, $d_2$ neue Blätter auf Ebene $i+3$ usw.
+        Daraus folgt die erste Gleichung. \\
         TODO
+
     \end{proof}
     \begin{beispiel}
         TODO
@@ -621,7 +623,7 @@
     Damit hat dieser Algorithmus eine asymptotische Laufzeit von \[O \left({{n(r-1) + C + 1} \choose {C+1}} \cdot n(r-1) \cdot C \right) \le O\left(C \cdot n(r-1)^{C+2}\right).\] \\
     In der Praxis werden aber sehr viel weniger Knoten besucht, da ein großer Teil bereits durch zu hohe Kosten ausgeschlossen werden kann.
 
-    \subsection{Reduktion auf $n$ Blätter} % TODO besserer Titel
+    \subsection{Reduktion auf $n$ Blätter}
     Im vorherigen Kapitel haben wir uns der Einfachheit halber auf vollständige Bäume beschränkt.
     Dadurch mussten wir aber immer Bäume mit bis zu $n(r - 1)$ Blättern betrachten, was vor allem für große $n$ und $r$ zu langer Rechenzeit führt.
     Da wir die optimalen Bäume trotzdem wie im vorherigen Kapitel Ebene für Ebene generieren wollen, definieren wir die \textit{Reduce}-Funktion um \glqq überschüssige\grqq~Blätter zu entfernen.
@@ -652,7 +654,11 @@
     \end{algorithm}
 
     \begin{lemma}
-        Sei $T_{opt}$ ein optimaler Baum mit der Höhe $height(T) = h$. $T_{opt}$ kann bis auf Äquivalenz durch $h$-fache Iteration der Funktion $T' = Reduce(Expand(T',q))$ (für bestimmte Werte von $q$) erzeugt werden. % TODO vlt cleverer formulieren
+        Sei $T_{opt}$ ein optimaler Baum der Höhe $h$.
+        Sei $T_i = Cut_i(T)$ und $q_i$ die Anzahl an internen Knoten von $T$ auf Ebene $i \in \{1, \dots, h\}$.
+        Dann gilt: $T_i = Reduce(Expand_i(T_{i-1}, q_i))$.
+        In anderen Worten: \\
+        $T_{opt}$ kann bis auf Äquivalenz durch $h$-fache Iteration der Funktion $T' = Reduce(Expand(T',q))$ (für bestimmte Werte von $q$) erzeugt werden.
     \end{lemma}
     \begin{proof}
         TODO
