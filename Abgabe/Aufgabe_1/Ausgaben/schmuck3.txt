@@ -1,0 +1,17 @@
+Beispiel: Examples/schmuck3.txt
+Dauer: 0.02 ms
+Größe der Perlen:  [1, 2, 3]
+
+Ausgabeformat:
+Buchstabe(Häufigkeit): Code (Größe des Codes)
+"a"(34):	 [0, 0] (2)
+"b"(34):	 [1] (2)
+"c"(34):	 [0, 1] (3)
+" "(3):	 [2, 0] (4)
+"d"(1):	 [0, 2, 0] (5)
+"h"(1):	 [2, 1] (5)
+"e"(1):	 [0, 2, 1] (6)
+"f"(1):	 [2, 2] (6)
+"g"(1):	 [0, 2, 2] (7)
+----------------------------------------
+Gesamtlänge der Perlenkette: 279

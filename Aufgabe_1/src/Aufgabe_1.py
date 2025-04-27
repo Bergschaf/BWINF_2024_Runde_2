@@ -1,4 +1,3 @@
-import contextlib
 import time
 from collections import defaultdict
 import rust_encoder
@@ -166,17 +165,6 @@ def generate_code_from_tree(root, color_sizes):
     return codes
 
 
-def is_prefixfree(codes):
-    """
-    Überprüft, ob eine Liste an Codes präfixfrei ist
-    """
-    for i in range(len(codes)):
-        for j in range(i + 1, len(codes)):
-            if codes[i][0] == codes[j][0][:len(codes[i][0])]:
-                return False
-    return True
-
-
 def attach_tree_at_leaves(main_root, sub_root, fixed_slots, color_sizes):
     """
     Hängt an jedes Blatt des Hauptbaums eine Kopie von sub_root an
@@ -192,21 +180,6 @@ def attach_tree_at_leaves(main_root, sub_root, fixed_slots, color_sizes):
         s_r.parent = leaf.parent
         s_r.number = leaf.number
     return main_root
-
-
-def reduce_tree_to_height(root, h):
-    """
-    :param root:
-    :param h:
-    :return:
-    """
-    root = root.reduce()
-    nodes = get_nodes_rec(root)
-    for n in nodes:
-        if n.get_depth(color_sizes) > h:
-            n.delete()
-
-    return root.reduce()
 
 
 def calc_cost(text, codes):
@@ -261,13 +234,13 @@ class Encoder:
 
     def encode_naive(self):
         """
-        Alle vollständigen Binärbäume mit m <= n * (r - 1) Blättern werden durchsucht
+        Alle vollständigen Binärbäume mit m ≤ n * (r - 1) Blättern werden durchsucht
         """
         return generate_code_from_tree(self.get_tree_naive(self.frequencies.values()), self.color_sizes)
 
     def get_tree_naive(self, frequencies):
         """
-        Alle vollständigen Binärbäume mit m <= n * (r - 1) Blättern werden durchsucht
+        Alle vollständigen Binärbäume mit m ≤ n * (r - 1) Blättern werden durchsucht
         """
         # Frequenzen für jeden Buchstaben
         p = sorted(frequencies, reverse=True)
@@ -317,7 +290,7 @@ class Encoder:
         return generate_tree(best_tree, self.color_sizes)
 
     def encode_reduce(self):
-        # Alle Bäume mit m <= n Blättern werden durchsucht
+        # Alle Bäume mit m ≤ n Blättern werden durchsucht
         return generate_code_from_tree(self.get_tree_reduce(self.frequencies.values()), self.color_sizes)
 
     def get_tree_reduce(self, frequencies):
@@ -376,9 +349,7 @@ class Encoder:
         """
         Die encode_reduce Funktion in Rust implementiert
         """
-        return generate_code_from_tree(self.get_tree_rust(list(self.frequencies.values()),silent), self.color_sizes)
-
-
+        return generate_code_from_tree(self.get_tree_rust(list(self.frequencies.values()), silent), self.color_sizes)
 
     def heuristic(self, chunk_size=50):
         cutoff = 0.05  # Alle Buchstaben, die häufiger vorkommen, sind häufige Buchstaben
@@ -422,7 +393,6 @@ class Encoder:
             if cost < best_cost:
                 best_cost = cost
                 best_code = codes
-                print("Best cost:", best_cost)
         return best_code
 
 
@@ -444,29 +414,34 @@ def get_frequencies(text):
     """
     return {i: text.count(i) / len(text) for i in set(text)}
 
+
 def print_code(code, text, color_sizes):
     """
     Gibt den Code und die Kosten aus
     """
     code = sorted(code, key=lambda x: x[1])
     print("Größe der Perlen: ", color_sizes)
-    print("Bucsthabe(Häufigkeit): Code (Größe des Codes)")
+    print()
+    print("Ausgabeformat:\nBuchstabe(Häufigkeit): Code (Größe des Codes)")
     letters = sorted((i for i in set(text)), key=lambda x: text.count(x), reverse=True)
     for letter, c in zip(letters, code):
-        print(f"{letter}({text.count(letter)}):\t {c[0]} ({c[1]})")
+        print(f"\"{letter}\"({text.count(letter)}):\t {c[0]} ({c[1]})")
     print("----------------------------------------")
     print(f"Gesamtlänge der Perlenkette: {calc_cost(text, code)}")
     print()
 
 
 if __name__ == '__main__':
-    should_print_code = False
-    for i in range(9):
+    should_print_code = True
+    for i in range(10):
         filename = f"Examples/schmuck{i}.txt"
         color_sizes, text = parse_file(filename)
         encoder = Encoder(get_frequencies(text), color_sizes)
         start = time.time()
-        code = encoder.encode_reduce() #(silent=True)
+        if i == 9:
+            code = encoder.optimize_heuristic(text)
+        else:
+            code = encoder.encode_rust(silent=True)
         end = time.time()
         print(f"Beispiel: {filename}")
         print(f"Dauer: {(end - start) * 1000:.2f} ms")

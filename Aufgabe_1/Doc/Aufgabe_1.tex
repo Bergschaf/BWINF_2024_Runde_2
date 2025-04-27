@@ -98,30 +98,32 @@
     \subsection{Huffman Codierung}
     David Huffman hat 1952 eine Methode veröffentlicht, die heute als \textit{Huffman Codierung} bekannt ist\autocite{noauthor_huffman-kodierung_2025}.
     Die Huffman Codierung kann verwendet werden, um eine optimale präfixfreie Codierung für einen bestimmten Text zu finden.
-    Dabei geht man von einem Alphabet $A$ mit $n$ verschiedenen Zeichen $a_1, \dots, a_n \in A$ aus, gemeinsam mit der Häufigkeitsverteilung der Zeichen $p_i = \frac {\text{Häufigkeit von $a_i$ im zu codierenden Text}} {\text{Länge des Textes}}$. Man nennt diese Antreffwahrscheinlichkeit $p_i$ eines Zeichens auch \textit{Frequenz} oder \textit{Gewichtung}.
-    Wir nehmen an, dass das Alphabet nach absteigender Häufigkeit sortiert ist ist, also $p_1 \ge p_1 \ge \dots \ge p_n$.
-    Der Text soll mit einem Ausgabealphabet $O$ codiert werden, das aus $r$ verschiedenen Zeichen $o_1, \dots, o_r \in O$ besteht. In der Bwinf-Aufgabenstellung besteht dieses Ausgabealphabet $O$ aus den $r$ verschiedenen Perlen (die aber alle den gleichen Durchmesser haben). Um den ursprünglichen Text zu codieren, müssen wir nun jedem Buchstaben $a_i$ ein \textit{Codewort} $w_i$ zuordnen, dass aus einer Kette an Buchstaben aus dem Ausgabealphabet besteht $w_i = o_j o_k o_l \dots$. \\
-    Diese Codierung soll \textit{Präfixfrei} sein, also kein Codewort soll Teil eines anderen Codeworts sein.
+    Dabei geht man von einem Alphabet $A$ mit $n$ verschiedenen Zeichen $a_1, \dots, a_n \in A$ aus, gemeinsam mit der Häufigkeitsverteilung der Zeichen \[p_i = \frac {\text{Häufigkeit von $a_i$ im zu codierenden Text}} {\text{Länge des Textes.}}\]
+    Man nennt diese Antreffwahrscheinlichkeit $p_i$ eines Zeichens auch \textit{Frequenz} oder \textit{Gewichtung}.
+    Wir nehmen an, dass das Alphabet nach absteigender Häufigkeit sortiert ist, also $p_1 \ge p_1 \ge \dots \ge p_n$.
+    Der Text soll mit einem Ausgabealphabet $O$ codiert werden, das aus $r$ verschiedenen Zeichen $o_1, \dots, o_r \in O$ besteht.
+    In der Bwinf-Aufgabenstellung besteht dieses Ausgabealphabet $O$ aus den $r$ verschiedenen Perlen (die aber alle den gleichen Durchmesser haben). Um den ursprünglichen Text zu codieren, müssen wir nun jedem Buchstaben $a_i$ ein \textit{Codewort} $w_i$ zuordnen, das aus einer Kette an Buchstaben aus dem Ausgabealphabet besteht $w_i = o_j o_k o_l \dots$. \\
+    Diese Codierung soll \textit{präfixfrei} sein, also kein Codewort soll Teil eines anderen Codeworts sein.
     Dadurch kann der Text als Aneinanderreihung von Codewörtern (ohne \glqq Komma\grqq~dazwischen) übertragen und eindeutig decodiert werden. \\
     Aufgrund von dieser Eigenschaft können wir den Code als einen Baum darstellen, der $n$ Blätter hat und bei dem jeder Knoten höchstens $r$ Kinder hat.
     \begin{definition}
         Wir nennen einen solchen Baum mit $n$ blättern und höchstens $r$ Kindern pro Knoten \textbf{valide}, da er eine mögliche Codetabelle darstellt.
     \end{definition}
-    Jedes Blatt eines solchen Baums repräsentiert ein Codewort $w$, dass eindeutig durch den Pfad von der Wurzel des Baums zu diesem Blatt definiert ist. Der Pfad wird durch die Kanten des Baums definiert, die mit den Perlen beschriftet sind. Da alle Perlen gleich groß sind, also die Länge aller Buchstaben des Ausgabealphabets gleich ist, ist die Beschriftung der Kanten beliebig. Es ist lediglich wichtig, dass alle Kanten eines Knotens mit unterschiedlichen Perlen beschriftet sind. Die Länge des Codeworts $|w|$ entspricht der Anzahl der Kanten auf dem Pfad von der Wurzel zu diesem Blatt. \\
+    Jedes Blatt eines solchen Baums repräsentiert ein Codewort $w$, das eindeutig durch den Pfad von der Wurzel des Baums zu diesem Blatt definiert ist. Der Pfad wird durch die Kanten des Baums definiert, die mit den Perlen beschriftet sind. Da alle Perlen gleich groß sind, also die Länge aller Buchstaben des Ausgabealphabets gleich ist, ist die Beschriftung der Kanten beliebig. Es ist lediglich wichtig, dass alle Kanten eines Knotens mit unterschiedlichen Perlen beschriftet sind. Die Länge des Codeworts $|w|$ entspricht der Anzahl der Kanten auf dem Pfad von der Wurzel zu diesem Blatt. \\
     Da wir eine optimale Codetabelle (also eine möglichst kurze Perlenkette) erstellen wollen, müssen wir die \glqq Kosten\grqq~eines Baums definieren.
     Diese Kosten eines Baums hängen natürlich auch davon ab, welches Codewort welchem Buchstaben zugeordnet wird. Für diese Definition gehen wir
     davon aus, dass wir eine solche Zuordnung $w_i \to a_i$ haben.
     \begin{definition}
-        Die Kosten eines Baums $T$ ist definiert als das Produkt der Länge jedes Codeworts $w_i$ mit der Frequenz $p_i$ des codierten Buchstabens $a_i$: \[cost(T) = \sum^{i=0}_{i\le n} |w_i| \cdot p_i\]
+        Die Kosten eines Baums $T$ sind definiert als das Produkt der Länge jedes Codeworts $w_i$ mit der Frequenz $p_i$ des codierten Buchstabens $a_i$: \[cost(T) = \sum_{i=0}^{i\le n} |w_i| \cdot p_i\]
     \end{definition}
     Da die Kosten eines Baumes proportional zu der Länge der resultierenden Perlenkette sind, kann die Aufgabenstellung darauf reduziert werden, den validen Baum $T$ mit den minimalen Kosten zu finden. \\
     \begin{definition}
-        Wir nennen einen solchen Baum, der die minimalen Kosten (kürzeste Perlenkette) für eine bestimmte Häufigkeitsverteilung hat \textbf{optimal}.
+        Wir nennen einen solchen Baum, der die minimalen Kosten (kürzeste Perlenkette) für eine bestimmte Häufigkeitsverteilung hat, \textbf{optimal}.
     \end{definition}
     Für die Kosten eines Baums ist aber auch die Zuordnung, welcher Buchstabe von welchem Codewort codiert werden soll, entscheidend.
     Für diese Aufgabenstellung ist die Zuordnung aber für jeden Baum eindeutig, da wir die Kosten des Baums minimieren wollen.
-    Um das zu erreichen, müssen wir das längste Codewort zu dem Buchstaben zugeordnet, der am seltensten vorkommt und das kürzeste Codewort zu dem Buchstaben zuordnen, der am häufigsten vorkommt.
-    Dafür ordnen wir im Folgenden die Blätter Baumes in aufsteigender Reihenfolge, also $|w_1| \le \dots \le |w_n|$.
+    Um das zu erreichen, müssen wir das längste Codewort dem Buchstaben zuordnen, der am seltensten vorkommt, und das kürzeste Codewort dem Buchstaben zuordnen, der am häufigsten vorkommt.
+    Dafür ordnen wir im Folgenden die Blätter Baums in aufsteigender Reihenfolge, also $|w_1| \le \dots \le |w_n|$.
     Da das Alphabet nach absteigender Reihenfolge sortiert ist, also $p_1 \ge \dots \ge p_n$, liefert die Zuordnung von $w_i$ zu $a_i$ für jeden Baum die geringsten Kosten. \\
 
     \subsubsection{Konstruktion des optimalen Baums}
@@ -132,8 +134,8 @@
         Ein optimaler binärer Huffman Baum ist vollständig.
     \end{lemma}
     \begin{proof}
-        Ein optimaler binärer Huffman Baum ist im allgemeinen vollständig, da in einem Optimalen Baum kein Knoten mit nur einem Kind existieren kann.
-        Würde man diesen Knoten zu einem Blatt machen hätte man einen Baum mit der gleichen 3Anzahl an Blättern aber geringeren Kosten.
+        Ein optimaler binärer Huffman Baum ist im Allgemeinen vollständig, da in einem optimalen Baum kein Knoten mit nur einem Kind existieren kann.
+        Würde man diesen Knoten zu einem Blatt machen, hätte man einen Baum mit der gleichen Anzahl an Blättern aber geringeren Kosten.
     \end{proof}
     Das gilt im allgemeinen Fall bei Bäumen mit $r > 2$ Kindern aber nicht.
     Für die allgemein bekannte Konstruktion eines binären Huffman Baums werden wiederholt zwei Teilbäume zu einem zusammengefasst, bis schließlich nur noch einer übrig ist. % TODO vlt kurz beschreiben was passiert
@@ -143,16 +145,17 @@
             % TODO Bild
     \end{beispiel}
     Daher muss das Alphabet zuerst mit so vielen Platzhalterbuchstaben, deren Antreffwahrscheinlichkeit 0 ist, aufgefüllt werden, dass gilt: $n \mod (r - 1) = 1$.
-    Da bei jeder Iteration, bei der $r$ Knoten zu einem Zusammengefasst werden die Gesamtanzahl der Knoten um $r-1$ reduziert wird, stellt diese Formel sicher, dass am Ende genau ein Knoten übrig bleibt. Jetzt können wir mit der Konstruktion beginnen:
+    Da bei jeder Iteration, bei der $r$ Knoten zu einem zusammengefasst werden, die Gesamtanzahl der Knoten um $r-1$ reduziert wird, stellt diese Formel sicher, dass am Ende genau ein Knoten übrig bleibt.
+    Die Konstruktion läuft nun mit einem Greedy-Algorithmus ab:
     \begin{enumerate}
         \item Erstelle für jeden Buchstaben $a_i$ im Alphabet (inklusive Platzhalter) einen Teilbaum (der aus einem Wurzelknoten besteht) und beschriften diesen mit der Frequenz $p_i$ des Buchstabens $a_i$.
         \item Wähle die $r$ Teilbäume mit den kleinsten Antreffwahrscheinlichkeiten. (Diese Wahl ist nicht eindeutig)
-        \item Beschrifte einen neuen Knoten mit der Summe der Antreffwahrscheinlichkeiten der $r$ gewählten Teilbäume und erstelle einen neuen Teilbeum mit dem neuen Knoten als Wurzel und den gewählten Teilbäumen als Kinder.
-        \item Wieder hole Schritt 2 und 3, bis nur noch ein Baum übrig ist.
+        \item Beschrifte einen neuen Knoten mit der Summe der Antreffwahrscheinlichkeiten der $r$ gewählten Teilbäume und erstelle einen neuen Teilbaum mit dem neuen Knoten als Wurzel und den gewählten Teilbäumen als Kinder.
+        \item Wiederhole Schritt 2 und 3, bis nur noch ein Baum übrig ist.
     \end{enumerate}
 
-    \subsubsection{Beweis der optimalität}
-    Der Standartbeweis für die Optimalität von Binären Huffman Bäumen kann leicht verallgemeinert werden, daher
+    \subsubsection{Beweis der Optimalität}
+    Der Standartbeweis für die Optimalität von binären Huffman Bäumen kann leicht verallgemeinert werden.
     Dazu müssen wir zuerst das \glqq Sibling-Lemma\grqq~auf $r-$när Bäume verallgemeinern: % TODO Sibling lemma
     \begin{lemma}
         Seien $l_1, l_2, \dots l_r$ die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit (In dieser Auswahl können auch die Platzhalterbuchstaben enthalten sein).
@@ -160,21 +163,21 @@
     \end{lemma}
     \begin{proof}
         Die Buchstaben $l_1, \dots l_r$ sind sicher Geschwister, da sie als erstes ausgewählt werden. \\
-        Wenn $l_1, \dots l_r$ nicht auf der unteresten Ebene des Baums liegen würden, dann müsste es einen Internen Knoten $X$ geben, dessen Antreffwahrscheinlichkeit kleiner ist als die des Knotens $Y$, dessen Kinder $l_1, \dots l_r$ sind.
+        Wenn $l_1, \dots l_r$ nicht auf der untersten Ebene des Baums liegen würden, dann müsste es einen internen Knoten $X$ geben, dessen Antreffwahrscheinlichkeit kleiner ist als die des Knotens $Y$, dessen Kinder $l_1, \dots l_r$ sind.
         Da der Baum vollständig ist, müsste aber mindestens einer der Kinder von $X$ eine geringere Antreffwahrscheinlichkeit haben als einer der Kinder  $l_1, \dots l_r$ von $Y$.
-        Das wiederspricht aber unserer Anfänglichen Annahme, dass $l_1, \dots l_r$ die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit sind. Daher können wir sagen, dass $l_1, \dots l_r$ immer auf der untersten Ebene des Baums liegen.
+        Das widerspricht aber unserer anfänglichen Annahme, dass $l_1, \dots l_r$ die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit sind. Daher können wir sagen, dass $l_1, \dots l_r$ immer auf der untersten Ebene des Baums liegen.
             % TODO so ein Bild wie hier: https://opendsa-server.cs.vt.edu/ODSA/Books/CS3/html/HuffProof.html
     \end{proof}
     % TODO irgendwo sagen, was r-när meint
     Damit können wir nun mithilfe von Induktion über die Größe $n$ des Alphabets den Beweis durchführen:
     \begin{satz}
-        Die oben beschrieben Konstruktion für $r-$näre Huffman Bäume liefert einen optimalen Baum und damit eine bestmögliche Codetabelle.
+        Die oben beschriebene Konstruktion für $r-$näre Huffman Bäume liefert einen optimalen Baum und damit eine bestmögliche Codetabelle.
     \end{satz}
     \begin{proof} % TODO stimmt des letzt mit contradiction?????
         \textit{Induktionsanfang}:
         Für $n \le r$ ist ein Huffman Baum offensichtlich optimal. \\
         \textit{Induktionshypothese}: Alle Huffman Bäume mit $< n$ Blättern sind optimal. \\
-        \textit{Induktionsschritt}: Nun müssen wir zeigen, ein Huffman Baum $T$ mit $n$ Blättern optimal ist.
+        \textit{Induktionsschritt}: Nun müssen wir zeigen, dass ein Huffman Baum $T$ mit $n$ Blättern optimal ist.
         Seien $l_1, \dots l_r$ wieder die $r$ Buchstaben mit der geringsten Antreffwahrscheinlichkeit und $Y$ der Knoten in $T$, dessen Kinder $l_1, \dots l_r$ sind.
         Sei $T'$ nun ein Huffman Baum identisch zu $T$, bei dem $Y$ zu einem Blattknoten konvertiert wurde (mit der gleichen Antreffwahrscheinlichkeit wie der Knoten $Y$ in $T$).
         Aufgrund der Induktionshypothese ist $T'$ optimal, da er $n - (r - 1) < n$ Blätter hat.\\
@@ -223,10 +226,10 @@
     Die Laufzeitbetrachtung verläuft ähnlich wie bei binären Huffman Bäumen\autocite{noauthor_huffman-kodierung_2025}:\\ % TODO QUelle Wikiepdia
     Sei $n$ die Länge des Alphabets und $t$ die Länge des Originaltextes.
     Um die Frequenzen der Buchstaben zu bestimmen, muss der Text einmal durchlaufen werden.
-    Diese Funktion, die im Pseudocode oben nicht aufgeführt ist, hat also eine Asymptotische Laufzeit von $O(t)$.
-    Die For-Schleife, die für jeden Blattknoten einen Buchstaben erzeugt hat eine Laufzeit von $O(n)$. Da $n < t$ erhöht diese For-Schleife die asymptotische Laufzeit aber nicht.
+    Diese Funktion, die im Pseudocode oben nicht aufgeführt ist, hat also eine asymptotische Laufzeit von $O(t)$.
+    Die For-Schleife, die für jeden Blattknoten einen Buchstaben erzeugt, hat eine Laufzeit von $O(n)$. Da $n < t$ erhöht diese For-Schleife die asymptotische Laufzeit aber nicht.
     Die While-Schleife, die Platzhalterknoten einfügt, iteriert höchstens $(r-1)$ mal. Da $r < n$ (sonst wäre die Codierung trivial) trägt diese While-Schleife auch nicht zur Asymptotischen Laufzeit bei.\\
-    In der Haupt-While-Schleife wird der Heap mit einer anfänglichen Größe von $O(n)$ in jeder iteration um $r-1$ verkleinert, sie hat also eine Laufzeit von $O(\frac n r)$.
+    In der Haupt-While-Schleife wird der Heap mit einer anfänglichen Größe von $O(n)$ in jeder Iteration um $r-1$ verkleinert, sie hat also eine Laufzeit von $O(\frac n r)$.
     In der Schleife werden $r$ Knoten aus dem Heap gezogen und einer wieder eingefügt, jeweils mit einer Laufzeit von $O(\log n)$.
     Der innere Teil der While-Schleife hat also eine Laufzeit von $O(r \cdot \log n)$ und damit gilt für die Laufzeit der While-Schleife: $O(n \cdot \log n)$.
     Das gesamte Programm hat also eine asymptotische Laufzeit von $O(t + n \cdot \log n)$
@@ -239,13 +242,13 @@
     \end{definition}
     Bis jetzt waren die Kinder $v_1$ bis $v_r$ eines Knotens $V$ immer genau eine Ebene tiefer als $V$, also $|v_i| = |V| - 1$.
     Wir wollen die Eigenschaft, dass die Pfadlänge von der Wurzel eines Baumes zu einem Blatt $|w|$ der Länge der entsprechenden Aneinanderreihung an Perlen entspricht aber natürlich weiterhin erhalten. Wenn wir also die Kinder $v_1$ bis $v_r$ des Knotens $V$ mit den Perlen $o_1$ bis $o_{r}$ beschriften $v_i \to o_i$, soll gelten: $|V| = |v_i| + c_i$.
-    Daraus Resultieren sogenannte \textit{schiefe} (engl. lopsided) Bäume (Siehe Bild TODO). \\
+    Daraus resultieren sogenannte \textit{schiefe} (engl. lopsided) Bäume (Siehe Bild TODO). \\
     Die oben beschriebene Huffman-Codierung deckt den Spezialfall $c_1 = c_2 \dots = c_r$ ab, im allgemeinen Fall produziert sie jedoch keine optimalen Bäume.
-    Das liegt dran, dass in einem schiefen Baum die $r$ tiefsten Knoten allgemein keine Geschwister sind, worauf sich der Beweis für die Optimalität von Huffman-Bäumen stützt.
+    Das liegt dran, dass sich der Beweis für die Optimalität von Huffman-Bäumen darauf stützt, dass die $r$ tiefsten Knoten Geschwister sind.
+    Das ist in einem schiefen Baum im allgemeinen aber nicht der Fall.
     % TODO Bild  
-
     \subsubsection{Vollständige Bäume}
-    Golin und Rote stellen 1998 in ihrem Paper\cite{golin_dynamic_1998} einen neuen Ansatz zur Berechnung von optimalen Präfixfreien Codes für unterschiedliche Kosten der Buchstaben vor.
+    Golin und Rote stellen 1998 in ihrem Paper \glqq A dynamic programming algorithm for constructing optimal prefix-free codes with unequal letter costs\grqq\autocite{golin_dynamic_1998}~ einen neuen Ansatz zur Berechnung von optimalen Präfixfreien Codes für unterschiedliche Kosten der Buchstaben vor.
     Da das dem Problem in Aufgabenteil b) entspricht, orientiere ich mich in den folgenden Kapiteln an diesem Paper.
     Es ist aber anzumerken, dass meine Algorithmen nicht genau denen im Paper entsprechen, sondern durch einen etwas anderen Ansatz in der Praxis deutlich schneller sind.
     Am Ende diskutiere ich diese Unterschiede noch genauer.\\
@@ -318,7 +321,7 @@
         Sei $T$ ein optimaler Baum mit $n$ Blättern. Die Anzahl der Blätter $m$ von $Fill(T)$ beträgt höchstens $m \le n(r-1)$.
     \end{lemma}
     \begin{proof}
-        In einem optimalen Baum hat jeder Knoten mindestens zwei Kinder (Sonst könnte man einen Knoten mit nur einem Kind zu einem Blatt machen und würde einen Baum mit geringeren Kosten erhalten).Die Anzahl der internen Knoten in einem vollständigen Binärbaum mit $n$ Blättern beträgt $I = n - 1$, also hat ein optimaler Baum höchstens $I$ interne Knoten.
+        In einem optimalen Baum hat jeder Knoten mindestens zwei Kinder (Sonst könnte man einen Knoten mit nur einem Kind zu einem Blatt machen und würde einen Baum mit geringeren Kosten erhalten). Die Anzahl der internen Knoten in einem vollständigen Binärbaum mit $n$ Blättern beträgt $I = n - 1$, also hat ein optimaler Baum höchstens $I$ interne Knoten.
         Ein vollständiger Baum mit $I$ internen Knoten hat genau $Ir - I + 1 = (r-1)I + 1$ Blätter, $Fill(T_{opt})$ hat also höchstens $1 + (n -1)(r-1) \le n(r-1)$ Blätter.
     \end{proof}
     Da $cost(Fill(T))$ = $cost(T)$ offensichtlich gilt, können wir nun das Problem umformulieren:\\
@@ -331,7 +334,7 @@
         Wir nennen einen Baum Ebene-$i$-Baum, wenn alle internen Knoten auf einer Ebene $\le i$ liegen. \\
     \end{definition}
     \begin{definition}
-        Wir kürzen einen Baum $T$ zu dem Ebene-$i$-Baum $Cut_i(T)$, indem wir alle Knoten entfernen, deren Eltern Tiefer als Ebene-$i$ liegen: \[Cut_i(T) = T - \{v \in T \mid |parent(v)| > i\}\].
+        Wir kürzen einen Baum $T$ zu dem Ebene-$i$-Baum $Cut_i(T)$, indem wir alle Knoten entfernen, deren Eltern tiefer als Ebene-$i$ liegen: \[Cut_i(T) = T - \{v \in T \mid |parent(v)| > i\}\].
     \end{definition}
     TODO Beispiel
     \begin{definition}
@@ -345,17 +348,17 @@
 
     TODO Beispiele mit signatur und expand
 
-    Über die Signatur einer eines Ebene-$i$-Baums können wir nun die Kosten dieser Ebene definieren, was uns später dabei helfen wird, den \glqq Billigsten\grqq{} Baum zu finden.
+    Über die Signatur eines Ebene-$i$-Baums können wir nun die Kosten dieser Ebene definieren, was uns später dabei helfen wird, den \glqq billigsten\grqq{} Baum zu finden.
     \begin{definition}
         Sei $T$ ein Ebene-$i$ Baum mit der Signatur $sig_i(T) = (m, l_1, l_2, \dots, l_C)$. Für $m \le n$ definieren wir die Kosten der Ebene-$i$ als:
         \[cost_i(T) = \sum^m_{j=1} |w_j| \cdot p_j + i \cdot \sum^n_{j=m + 1}p_j\]
         wobei $|w_1| \le \dots \le |w_m|$ die $m$ höchsten Blätter nach Tiefe geordnet sind.
     \end{definition}
     %    TODO igendwo explizit sagen, dass $|w_i| $tiefe vom blatt
-    Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter um die Ebene $i$ zu erreichen darstellt.
+    Der erste Term der Summe beschreibt Kosten der Blätter, für die bereits sicher ist, dass es sich um Blätter handelt, während der zweite Term die Kosten für die übrigen Blätter, um die Ebene $i$ zu erreichen, darstellt.
     Für $m \ge n$ erübrigt sich der zweite Term, da $p_i = 0$ für $i > n$. D.h. wenn $T$ ein Ebene-$i$-Baumm mit $sig_i(T) = (m, l1, \dots l_C)$ ist und $m \ge n$, dann gilt $cost_i(T) = cost(T)$. \\
     % TODO coole überleitung schritt für schritt aufbauen
-    Um den \glqq Billigsten\grqq~Baum zu finden, konstruieren wir die Bäume Ebene für Ebene, beginnend bei dem \textit{Wurzel-Baum}, der nur aus der Wurzel und deren Kindern besteht.
+    Um den \glqq billigsten\grqq~Baum zu finden, konstruieren wir die Bäume Ebene für Ebene, beginnend bei dem \textit{Wurzel-Baum}, der nur aus der Wurzel und deren Kindern besteht.
     Um die Signatur des Wurzel-Baums darzustellen, müssen wir zunächst den charakteristischen Vektor einer Perlensammlung definieren:
     \begin{definition}
         Der charakteristische Vektor $(d_1, d_2, \dots, d_C)$ einer Perlensammlung mit den Durchmessern $C = (c_1, c_2, \dots, c_r)$ entspricht den Anzahlen, wie oft ein bestimmter Durchmesser in der Perlensammlung vertreten ist:
@@ -419,9 +422,9 @@
     \begin{korollar}
         Diese Äquivalenzrelation hat einige offensichtliche Eigenschaften:
         \begin{enumerate}
-            \item Wenn $T_1 = T_2$, dann gilt $Expand_i(T_1, q) = Expand_i(T_2, q)$
-            \item Wenn $T_1 = T_2$, dann gilt $cost(T_1) = cost(T_2)$
-            \item Wenn $T_1 = T_2$, dann haben $T_1$ und $T_2$ auf jeder Ebene die gleiche Anzahl an internen Knoten
+            \item Wenn $T_1 = T_2$, dann gilt $Expand_i(T_1, q) = Expand_i(T_2, q)$.
+            \item Wenn $T_1 = T_2$, dann gilt $cost(T_1) = cost(T_2)$.
+            \item Wenn $T_1 = T_2$, dann haben $T_1$ und $T_2$ auf jeder Ebene die gleiche Anzahl an internen Knoten.
         \end{enumerate}
     \end{korollar}
     \begin{lemma}
@@ -429,13 +432,13 @@
         Es gibt ein $q$, sodass $Expand_i(T) = T'$.
     \end{lemma}
     \begin{proof}
-        Folgt aus der Definition von $Expand_i$ und daraus, dass Äquivalente Bäume auf jeder Ebene die gleiche Anzahl an internen Knoten haben.
+        Folgt aus der Definition von $Expand_i$ und daraus, dass äquivalente Bäume auf jeder Ebene die gleiche Anzahl an internen Knoten haben.
     \end{proof}
     \begin{korollar}
         \label{lem:funktioniert}
         Jeder vollständige Ebene-$i$-Baum kann bis auf Äquivalenz durch $i$ Expand-Operationen vom Wurzel-Baum aus konstruiert werden.
     \end{korollar}
-    Da $Fill(T_{opt})$ höchstens $n (r -1)$ Blätter hat können wir $Fill(T_{opt})$ finden, indem wir vom Wurzel-Baum aus
+    Da $Fill(T_{opt})$ höchstens $n (r -1)$ Blätter hat, können wir $Fill(T_{opt})$ finden, indem wir vom Wurzel-Baum aus
     durch $Expand_i$ alle vollständigen Bäume durchsuchen, die $m \le (r - 1)$ Blätter haben.
 
 
@@ -480,7 +483,7 @@
             \EndFunction
         \end{algorithmic}
     \end{algorithm}
-    Als erstes werden die Variablen $n$, $C$ und $r$ in Abhängigkeit von den Frequenzen der Buchstaben und der größen der Farben intitialisiert.
+    Als erstes werden die Variablen $n$, $C$ und $r$ in Abhängigkeit von den Frequenzen der Buchstaben und der Größen der Farben initialisiert.
     Am Anfang enthält der Stack nur den Wurzel-Baum, dessen Signatur die Ebene-0-Kosten 0 hat.
     Im Stack wird außerdem gespeichert, durch welche Erweiterungen (Werte von $q$) der jeweilige Baum erreicht wurde.
     Die \textit{best\_cost} und \textit{best\_tree} Variablen speichern die Kosten und die Werte der Erweiterungen des bisher besten Baums.
@@ -490,7 +493,7 @@
     Wenn der Baum \glqq billiger\grqq~als der beste Baum ist, der bisher gefunden wurde, werden die Werte von $q$ gespeichert, die verwendet wurden, um den Baum zu erreichen. \\
     Falls der Baum noch nicht groß genug ist, muss er erweitert werden.
     Das hat aber einen Preis, der nun berechnet und mit dem besten Preis verglichen wird. \\
-    Anschließend wird der Baum für jeden Wert von $q$ erweitert und die Ergebnisse werden wieder an den stack angehängt. \\
+    Anschließend wird der Baum für jeden Wert von $q$ erweitert und die Ergebnisse werden wieder an den Stack angehängt. \\
     Nach dem Abschluss \textit{While}-Schleife haben wir in \textit{best\_cost} die Anzahl der internen Knoten des besten Baums.
     Dieser wird dann mit der \textsc{generate\_tree} Funktion generiert und zurückgegeben.
     Die Codetabelle kann anschließend über die Pfade zu den $n$ höchsten Blättern generiert werden. \\
@@ -510,7 +513,7 @@
         \end{enumerate}
         Da die Anzahl der $C+1$ Teilmengen von $\{0, \dots, x + C\}$ gleich ${x + C + 1} \choose {C+1}$ ist, folgt die Behauptung.
     \end{proof}
-    Der Algorithmus durchläuft im Worst-Case alle Signaturen mit $\sum sig \le n (r - 1)$, die While schleife läuft also asymptotisch $O\left({{n(r-1) + C + 1} \choose {C+1}}\right) \le O(n(r-1)^{C+1})$ mal durch.
+    Der Algorithmus durchläuft im Worst-Case alle Signaturen mit $\sum sig \le n (r - 1)$, die While-Schleife läuft also asymptotisch $O\left({{n(r-1) + C + 1} \choose {C+1}}\right) \le O(n(r-1)^{C+1})$ mal durch.
     Die \textit{For}-Schleife läuft $l_1 + 1$, also asymptotisch $O(n(r-1))$ mal durch und die \textit{Expand}-Operation hat eine Laufzeit von $O(C)$.
     Damit hat dieser Algorithmus eine asymptotische Laufzeit von \[O \left({{n(r-1) + C + 1} \choose {C+1}} \cdot n(r-1) \cdot C \right) \le O\left(C \cdot n(r-1)^{C+2}\right).\] \\
     In der Praxis werden aber sehr viel weniger Knoten besucht, da ein großer Teil bereits durch zu hohe Kosten ausgeschlossen werden kann.
@@ -552,7 +555,7 @@
         TODO
     \end{proof}
     Wir haben also gezeigt, dass wir den optimalen Baum durch mehrfaches Anwenden der \textit{Expand} und \textit{Reduce} Funktionen erzeugen können.
-    Das können wir durch eine modifikation des vorherigen Algorithmus erreichen:
+    Das können wir durch eine Modifikation des vorherigen Algorithmus erreichen:
     \begin{algorithm} [H]
         \caption{\textsc{GetOptimalTree}\,(Frequenzen, Farbengrößen)}
         \begin{algorithmic}[1]
@@ -590,7 +593,7 @@
         \end{algorithmic}\label{alg:algorithm}
     \end{algorithm}
     Da wir den Reduktionsschritt hinzugefügt haben, müssen wir hier nicht mehr überprüfen, ob die Signatur mehr als $n (r - 1)$ Blätter hat. \\
-    In dem Paper von \cite{golin_dynamic_1998} wird eine einfache Optimierung vorgeschlagen, mit der nicht immer alle Werte von $q$ durchlaufen werden müssen.
+    In dem Paper\autocitecite{golin_dynamic_1998} wird eine einfache Optimierung vorgeschlagen, mit der nicht immer alle Werte von $q$ durchlaufen werden müssen.
     \begin{lemma}
         \label{lem:reader_1}
         Es ist ausreichend, dass $q$ nur die Werte $\left[0, \dots, \min\left\{l_1, n - \left(m + \sum^{c_2}_{j=1} l_j\right)\right\}\right]$ durchläuft.
@@ -621,10 +624,10 @@
         Da wir bereits auf den Ebenen $0$ bis $i+1$ mehr als $n$ Blätter haben, werden die Blätter auf den nachfolgenden Ebenen auf jeden Fall gekürzt.
         Aber auch in der Ebene $i + 1$ müssen $l_2 + 1$ Blätter gekürzt werden.
         Vor der Expansion waren auf der Ebene $i + 1$ genau $l_2$ Blätter, zu denen wir $q \cdot 2$ Blätter hinzugefügt haben. \\
-        Um den Beweis weiterzuführen müssen wir die Struktur der Ebene $i+1$ betrachten, vor allem die der neu hinzugefügten Blätter.
+        Um den Beweis weiterzuführen, müssen wir die Struktur der Ebene $i+1$ betrachten, vor allem die der neu hinzugefügten Blätter.
         Jedes der $q$ Blätter aus Ebene $i$, das durch unsere Expand-Operation zu einem internen Knoten gemacht wurde, hatte vor der Reduktion $2$ Kinder auf Ebene $i + 1$ und eines auf Ebene $i + 2$.
         Das Kind auf Ebene $i + 2$ wird durch die Reduktion auf jeden Fall entfernt.
-        Da wir nun $l_2 + 1$ Blätter aus Ebene $i + 1$ kürzen müssen, wird mindestens ein Knoten, der vorher Erweitert wurde, nur noch ein Kind haben. (Da die Ebene $i + 1$ vor der Erweiterung $l_2$ Blätter hatte und $l_2 + 1$ Blätter heraus gekürzt werden müssen.)
+        Da wir nun $l_2 + 1$ Blätter aus Ebene $i + 1$ kürzen müssen, wird mindestens ein Knoten, der vorher erweitert wurde, nur noch ein Kind haben. (Da die Ebene $i + 1$ vor der Erweiterung $l_2$ Blätter hatte und $l_2 + 1$ Blätter heraus gekürzt werden müssen.)
         Durch die Reduktion werden diese Knoten, die nur noch ein Kind haben, dann zu einem Blatt gemacht.
         Dadurch erreicht man einen Zustand, den man auch mit einer Erweiterung mit einem kleineren $q$ erreicht hätte.
         Dieser wurde aber schon in einer vorherigen Iteration der Schleife berücksichtigt.
@@ -635,7 +638,7 @@
 
     \subsubsection{Laufzeit}
     Der Algorithmus betrachtet im Worst-Case alle Signaturen mit $\sum sig \le n$, nach Lemma~\ref{lem:chooose} wird die \textit{While}-Schleife also $O({{n + C + 1}\choose{C + 1}})$ mal durchlaufen.
-    Die \textit{For}-Schleife hat eine asymptotische Laufzeit von $O(C \cdot (n + 1))$, da sie (aufgrund Lemma~\ref{lem:reader_1}) höchstens $n + 1$ mal ausgeführt wird und die \textit{Expand} und \textit{Reduce} Operationen jeweils eine Laufzeit von $O(C)$ haben. Insgesamt hat der Algorithmus also eine Asymptotische Laufzeit von \[O\left(C \cdot (n + 1) \cdot {{n + C + 1}\choose{C + 1}}\right) \le O(n^{C+2}).\] \\ % TODO Beweis
+    Die \textit{For}-Schleife hat eine asymptotische Laufzeit von $O(C \cdot (n + 1))$, da sie (aufgrund Lemma~\ref{lem:reader_1}) höchstens $n + 1$ mal ausgeführt wird und die \textit{Expand} und \textit{Reduce} Operationen jeweils eine Laufzeit von $O(C)$ haben. Insgesamt hat der Algorithmus also eine asymptotische Laufzeit von \[O\left(C \cdot (n + 1) \cdot {{n + C + 1}\choose{C + 1}}\right) \le O(n^{C+2}).\] \\ % TODO Beweis
     In der Praxis werden aber deutlich weniger Bäume besucht, da viele bereits durch zu hohe Kosten und und die Obergrenze für $q$ aussortiert werden.
 
     \subsection{Speicherplatz}
@@ -674,9 +677,13 @@
 
     \section{Beispiele}
 
+    \begin{figure}
+
+    \end{figure}
+
     Genügend Beispiele einbinden! Die Beispiele von der BwInf-Webseite sollten hier diskutiert werden, aber auch eigene Beispiele sind sehr gut – besonders wenn sie Spezialfälle abdecken. Aber bitte nicht 30 Seiten Programmausgabe hier einfügen!
 
-    TOOD Latex datei der Dokumentation reinwerfen
+    TODO Latex datei der Dokumentation reinwerfen
 
 
     \section{Quellcode}
@@ -691,7 +698,7 @@
     \end{lemma}
     \begin{proof}
         Sei $sig_i(T) = (m, l_1, \dots, l_C)$ wieder die Signatur des Ebene-$i$-Baums $T$, den wir nun um $q$ erweitern wollen.
-        Wir setzten $q \gets n - (m + \sum^{c_2}_{j=1} l_j) + x$ mit $x \in \mathbb N$ und $x > 0$, um zu zeigen, dass alle Erweiterungen mit $q > \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}$ redundant sind. \\
+        Wir setzen $q \gets n - (m + \sum^{c_2}_{j=1} l_j) + x$ mit $x \in \mathbb N$ und $x > 0$, um zu zeigen, dass alle Erweiterungen mit $q > \min\{l_1, n - (m + \sum^{c_2}_{j=1} l_j)\}$ redundant sind. \\
         Sei $T' = Expand(T, q)$ mit der Signatur $sig_i(T') = (m', l_1', \dots, l_C')$.
         Durch die Regeln der Erweiterung wissen wir:
         \begin{enumerate}
@@ -719,7 +726,7 @@
         \end{equation}
         Wir können jetzt wieder wie im oberen Beweis vorgehen und den Reduktionsvorgang nachvollziehen. \\
         Auf allen Ebenen $> i + c_2$ müssen auf jeden Fall alle Blätter gelöscht werden, da schon bis Ebene $i + c_2$ mehr als $n$ Blätter erreicht sind.
-        Da $c_1 \le c_2$ hat jeder Knoten, den wir vorher erweitert haben genau $d_2 + 1$ Kinder.
+        Da $c_1 \le c_2$ hat jeder Knoten, den wir vorher erweitert haben, genau $d_2 + 1$ Kinder.
         Wir müssen auf jeden Fall wieder die $l_{c_2 + 1}$ Blätter löschen, die bereits vor der Erweiterung da waren.
         Anschließend müssen wir weitere $q \cdot (d_{c_2} - 1)$ Blätter entfernen.
         Jeder der Knoten, die wir vorher erweitert haben, hat nun genau ein Kind auf Ebene $i + c_1$ und ein Kind auf Ebene $i + c_2$.
