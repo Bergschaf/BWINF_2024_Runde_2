@@ -299,7 +299,7 @@
             \EndFunction
         \end{algorithmic}
     \end{algorithm}
-    In Algorithmus~\ref{backward} sieht man den wichtigsten Teil der \textit{backward} Funktion. Für einen Knoten \textit{current} müssen für jede mögliche Anweisung \textit{inst} alle Knoten gefunden werden, die durch eine Anwendung von $\textit{inst}^{-1}$ wieder zu \textit{current} werden. Dafür gibt es verschiedene Möglichkeiten, die in \textit{temp\_queue} gespeichert werden. Die erste Möglichkeit ist, beide Positionen des Knotens in Richtung \textit{inst} zu verschieben. Falls aber in Richtung $\textit{inst}^{-1}$ von der ersten Position (also \textit{current.pos1}) eine Wand liegt, kann es auch sein, dass diese Position durch die Anwendung von $\textit{inv}^{-1}$ konstant bleibt, da Anton gegen die Wand läuft. (    TODO Bild zum erklären) Das selbe gilt auch für $\textit{current.pos2}$. Es gibt also in manchen Fällen bis zu drei mögliche Knoten, von denen aus \textit{current} durch eine Anwendung von $\textit{inst}^{-1}$ erreicht werden könnte. \\
+    In Algorithmus~\ref{backward} sieht man den wichtigsten Teil der \textit{backward} Funktion. Für einen Knoten \textit{current} müssen für jede mögliche Anweisung \textit{inst} alle Knoten gefunden werden, die durch eine Anwendung von $\textit{inst}^{-1}$ wieder zu \textit{current} werden. Dafür gibt es verschiedene Möglichkeiten, die in \textit{temp\_queue} gespeichert werden. Die erste Möglichkeit ist, beide Positionen des Knotens in Richtung \textit{inst} zu verschieben. Falls aber in Richtung $\textit{inst}^{-1}$ von der ersten Position (also \textit{current.pos1}) eine Wand liegt, kann es auch sein, dass diese Position durch die Anwendung von $\textit{inv}^{-1}$ konstant bleibt, da Anton gegen die Wand läuft. (TODO Bild zum erklären) Das selbe gilt auch für $\textit{current.pos2}$. Es gibt also in manchen Fällen bis zu drei mögliche Knoten, von denen aus \textit{current} durch eine Anwendung von $\textit{inst}^{-1}$ erreicht werden könnte. \\
     Für jeden dieser Knoten muss nun überprüft werden, ob das tatsächlich der Fall ist und ob der Knoten in der Suche beachtet werden muss. Dafür wird zuerst überprüft, ob der Knoten \textit{new\_pos} überhaupt unterschiedlich zu \textit{current} ist. Wenn z.B. eine Wand in Richtung \textit{inst} liegt, könnte es sein, dass Anton und Bea gegen die Wand gelaufen sind bei dem Versuch, \textit{current} in Richtung \textit{inst} zu verschieben. \\
     Als nächstes wird überprüft, ob die Position schon besucht wurde, da sie in diesem Fall nicht beachtet werden muss. Schließlich wird überprüft ob man von \textit{new\_pos} aus \textit{current} tatsächlich durch einen Schritt in $\textit{inst}^{-1}$ erreichen kann.\\
     Wenn alle notwendigen Bedingungen gegeben sind, kann \textit{new\_pos} in die \textit{backward\_visited} Hashmap eingetragen werden. Als Wert wird \textit{current} eingetragen, wodurch später der Pfad zurückverfolgt werden kann. \\
@@ -340,8 +340,8 @@
 
 
     \section{Beispiele}
-    In der folgenden Tabelle sieht man die Anzahl an Anweisungen des optimalen Pfads durch das entsprechende Labyrinth gemeinsam mit der Laufzeit der normalen und der bidirektionalen Breitensuche. TODO Laufzeit von BidiBFs array \\
-
+    In der folgenden Tabelle sieht man die Anzahl an Anweisungen des optimalen Pfads durch das entsprechende Labyrinth gemeinsam mit der Laufzeit der normalen und der bidirektionalen Breitensuche.
+    Bei zu langen Laufzeiten des Breitensuche-Algorithmus, habe ich das Program abgebrochen.
     \begin{figure}[H]
         \centering
         \begin{tabular}{||c | c | c | c||}
@@ -356,15 +356,15 @@
             \hline
             4                     & 14384       & $113 s$              & $37 s$           \\
             \hline
-            5                     & 1308        & TODO                 & $1782$           \\
+            5                     & 1308        & (timeout)                 & $1782$           \\
             \hline
             6                     & 1844        & $66 s$               & $107 s$          \\
             \hline
             7                     & -           & $14ms$               & $30ms$           \\
             \hline
-            8                     & 472         & (Abbruch nach 20min) & $106 s$          \\
+            8                     & 472         & (timout) & $106 s$          \\
             \hline
-            9                     & 1012        & (Abbruch nach 15min) & $150 s$          \\
+            9                     & 1012        & (timout) & $150 s$          \\
         \end{tabular}
     \end{figure}
 
@@ -431,18 +431,5 @@
     Man sieht in Abbildung~\ref{fig:7}, dass Bea nicht zum Ziel kommen kann, da der Pfad auf der Ebene der gelb eingezeichneten Linie durch Wände und ein Loch blockiert wird.
 
 
-    \section{Erweiterung}
-    Bis jetzt ging es immer darum einen beliebigen optimalen Pfad in dem Graphen $G = (V, E)$ zu finden.
-    Eine interessante Frage ist aber auch, wie viele optimale Pfade es gibt.
-
-    Mehrere Pfade? -> Ist die Intersection zwischen Frontier und Visited größer 1?
-
-
-    TODO gibt es mehrere mögliche kürzeste Anweisungssequenzen
-    TODO die Personen bleiben im Zielfeld nicht stehen
-    TODO nicht nur zwei labyrinthe
-    TODO mehrdimensionale Labyrinthe
-
-    \printbibliography
 
 \end{document}
