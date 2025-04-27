@@ -739,7 +739,7 @@
     \[O\left({{2n} \choose n}  \right)\]
 
     Falls gilt $p_0 = p_1 = \dots = p_n$ können wir eine bessere Abschätzung machen.
-    Da nun ein Baum gesucht ist, bei dem die Knoten alle auf einer ähnlichen Ebene liegen, kann die Tiefe durch $h = \log_r(n) \cdot C$
+    Da nun ein Baum gesucht ist, bei dem die Knoten alle auf einer ähnlichen Ebene liegen, kann die Tiefe durch $h = \lceil \log_r(n) \rceil \cdot C$
     begrenzt werden.
     Mit dieser Abschätzung kann die Berechnung wie oben durchgeführt werden und man erhält eine Obergrenze von:
     \[O\left({n + h} \choose h \right)\]
