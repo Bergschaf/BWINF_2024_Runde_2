@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 import rust_encoder
-
+import math
 
 class Node:
     def __init__(self, parent, number):
@@ -432,8 +432,10 @@ def print_code(code, text, color_sizes):
 
 
 if __name__ == '__main__':
-    should_print_code = True
+    should_print_code = False
     for i in range(10):
+        i = 0
+
         filename = f"Examples/schmuck{i}.txt"
         color_sizes, text = parse_file(filename)
         encoder = Encoder(get_frequencies(text), color_sizes)
@@ -441,7 +443,7 @@ if __name__ == '__main__':
         if i == 9:
             code = encoder.optimize_heuristic(text)
         else:
-            code = encoder.encode_rust(silent=True)
+            code = encoder.encode_rust(silent=False)
         end = time.time()
         print(f"Beispiel: {filename}")
         print(f"Dauer: {(end - start) * 1000:.2f} ms")
@@ -449,4 +451,8 @@ if __name__ == '__main__':
             print_code(code, text, color_sizes)
         else:
             print(f"Gesamtlänge der Perlenkette: {calc_cost(text, code)}")
-            print()
+            print(f"n = {len(set(text))}, c = {len(color_sizes)}")
+            n = len(set(text))
+            C = len(color_sizes)
+            print(f"would have visited: {math.comb(n + C + 1, C + 1)}")
+        exit()

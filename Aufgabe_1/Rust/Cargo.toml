@@ -12,3 +12,5 @@ features = ["extension-module", "auto-initialize"]
 name = "rust_encoder"
 crate-type = ["cdylib"]
 path = "src/main.rs"
+[dependencies]
+rayon = "1.10.0"

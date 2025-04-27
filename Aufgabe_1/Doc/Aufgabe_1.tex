@@ -602,26 +602,9 @@
     Nach dem Abschluss \textit{While}-Schleife haben wir in \textit{best\_cost} die Anzahl der internen Knoten des besten Baums.
     Dieser wird dann mit der \textsc{generate\_tree} Funktion generiert und zurückgegeben.
     Die Codetabelle kann anschließend über die Pfade zu den $n$ höchsten Blättern generiert werden. \\
-    Da wir in Lemma~\ref{lem:funktioniert} gezeigt haben, dass jeder vollständige Baum (und damit auch $Fill(T_{opt})$) durch mehrere \textit{Expand} Operationen erzeugt werden kann, findet Algorithmus~\ref{alg:optimal_tree} sicher den optimalen Baum.
+    Da wir in Lemma~\ref{lem:funktioniert} gezeigt haben, dass jeder vollständige Baum (und damit auch $Fill(T_{opt})$) durch mehrere \textit{Expand} Operationen erzeugt werden kann, findet Algorithmus~\ref{alg:optimal_tree} sicher den optimalen Baum. \\
 
-    \subsubsection{Laufzeit}
-    \begin{lemma}
-        \label{lem:chooose}
-        Die Anzahl alle Signaturen $sig = (m, l_1, \dots, l_C)$ mit $\sum sig \le x$ ist: \[{x + C + 1} \choose {C+1}.\]
-    \end{lemma}
-    \begin{proof}
-        Zwischen den Signaturen mit $\sum sig \le x$ und den $C+1$ Teilmengen von $\{0, \dots, x + C\}$ besteht eine Bijektion:
-        \begin{enumerate}
-            \item Die Sequenz $(m, m + l_1 + 1, m + l_1 + l_2 + 2, \dots, m + l_1 + \dots + l_C + C)$ ist strikt steigend und daher eine $C+1$ Teilmenge von $\{0, \dots, x + C\}$.
-
-            \item Jede $C+1$ Teilmenge von $\{0, \dots, x + C\}$ kann als strikt steigende Sequenz in der Form: $(m, m + l_1 + 1, m + l_1 + l_2 + 2, \dots, m + l_1 + \dots + l_C + C)$ notiert werden und hängt daher mit einer Signatur zusammen.
-        \end{enumerate}
-        Da die Anzahl der $C+1$ Teilmengen von $\{0, \dots, x + C\}$ gleich ${x + C + 1} \choose {C+1}$ ist, folgt die Behauptung.
-    \end{proof}
-    Der Algorithmus durchläuft im Worst-Case alle Signaturen mit $\sum sig \le n (r - 1)$, die While-Schleife läuft also asymptotisch $O\left({{n(r-1) + C + 1} \choose {C+1}}\right) \le O(n(r-1)^{C+1})$ mal durch.
-    Die \textit{For}-Schleife läuft $l_1 + 1$, also asymptotisch $O(n(r-1))$ mal durch und die \textit{Expand}-Operation hat eine Laufzeit von $O(C)$.
-    Damit hat dieser Algorithmus eine asymptotische Laufzeit von \[O \left({{n(r-1) + C + 1} \choose {C+1}} \cdot n(r-1) \cdot C \right) \le O\left(C \cdot n(r-1)^{C+2}\right).\] \\
-    In der Praxis werden aber sehr viel weniger Knoten besucht, da ein großer Teil bereits durch zu hohe Kosten ausgeschlossen werden kann.
+    Ich verzichte hier auf eine Laufzeitbetrachtung, da im Folgenden ein effizienterer Algorithmus vorgestellt wird.
 
     \subsection{Reduktion auf $n$ Blätter}
     Im vorherigen Kapitel haben wir uns der Einfachheit halber auf vollständige Bäume beschränkt.
@@ -661,7 +644,7 @@
         $T_{opt}$ kann bis auf Äquivalenz durch $h$-fache Iteration der Funktion $T' = Reduce(Expand(T',q))$ (für bestimmte Werte von $q$) erzeugt werden.
     \end{lemma}
     \begin{proof}
-        TODO
+
     \end{proof}
     Wir haben also gezeigt, dass wir den optimalen Baum durch mehrfaches Anwenden der \textit{Expand} und \textit{Reduce} Funktionen erzeugen können.
     Das können wir durch eine Modifikation des vorherigen Algorithmus erreichen:
@@ -746,15 +729,53 @@
     \end{proof}
 
     \subsubsection{Laufzeit}
-    Der Algorithmus betrachtet im Worst-Case alle Signaturen mit $\sum sig \le n$, nach Lemma~\ref{lem:chooose} wird die \textit{While}-Schleife also $O({{n + C + 1}\choose{C + 1}})$ mal durchlaufen.
-    Die \textit{For}-Schleife hat eine asymptotische Laufzeit von $O(C \cdot (n + 1))$, da sie (aufgrund Lemma~\ref{lem:reader_1}) höchstens $n + 1$ mal ausgeführt wird und die \textit{Expand} und \textit{Reduce} Operationen jeweils eine Laufzeit von $O(C)$ haben. Insgesamt hat der Algorithmus also eine asymptotische Laufzeit von \[O\left(C \cdot (n + 1) \cdot {{n + C + 1}\choose{C + 1}}\right) \le O(n^{C+2}).\] \\ % TODO Beweis
-    In der Praxis werden aber deutlich weniger Bäume besucht, da viele bereits durch zu hohe Kosten und und die Obergrenze für $q$ aussortiert werden.
+    Im Worst-Case werden alle Bäume (bis auf Äquivalenz) mit $\le n$ Blättern betrachtet.
+    Ein solcher Baum hat maximal $I = n - 1$ interne Knoten (TODO ref lemma) und eine maximale Tiefe von $h = n - 1$.
+    Sei $q_i$ die Anzahl der internen Knoten auf Ebene $i$ mit $1 \le i \le n - 2$.
+    Wir müssen folgende strikt steigende Sequenz betrachten:
+    \[(q_1, q_2 + 1, \dots, q_1 + q_2 + \dots + q_{n - 2} + n - 3)\]
+    Diese Sequenz ist eine Teilmenge der $n$-er Teilmengen von $\{0, \dots, 2n - 4\} \subseteq \{0, \dots, 2n\}$.
+    Wir können daher folgende Obergrenze für die Laufzeit des Algorithmus angeben:
+    \[O\left({{2n} \choose n}  \right)\]
 
-    \subsection{Speicherplatz}
-    TODO
+    Falls gilt $p_0 = p_1 = \dots = p_n$ können wir eine bessere Abschätzung machen.
+    Da nun ein Baum gesucht ist, bei dem die Knoten alle auf einer ähnlichen Ebene liegen, kann die Tiefe durch $h = \log_r(n) \cdot C$
+    abgegrenzt werden.
+    Mit dieser Abschätzung kann die Berechnung wie oben durchgeführt werden und man erhält eine Obergrenze von:
+    \[O\left({n + h} \choose h \right)\]
+
+    \subsection{Diskussion der Laufzeit}
+    Die oben angegebene Laufzeit ist aber nur eine Obergrenze, die für die theoretische Korrektheit mehrere Extremfälle beachten muss:
+    Die maximale Anzahl der internen Knoten entsteht bei einem Baum, bei dem jeder Knoten nur zwei Kinder hat und die maximale Tiefe entsteht bei einem Baum, bei dem jeder Knoten genau zwei Kinder und jede ebene genau einen internen Knoten hat, was extrem unrealistisch ist.
+    Des Weiteren sind viele der möglichen $n$-er Teilmengen von $\{0, \dots, 2n\}$ gar keine gültigen Bäume. \\
+    In dem Paper\autocite{golin_dynamic_1998} wird ein Algorithmus mit der Laufzeit $O(C^{C+2})$ vorgestellt.
+    Diese ist zwar asymptotisch deutlich besser als die Laufzeit von meinem Algorithmus, in diesem Algorithmus werden aber
+    immer genau ${n + C + 1}\choose {C+ 1}$ Knoten besucht, deren Kosten alle in einem Array gespeichert werden müssen.
+    Die Stärke von meinem Algorithmus ist, dass zuerst große Bäume berechnet werden (da mit \textit{it} immer der letzt Wert aus dem Stack entfernt wird) und dadurch schnell eine gute Obergrenze für die Kosten des optimalen Baums gefunden werden kann.
+    Alle Bäume mit größeren Kosten können dann bereits vor der fertigstellung übersprungen werden.
+    Um zu testen, ob mein Algorithmus trotz asymptotisch schlechterer Laufzeit tatsächlich weniger Knoten besucht, habe
+    ich für die Beispieldateien berechnet, wie viele Bäume der Algorithmus aus dem Paper besucht hätte (und damit abspeichern müsste).
+    Diesen Wert habe ich mit der Anzahl an besuchten Bäumen von meinem Algorithmus verglichen:
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{c |c | c}
+            Beispieldatei & Anzahl Paper   & Anzahl mein Algorithmus \\
+            \hline
+            0             & 455            & 159                     \\
+            1             & 23751          & 901                     \\
+            2             & 220            & 1096                    \\
+            3             & 715            & 104                     \\
+            4             & 680            & 2866                    \\
+            5             & 450978066      & 1629                    \\
+            6             & 73815          & 8454                    \\
+            7             & 60962903966874 & 1376                    \\
+            8             & 1621509963255  & 12321043                \\
+        \end{tabular}
+    \end{figure}
+    Man sieht, dass mein Algorithmus in der Praxis vor allem für Beispieldateien mit großem $n$ deutlich schneller ist, als der theoretisch schnellere Algorithmus aus dem Paper.
 
     \subsection{Heuristik}
-    Für große Eingabealphabete ($n \gg 500$) ist dieser Algorithmus trotzdem deutlich zu langsam.
+    Für große Eingabealphabete ($n \gg 500$) ist mein Algorithmus trotzdem deutlich zu langsam.
     Daher habe ich eine Heuristik entwickelt, mit der selbst große Codetabellen in kurzer Zeit approximiert werden können. \\
     Dafür müssen die Buchstaben zuerst anhand einer Cutoff-Wahrscheinlichkeit $P_{cut}$ (z.B. $P_{cut} = 0.05$) in häufige und seltene Buchstaben aufgeteilt werden.
     Alle Buchstaben mit $p_i \ge P_{cut}$ werden ab jetzt als \textit{häufige} Buchstaben $P_h$ bezeichnet, die restlichen Buchstaben mit $p_i < P_{cut}$ sind \textit{seltene} Buchstaben $P_s$:
