@@ -1,4 +1,5 @@
-\documentclass[a4paper,10pt,ngerman]{scrartcl}
+class Node:
+pass\documentclass[a4paper,10pt,ngerman]{scrartcl}
 \usepackage{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8x]{inputenc}
@@ -36,6 +37,11 @@
 % Für Quelltext
 \usepackage{listings}
 \usepackage{color}
+\usepackage{minted}
+\usemintedstyle{dracula}
+\definecolor{bg}{rgb}{0.15,0.15,0.15}
+\definecolor{bglight}{rgb}{0.9,0.9,0.9}
+\setmintedinline{style=pastie}
 
 \usepackage{forest}
 \usepackage{float}
@@ -730,19 +736,19 @@
 
     \subsubsection{Laufzeit}
     Im Worst-Case werden alle Bäume (bis auf Äquivalenz) mit $\le n$ Blättern betrachtet.
-    Ein solcher Baum hat maximal $I = n - 1$ interne Knoten (TODO ref lemma) und eine maximale Tiefe von $h = n - 1$.
+    Ein solcher Baum hat maximal $I = n - 1$ interne Knoten und eine maximale Tiefe von $h = n - 1$.
     Sei $q_i$ die Anzahl der internen Knoten auf Ebene $i$ mit $1 \le i \le n - 2$.
     Wir müssen folgende strikt steigende Sequenz betrachten:
     \[(q_1, q_2 + 1, \dots, q_1 + q_2 + \dots + q_{n - 2} + n - 3)\]
     Diese Sequenz ist eine Teilmenge der $n$-er Teilmengen von $\{0, \dots, 2n - 4\} \subseteq \{0, \dots, 2n\}$.
-    Wir können daher folgende Obergrenze für die Laufzeit des Algorithmus angeben:
-    \[O\left({{2n} \choose n}  \right)\]
+    Da die Expand und Reduce Operationen jeweils eine Laufzeit von $O(C)$ haben, können wir folgende Obergrenze für die Laufzeit des Algorithmus angeben:
+    \[O\left(C{{2n} \choose n}  \right)\]
 
     Falls gilt $p_0 = p_1 = \dots = p_n$ können wir eine bessere Abschätzung machen.
     Da nun ein Baum gesucht ist, bei dem die Knoten alle auf einer ähnlichen Ebene liegen, kann die Tiefe durch $h = \lceil \log_r(n) \rceil \cdot C$
     begrenzt werden.
     Mit dieser Abschätzung kann die Berechnung wie oben durchgeführt werden und man erhält eine Obergrenze von:
-    \[O\left({n + h} \choose h \right)\]
+    \[O\left(C{n + h} \choose h \right)\]
 
     \subsection{Diskussion der Laufzeit}
     Die oben angegebene Laufzeit ist aber nur eine Obergrenze, die für die theoretische Korrektheit mehrere Extremfälle beachten muss:
@@ -753,6 +759,7 @@
     immer genau ${n + C + 1}\choose {C+ 1}$ Knoten besucht, deren Kosten alle in einem Array gespeichert werden müssen.
     Die Stärke von meinem Algorithmus ist, dass zuerst große Bäume berechnet werden (da mit \textit{it} immer der letzt Wert aus dem Stack entfernt wird) und dadurch schnell eine gute Obergrenze für die Kosten des optimalen Baums gefunden werden kann.
     Alle Bäume mit größeren Kosten können dann bereits vor der fertigstellung übersprungen werden.
+    Dadurch, dass die fertigen Bäume nicht gespeichert werden müssen, benötigt mein Algorithmus nicht viel Speicherplatz.
     Um zu testen, ob mein Algorithmus trotz asymptotisch schlechterer Laufzeit tatsächlich weniger Knoten besucht, habe
     ich für die Beispieldateien berechnet, wie viele Bäume der Algorithmus aus dem Paper besucht hätte (und damit abspeichern müsste).
     Diesen Wert habe ich mit der Anzahl an besuchten Bäumen von meinem Algorithmus verglichen:
@@ -773,6 +780,11 @@
         \end{tabular}
     \end{figure}
     Man sieht, dass mein Algorithmus in der Praxis vor allem für Beispieldateien mit großem $n$ deutlich schneller ist, als der theoretisch schnellere Algorithmus aus dem Paper.
+    Beispieldatei 9 konnte mein Algorithmus nicht in sinnvoller Zeit lösen.
+    Der optimale Algorithmus aus dem Paper hätte in dieser Beispieldatei mit $n = 674$ und $c = 4$ aber $1185106443885 \equiv 1.19 \dots 10^{12}$ Knoten besuchen und auch abspeichern müssen, was bei $2$ Byte pro Knoten
+    über 2 Terrabyte benötigt hätte, was eine Ausführung sehr unrealistisch macht.
+    Mein Algorithmus muss dagegen nur den besten Baum und den Stack speichern und könnte daher auch mit genug Zeit Probleme mit großem $n$ lösen.
+    (Ich habe meinen Algorithmus für einige Zeit für Aufgabe 9 laufen lassen, es wurden ca. 40 MB Arbeitsspeicher belegt).
 
     \subsection{Heuristik}
     Für große Eingabealphabete ($n \gg 500$) ist mein Algorithmus trotzdem deutlich zu langsam.
@@ -797,26 +809,629 @@
     Die \textit{GetOptimalTree} Funktion wird zweimal aufgerufen, einmal $n = S$ und einmal mit
     \[n = |P_h| + |Chunks| = |P_h| +  \left\lfloor   \frac {|P_s|} {S}  \right\rfloor + 1\]
     Da $|P_h| \le 20$ (für $P_{cut} = 0.05$), muss $|P_h|$ in der Laufzeitbetrachtung nicht beachtet werden.
-    Da die \textit{GetOptimalTree} Funktion eine Laufzeit von $O\left({{2n} \choose n}  \right)$ hat und zweimal mit verschiedenen $n$ aufgerufen wird, ist die Laufzeit der Heuristik $O\left({{2x} \choose x}  \right)$ mit
+    Da die \textit{GetOptimalTree} Funktion eine Laufzeit von $O\left(C{{2n} \choose n}  \right)$ hat und zweimal mit verschiedenen $n$ aufgerufen wird, ist die Laufzeit der Heuristik $O\left(C{{2x} \choose x}  \right)$ mit
     \[x = \max \left\{ S, \left\lfloor   \frac {|P_s|} {S}  \right\rfloor + 1 \right\} \le \max \left\{S, \left\lceil \frac n S \right\rceil \right\}.\]
 
 
     \section{Umsetzung}
+    Den ersten Aufgabenteil habe ich analog zum Pseudocode in Python implementiert.
+    Die Algorithmen für Aufgabenteil b) habe ich ebenfalls in Python umgesetzt.
+    Um die Ausführungszeit des Programms zu minimieren (und um Rust zu lernen), habe ich den optimalen Algorithmus auch in Rust implementiert.
+    Dafür verwende ich das Tool \textit{maturin}\footnote{\url{https://github.com/PyO3/maturin}}, das es erlaubt Rust Funktionen aus Python aufzurufen.
+    Das Einlesen der Datei geschieht im Python Skript, das dann mit den Frequenzen und den Werten von $c_i$ die Rust Funktion aufruft.
+    Diese berechnet dann die Werte von $q$ für den optimalen Baum, aus denen dann im Python-Programm ein Baum und daraus dann eine Codetabelle erstellt wird.
+    Dieser Tree besteht aus Objekten der Node-Klasse:
+    \begin{minted}[bgcolor=bg]{python}
+class Node:
+    def __init__(self, parent, number):
+        self.number = number
+        self.parent = parent
+        self.children = []
+    \end{minted}%
+    Die Node speichert ihren Elternknoten (\textit{None} bei der Root-Node) und ihre Kinderknoten.
+    Die \textit{number} ist wichtig, um aus dem fertigen Baum dann eine Codetabelle zu generieren.
+    Sie codiert nämlich, durch welche Kante dieser Knoten erreicht wurde.
+    Jeder Knoten kann maximal $r$ Kanten der längen $c_1, \dots, c_r$ haben.
+    Die \textit{Node} mit der \textit{number} $i$ wurde durch die Kante der Länge $c_i$ erreicht.
+    Da jeder Knoten also jeweils nur eine Kante mit einer bestimmten Nummer hat, kann ein Pfad von der Wurzel des Baums zu den Blättern eindeutig anhand der Nummern identifiziert werden.
+    Die \textit{generate\_tree} Funktion ist dafür zuständig anhand der Werte von $q$ den Baum zu generieren:
+    \begin{minted}[bgcolor=bg]{python}
+def generate_tree(Qs: list[int], color_sizes: list[int]):
+    color_sizes = sorted(color_sizes)
+    root = Node(None, 0)
+    Levels = defaultdict(list)
+    Levels[0].append(root)
+    for i, c in enumerate(color_sizes):
+        root.children.append(Node(root, i))
+        Levels[c].append(root.children[-1])
+
+    for i, q in enumerate(Qs):
+        if q == 0:
+            continue
+        for j, n in enumerate(Levels[i + 1]):
+            for ii, c in enumerate(color_sizes):
+                n.children.append(Node(n, ii))
+                Levels[c + i + 1].append(n.children[-1])
+            if j + 1 == q:
+                break
+    return root
+    \end{minted}%
+    In der ersten For-Schleife wird der Wurzel-Baum generiert.
+    Anschließend wird in jeder Ebene die entsprechende Anzahl an Blättern zu internen konvertiert.
+    Jeder der neuen internen Knoten wird vollständig aufgefüllt, d.h. die \textit{generate\_tree} Funktion erzeugt einen vollständigen Baum.
+    Das ist aber keine Einschränkung, da überschüssige Blätter beim Erstellen der Codetabelle ignoriert werden.
+    Um die Codetabelle zu generieren werden zunächst alle Blätter des Baums und deren Code, der aus den Nummern der Knoten auf dem Pfad von der Wurzel zu dem Blatt besteht, ermittelt:
+    \begin{minted}[bgcolor=bg]{python}
+def generate_code_from_tree(root, color_sizes):
+    leaves = get_leaves_rec(root)
+    codes = []
+    for l in leaves:
+        code = []
+        while l.parent:
+            code.append(l.number)
+            l = l.parent
+        cost = 0
+        for c in code:
+            cost += color_sizes[c]
+        codes.append((code[::-1], cost))
+    return codes
+    \end{minted}
+    Diese Codetabelle kann nun nach der Länge der Codes sortiert werden.
+    Die $n$ kürzesten Codes werden dann verwendet um die Buchstaben zu codieren.
 
 
     \section{Beispiele}
 
-    \begin{figure}
-
+    \subsection{Aufgabenteil a)}
+    Ich in der Tabelle sieht man die länge der optimalen Perlenkette für die gegebenen Beispieldateien und die Laufzeit des Huffman-Algorithmus.
+    Da der optimale Algorithmus auch für den Fall $c_1 = c_2 = \dots = c_r$ optimale Bäume erzeugt, habe ich auch diese Laufzeit mit eingezeichnet.
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{||c | c | c | c||}
+            Beispieldatei & Optimale Perlenkette & Laufzeit Huffman & Laufzeit optimaler Algorithmus \\
+            \hline
+            0             & 113                  & 0.06ms           & 0.04 ms                        \\
+            \hline
+            00            & 372                  & 0.12ms           & 0.09 ms                        \\
+            \hline
+            01            & 1150                 & 0.36ms           & 0.08 ms                        \\
+            \hline
+            9             & 17505                & 10.89 ms         & 6236.16 ms                     \\
+        \end{tabular}
     \end{figure}
+    Man sieht, dass beide Algorithmen für die vorgegebenen Beispieldateien sehr schnell sind.
+    Der optimale Algorithmus ist teilweise sogar geringfügig schneller, was vermutlich daran liegt, dass er in Rust implementiert ist.
+    Als letzte Beispieldatei habe ich Beispieldatei 9 so verändert, dass es 4 gleich große Perlen gibt.
+    Hier sieht man, dass der Huffman Algorithmus für große $n$ in seinem spezialfall deutlich schneller ist als der optmale Algorithmus für allgemeine Fälle.
 
-    Genügend Beispiele einbinden! Die Beispiele von der BwInf-Webseite sollten hier diskutiert werden, aber auch eigene Beispiele sind sehr gut – besonders wenn sie Spezialfälle abdecken. Aber bitte nicht 30 Seiten Programmausgabe hier einfügen!
-
-    TODO Latex datei der Dokumentation reinwerfen
+    \subsection{Aufgabenteil b)}
+    In der Folgenden Tabelle sieht man die Laufzeit die Länge der optimalen Perlenkette und die Laufzeit des optimalen Algorithmus.
+    Daneben ist die Länge der Perlenkette aufgeführt, die durch die Heuristik ermittelt wurde und deren Laufzeit.
+    Die Codetabellen sind in separaten .txt Dateien in der Abgabedatei enthalten.
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{||c | c | c | c | c ||}
+            Beispieldatei & Optimale Perlenkette & Laufzeit optimal & Perlenkette Heuristik & Laufzeit Heuristik \\
+            \hline
+            \hline
+            0             & 113                  & 0.05ms           & 113                   & 1.61 ms            \\
+            \hline
+            1             & 191                  & 0.1ms            & 192                   & 4.34 ms            \\
+            \hline
+            2             & 135                  & 0.11ms           & 135                   & 1.86 ms            \\
+            \hline
+            3             & 279                  & 0.03ms           & 279                   & 1.37ms             \\
+            \hline
+            4             & 137                  & 0.24ms           & 137                   & 9.59 ms            \\
+            \hline
+            5             & 3162                 & 0.19ms           & 3618                  & 18.99 ms           \\
+            \hline
+            6             & 234                  & 0.62ms           & 238                   & 8.09 ms            \\
+            \hline
+            7             & 134559               & 0.19ms           & 134800                & 87.79 ms           \\
+            \hline
+            8             & 3287                 & 1198.61 ms       & 3362                  & 28.21 ms           \\
+            \hline
+            9             & -                    & -                & 36668                 & 93.74ms            \\
+        \end{tabular}
+    \end{figure}
+    Man sieht auf den ersten Blick, dass der optimale Algorithmus mit den Beispieldateien 1 bis 8 sehr gut zurecht kommt.
+    Beispieldatei 9 konnte aber nicht sinnvoller Zeit gelöst werden.
+    Die Werte der Heuristik der ersten Beispieldateien haben wenig bedeutung, da ein Großteil der Buchstaben als häufig angesehen wird und es generell wenig Buchstaben gibt, was zu einer sehr kleinen Chunkgröße führt.
+    Die Ergebnisse bei Beispieldatei 8 und 9 sind aber interessant, da die Heuristik bei Beispieldatei 8 eine Codetabelle produziert hat, deren Gesamtlänge der Perlenkette nur 75mm länger als die optimale Perlenkette ist, was einer Abweichung von ca 2.3\% entspricht.
+    Auch das Ergebnis bei Beispieldatei 9 ist sehr gut, es weicht nur um 71mm (ca. 0.2\%) von der Länge ab, die auf der BWINF Internetseite als Ergebniss eines brauchbaren Programms angegeben wurde.
 
 
     \section{Quellcode}
-    Unwichtige Teile des Programms sollen hier nicht abgedruckt werden. Dieser Teil sollte nicht mehr als 2–3 Seiten umfassen, maximal 10.
+
+    \subsection{Aufgabenteil a)}
+    Für den Aufgabenteil a) habe ich aufgrund der anderen Anforderungen eine andere Node Klasse als bei b) verwendet:
+    \begin{minted}[bgcolor=bg]{python}
+import heapq
+import time
+
+
+class Node:
+    def __init__(self, p, a=None):
+        """
+        :param p: Frequenz
+        :param a: Buchstabe (none wenn interner Knoten)
+        """
+        self.p = p
+        self.a = a
+        self.children = []
+
+    def __lt__(self, other):
+        return self.p < other.p
+
+
+def generate_code_from_tree(root):
+    codes = {}
+    stack = [(root, [])]  # (node, turns to get there)
+    while stack:
+        node, code = stack.pop()
+        for i, c in enumerate(node.children):
+            if c.a is not None:
+                codes[c.a] = code + [i]
+            else:
+                stack.append((c, code + [i]))
+    return codes
+
+
+def encode_huffman(r, frequencies):
+    """
+    :param r: Maximale Kinder pro Knoten
+    :param frequencies: Dictionary mit Buchstabe : Frequenz
+    """
+    minHeap = []
+    for a, p in frequencies.items():
+        heapq.heappush(minHeap, Node(p, a))
+    n = len(frequencies)
+    m = 0
+    if r > 2:
+        while (n + m) % (r - 1) != 1: m += 1
+
+    for _ in range(m):
+        heapq.heappush(minHeap, Node(0))
+
+    while len(minHeap) > 1:
+        new_children = []
+        for _ in range(r):
+            new_children.append(heapq.heappop(minHeap))
+        new_node = Node(sum(n.p for n in new_children))
+        new_node.children = new_children
+        heapq.heappush(minHeap, new_node)
+
+    return generate_code_from_tree(minHeap[0])
+    \end{minted}
+
+    \subsection{Aufgabenteil b)}
+    Dieser Code ist nicht ausführbar, da hier einige Funktionen fehlen.
+    Eine ausführbare Datei ist in der Abgabedatei enthalten.
+    \begin{minted}[bgcolor=bg]{python}
+from collections import defaultdict
+import rust_encoder
+
+class Node:
+    def __init__(self, parent, number):
+        """
+        :param parent:
+        :param number: Index in der sortierten color_sizes liste
+        """
+        self.number = number
+        self.parent = parent
+        self.children = []
+
+    def is_leaf(self):
+        return not self.children
+
+def generate_tree(Qs: list[int], color_sizes: list[int]):
+    """
+    Generiert einen vollständigen Baum
+    :param Qs: Anzahl an internen Knoten pro Ebene (Werte von q, mit denen Erweitert
+    wurde)
+    :param color_sizes: Größen der Perlen
+    :return:
+    """
+    color_sizes = sorted(color_sizes)
+    root = Node(None, 0)
+    Levels = defaultdict(list)
+    Levels[0].append(root)
+    for i, c in enumerate(color_sizes):
+        # Die neuen Kinder werden anhand der Position der Perlengröße in der
+        # color_sizes Liste nummeriert
+        root.children.append(Node(root, i))
+        Levels[c].append(root.children[-1])
+
+    for i, q in enumerate(Qs):
+        if q == 0:
+            continue
+        for j, n in enumerate(Levels[i + 1]):
+            for ii, c in enumerate(color_sizes):
+                # Die neuen Kinder werden anhand der Position der Perlengröße
+                # in der color_sizes Liste nummeriert
+                n.children.append(Node(n, ii))
+                Levels[c + i + 1].append(n.children[-1])
+            if j + 1 == q:
+                break
+    return root
+
+
+
+def generate_code_from_tree(root, color_sizes):
+    """
+    Gibt alle Codekombinationen zurück, die die Blätter dieses Baums ausdrücken
+    :returns: [(code, cost), ...]
+    """
+    leaves = get_leaves_rec(root)
+    # get codes
+    codes = []
+    for l in leaves:
+        code = []
+        # Der Code besteht aus den nummern der Knoten auf dem Pfad von der Wurzel
+        # des Baums zu dem entsprechenden Blatt
+        while l.parent:
+            code.append(l.number)
+            l = l.parent
+        cost = 0
+        for c in code:
+            cost += color_sizes[c]
+        # Der code wird hier umgedreht, da er sonst von der Wurzel zu dem Blatt gehen würde
+        codes.append((code[::-1], cost))
+    return codes
+
+
+def attach_tree_at_leaves(main_root, sub_root, fixed_slots, color_sizes):
+    """
+    Hängt an jedes Blatt des Hauptbaums eine Kopie von sub_root an
+    :param fixed_slots: Anzahl der obersten Blätter die nicht ersetzt werden sollen,
+                        da sie zu häufigen Buchstaben gehören
+    """
+    leaves = get_leaves_rec(main_root)
+    leaves = sorted(leaves, key=lambda x: x.get_depth(color_sizes))
+    for i, leaf in enumerate(leaves[fixed_slots:]):
+        s_r = sub_root.copy()
+        leaf.parent.children.remove(leaf)
+        leaf.parent.children.append(s_r)
+        s_r.parent = leaf.parent
+        s_r.number = leaf.number
+    return main_root
+
+
+def calc_cost(text, codes):
+    """
+    Berechnet die Kosten einer Liste an Codes, wenn sie optimal zu den Buchstaben
+    zugewiesen werden
+    """
+    # Die Häufigkeiten werden absteigend sortiert
+    occurrences = [text.count(i) for i in set(text)]
+    occurrences = sorted(occurrences, reverse=True)
+
+    # Die Kosten werden aufsteigend sortiert
+    costs = sorted(i[1] for i in codes)
+
+    total_cost = 0
+    for i in range(len(occurrences)):
+        # Da die Häufigkeiten absteigend und die Kosten aufsteigend sortiert sind,
+        # ist diese Zuweisung optimal
+        total_cost += occurrences[i] * costs[i]
+    return total_cost
+
+
+def reduce(sig, n):
+    """
+    Wendet die Reduktionsregel auf eine Signatur an.
+    (Alle Blätter, die nicht zu den n höchsten Blättern gehören werden abgeschnitten.)
+    """
+    new_sig = [min(sig[0], n)]
+    for i in range(1, len(sig)):
+        new_sig.append(min(sig[i], n - sum(new_sig)))
+    return new_sig
+
+
+def extend(sig, q, D):
+    """
+    Erweitert die Signatur um q, indem q interne Knoten auf Ebene i+1 zu
+    internen Knoten werden
+    """
+    new_sig = [sig[0] + sig[1]] + sig[2:] + [0]
+    x = ([-1] + D)
+    for i in range(len(new_sig)):
+        new_sig[i] = new_sig[i] + q * x[i]
+    return new_sig
+
+
+class Encoder:
+    """
+    Enthält verschiedene Methoden, um eine Codetabelle für die gegebenen
+    Frequenzen zu erstellen.
+    """
+
+    def __init__(self, frequencies, color_sizes):
+        self.frequencies = frequencies
+        self.num_colors = len(color_sizes)
+        self.color_sizes = sorted(color_sizes)
+
+    def encode_naive(self):
+        """
+        Alle vollständigen Binärbäume mit m ≤ n * (r - 1) Blättern werden durchsucht
+        """
+        return generate_code_from_tree(
+                    self.get_tree_naive(self.frequencies.values()), self.color_sizes)
+
+    def get_tree_naive(self, frequencies):
+        """
+        Alle vollständigen Binärbäume mit m ≤ n * (r - 1) Blättern werden durchsucht
+        """
+        # Frequenzen für jeden Buchstaben
+        p = sorted(frequencies, reverse=True)
+        # Die Anzahl der verschiedenen Buchstaben im Alphabet
+        n = len(p)
+        # Die größte Perle
+        C = max(self.color_sizes)
+        # Anzahl, wie oft jede Perlengröße vorkommt
+        D = [self.color_sizes.count(i) for i in range(1, C + 1)]
+        # Anzahl der verschiedenen Perlen
+        r = len(self.color_sizes)
+
+        print(f"N: {n}, C : {C}")
+        # Speichert die Signatur, die Kosten und die Anzahl der Blätter,
+        # die gerade bearbeitet werden
+        stack = [([0] + D, 0, [])]  # [(sig, cost, Qs (Expansions)), ...]
+
+        # Der bisher beste Baum
+        best_cost = float("inf")
+        best_tree = None
+
+        while stack:
+            sig, cost, Qs = stack.pop()
+
+            if sum(sig) > n * (r - 1):
+                # Der Baum hat zu viele Blätter, um Fill(T_opt) zu sein
+                continue
+
+            if sig[0] >= n:
+                # Der Baum hat genug Blätter, um alle Buchstaben zu codieren
+                if cost < best_cost:
+                    best_cost = cost
+                    best_tree = Qs
+                continue
+
+            # Die neuen Kosten des Baums
+            new_cost = cost + sum([p[i] for i in range(sig[0], n)])
+            if new_cost > best_cost:
+                # Der Baum ist zu teuer
+                continue
+
+            for q in range(0, sig[1] + 1):
+                # Der Baum wird für jedes q erweitert
+                new_sig = extend(sig, q, D)
+                stack.append((new_sig, new_cost, Qs + [q]))
+
+        # Der beste Baum wird anhand der Anzahlen an inneren Knoten auf
+        # jeder Ebene (Werte von q) generiert
+        return generate_tree(best_tree, self.color_sizes)
+
+    def encode_reduce(self):
+        # Alle Bäume mit m ≤ n Blättern werden durchsucht
+        return generate_code_from_tree(
+            self.get_tree_reduce(self.frequencies.values()), self.color_sizes)
+
+    def get_tree_reduce(self, frequencies):
+        # Probability for each character of the alphabet
+        # Frequenzen für jeden Buchstaben
+        p = sorted(frequencies, reverse=True)
+        # Die Anzahl der verschiedenen Buchstaben im Alphabet
+        n = len(p)
+        # Die größte Perle
+        C = max(self.color_sizes)
+        # Anzahl, wie oft jede Perlengröße vorkommt
+        D = [self.color_sizes.count(i) for i in range(1, C + 1)]
+
+        print(f"Encode Reduce: N: {n}, C : {C}")
+
+        print(f"N: {n}, C : {C}")
+        # Speichert die Signatur, die Kosten und die Anzahl der Blätter,
+        # die gerade bearbeitet werden
+        stack = [([0] + D, 0, [])]  # [(sig, cost, Qs (Expansions)), ...]
+
+        best_cost = float("inf")
+        best_tree = None
+
+        while stack:
+            sig, cost, Qs = stack.pop()
+
+            if sig[0] >= n:
+                # Der Baum hat genug Blätter, um alle Buchstaben zu codieren
+                if cost < best_cost:
+                    best_cost = cost
+                    best_tree = Qs
+                continue
+
+            new_cost = cost + sum([p[i] for i in range(sig[0], n)])
+            if new_cost > best_cost:
+                continue
+            max_q = min(sig[1],
+                    n - sum(sig[i] for i in range(self.color_sizes[1] + 1))) + 1
+            for q in range(0, max_q):
+                # Der Baum wird für jedes q erweitert (die erweiterung ist hier
+                # angewandt, d.h. es werden keine "unnötigen" Werte von q durchlaufen
+
+                # Der Baum wird erweitert und danach auf n Blätter reduziert
+                new_sig = reduce(extend(sig, q, D), n)
+                stack.append((new_sig, new_cost, Qs + [q]))
+
+        # Der beste Baum wird anhand der Anzahlen an inneren Knoten auf jeder Ebene
+        # (Werte von q) generiert
+        return generate_tree(best_tree, self.color_sizes)
+
+    def get_tree_rust(self, frequencies, silent=True):
+        """
+        Die get_tree_reduce Funktion in Rust implementiert
+        """
+        qs = rust_encoder.encode_optimal_py(
+                frequencies, self.color_sizes, silent)
+        return generate_tree(qs, color_sizes)
+
+    def encode_rust(self, silent=True):
+        """
+        Die encode_reduce Funktion in Rust implementiert
+        """
+        return generate_code_from_tree(
+                self.get_tree_rust(list(self.frequencies.values()), silent), self.color_sizes)
+
+    def heuristic(self, chunk_size=50, color_sizes):
+        cutoff = 0.05  # Alle Buchstaben, die häufiger vorkommen, sind häufige Buchstaben
+
+        # Die häufigen Buchstaben
+        common = [i for i in self.frequencies.values() if i > cutoff]
+
+        # Die seltenen Buchstaben
+        not_common = sorted(i for i in self.frequencies.values() if i <= cutoff)
+
+        # Die seltenen Buchstaben werden in chunks aufgeteilt
+        chunks = []
+        for i in range((len(not_common) // chunk_size)):
+            chunks.append(not_common[i * chunk_size: (i + 1) * chunk_size])
+        chunks.append(not_common[(len(not_common) // chunk_size) * chunk_size:])
+
+        # Für den ersten Chunk wird ein optimaler Baum generiert
+        chunk_root = self.get_tree_rust(chunks[0])
+
+        chunks = [i for i in chunks if len(i) > 0]
+        # Für die häufigen Buchstaben und die Summen der Chunks wird ein Baum generiert
+        main_root = self.get_tree_rust(common + [sum(c) for c in chunks])
+
+        # Der chunk_root Baum wird an die passenden Blätter des main_root Baums angehängt
+        main_root = attach_tree_at_leaves(main_root, chunk_root, len(common), color_sizes)
+
+        # Der code wird anhand des fertigen Baums generiert
+        return generate_code_from_tree(main_root, self.color_sizes)
+
+    def optimize_heuristic(self, text):
+        """
+        Versucht einen möglichst guten Baum mit der heuristik zu finden,
+        indem die chunk_size optimiert wird
+        """
+        n = len(self.frequencies)
+        max_leaves = 40
+        min_chunk_size = max(len(self.color_sizes), n // max_leaves + 1)
+        best_cost = float("inf")
+        best_code = None
+        for i in range(min_chunk_size, max_leaves):
+            codes = self.heuristic(i)
+            cost = calc_cost(text, codes)
+            if cost < best_cost:
+                best_cost = cost
+                best_code = codes
+        return best_code
+    \end{minted}
+    Hier ist der Rust Teil des Programs:
+    \begin{minted}[bgcolor=bg]{rust}
+use pyo3::prelude::*;
+use rayon::prelude::*;
+
+/// Erweitert die Signatur, indem q Blätter auf Ebene i+1 zu internen Knoten gemacht
+/// werden
+pub fn extend(sig: &mut Vec<usize>, q: usize, D: &Vec<usize>) {
+    sig[0] += sig[1] - q;
+    let len = sig.len();
+    for i in 1..len-1 {
+        sig[i] = sig[i+1] + q * D[i-1];
+    }
+    sig[len - 1] = q * D[D.len() - 1];
+}
+
+
+/// Reduziert die Signatur, sodass es maximal n Blätter gibt
+pub fn reduce(sig: &mut Vec<usize>, n: usize) {
+    sig[0] = sig[0].min(n);
+    for i in 1..sig.len() {
+        sig[i] = sig[i].min(n - sig.iter().take(i).sum::<usize>());
+    }
+}
+
+/// Gibt für eine gegebene Frequenzverteilung und eine Liste
+/// von Perlengrößen die Anzahl der internen Knoten des Optimalen Baums zurück
+fn get_tree_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>,
+                        silent: bool) -> Vec<usize> {
+    frequencies.sort_by(|a, b| b.partial_cmp(a).unwrap());
+
+    // Die Anzahl der verschiedenen Buchstaben im Alphabet
+    let n = frequencies.len();
+
+    // Die größte Perle
+    let C = color_sizes.iter().max().unwrap();
+
+    // Anzahl, wie oft jede Perlengröße vorkommt
+    let mut D = vec![0; *C];
+    for &size in &color_sizes {
+        D[size - 1] += 1; // Increment the count for each size
+    }
+
+    if (!silent) { print!("C: {}, D: {:?}\n", C, D); }
+
+    // Speichert die Signatur, die Kosten und die Anzahl
+    // der Blätter, die gerade bearbeitet werden
+    let mut stack: Vec<(Vec<usize>, f64, Vec<usize>)> =
+                vec![([vec![0], (D.clone())].concat(), 0.0, vec![])]; // (sig, cost, Qs)
+
+    // Der beste Baum, der bisher gefunden wurde
+    let mut best_Qs : Vec<usize> = vec![];
+    let mut best_cost =  f64::INFINITY;
+
+    // Die Kosten für die Erweiterung der Signatur können im Voraus berechnet werden
+    let mut new_cost : Vec<f64> = vec![];
+    for i in 0..n {
+        new_cost.push(0.0);
+        for j in i..n {
+            new_cost[i] += frequencies[j];
+        }
+    }
+
+    // Anzahl an besuchten Knoten
+    let mut visited: i64 = 0;
+
+    while(stack.len() > 0) {
+        visited += 1;
+
+        let (sig, cost, Qs) = stack.pop().unwrap();
+
+        if (sig[0] >= n) {
+            // Der Baum hat genug Blätter, um alle Buchstaben zu kodieren
+            if (cost < best_cost) {
+                best_cost = cost;
+                best_Qs = Qs.clone();
+                if (!silent) {
+                    print!("Found new best cost: {}, Qs: {:?}, stack size:
+                            {}, visited: {}\n", best_cost, best_Qs, stack.len(), visited);
+                }
+            }
+            continue;
+        }
+
+        let new_cost = cost + new_cost[sig[0]];
+        if (new_cost > best_cost) {
+            continue;
+        }
+
+        // Der Baum muss nur bis zu dem bewiesenen maximalen Wert von q erweitert werden
+        let max_q = (sig[1]).min(n - sig.iter().take(color_sizes[1]+1).sum::<usize>())+1;
+        for q in (0..max_q) {
+            let mut new_sig = sig.clone();
+            // Die Signatur wird erweitert
+            extend(&mut new_sig, q, &D);
+            // und auf maximal n Blätter reduziert
+            reduce(&mut new_sig, n);
+            stack.push((new_sig, new_cost, [Qs.clone(), vec![q]].concat()));
+        }
+    }
+    if (!silent) {
+        print!("Best cost: {}, Qs: {:?}\n", best_cost, best_Qs);
+    }
+    best_Qs
+}
+    \end{minted}
 
 
     \section{Anhang}

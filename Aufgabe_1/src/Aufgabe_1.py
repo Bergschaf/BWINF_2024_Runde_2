@@ -369,6 +369,7 @@ class Encoder:
         # Für den ersten Chunk wird ein optimaler Baum generiert
         chunk_root = self.get_tree_rust(chunks[0])
 
+        chunks = [i for i in chunks if len(i) > 0]
         # Für die häufigen Buchstaben und die Summen der Chunks wird ein Baum generiert
         main_root = self.get_tree_rust(common + [sum(c) for c in chunks])
 
@@ -384,7 +385,7 @@ class Encoder:
         """
         n = len(self.frequencies)
         max_leaves = 40
-        min_chunk_size = n // max_leaves + 1
+        min_chunk_size = max(len(self.color_sizes), n // max_leaves + 1)
         best_cost = float("inf")
         best_code = None
         for i in range(min_chunk_size, max_leaves):
@@ -433,17 +434,25 @@ def print_code(code, text, color_sizes):
 
 if __name__ == '__main__':
     should_print_code = False
-    for i in range(10):
-        i = 0
-
+    examples = ["00", "01"] +  [str(i) for i in range(10)]
+    for i in examples:
         filename = f"Examples/schmuck{i}.txt"
         color_sizes, text = parse_file(filename)
         encoder = Encoder(get_frequencies(text), color_sizes)
+        if i != "9":
+            start = time.time()
+            code = encoder.encode_rust()
+            end = time.time()
+            print(f"Beispiel: {filename}")
+            print(f"Dauer: {(end - start) * 1000:.2f} ms")
+            if should_print_code:
+                print_code(code, text, color_sizes)
+            else:
+                print(f"Gesamtlänge der Perlenkette: {calc_cost(text, code)}")
+                print()
+        print("Heuristik:")
         start = time.time()
-        if i == 9:
-            code = encoder.optimize_heuristic(text)
-        else:
-            code = encoder.encode_rust(silent=False)
+        code = encoder.optimize_heuristic(text)
         end = time.time()
         print(f"Beispiel: {filename}")
         print(f"Dauer: {(end - start) * 1000:.2f} ms")
@@ -451,8 +460,5 @@ if __name__ == '__main__':
             print_code(code, text, color_sizes)
         else:
             print(f"Gesamtlänge der Perlenkette: {calc_cost(text, code)}")
-            print(f"n = {len(set(text))}, c = {len(color_sizes)}")
-            n = len(set(text))
-            C = len(color_sizes)
-            print(f"would have visited: {math.comb(n + C + 1, C + 1)}")
-        exit()
+            print()
+            print()

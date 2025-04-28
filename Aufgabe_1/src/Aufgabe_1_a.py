@@ -82,6 +82,7 @@ if __name__ == '__main__':
         "../Examples/schmuck0.txt",
         "../Examples/schmuck00.txt",
         "../Examples/schmuck01.txt",
+        "../Examples/schmuck9.txt"
     ]
     for filename in examples:
         print(f"Beispiel: {filename}")
