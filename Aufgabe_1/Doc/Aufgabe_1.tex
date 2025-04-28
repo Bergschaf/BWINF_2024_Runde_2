@@ -519,12 +519,9 @@ pass\documentclass[a4paper,10pt,ngerman]{scrartcl}
         An diese neuen internen Knoten werden jeweils $r$ Blätter angehängt.
         Für jeden neuen internen Knoten entstehen daher $d_1$ neue Blätter auf Ebene $i+2$, $d_2$ neue Blätter auf Ebene $i+3$ usw.
         Daraus folgt die erste Gleichung. \\
-        TODO
-
+        Die zweite Gleichung folgt aus einer ähnlichen Überlegung, die ich aufgrund der Kürze nicht weiter ausführen möchte.
     \end{proof}
-    \begin{beispiel}
-        TODO
-    \end{beispiel}
+
 
     \begin{definition}
         Wir bezeichnen zwei Bäume $T_1$ und $T_2$ als equivalent, wenn sie die gleiche Anzahl an Blättern auf jeder Ebene haben:
@@ -609,7 +606,6 @@ pass\documentclass[a4paper,10pt,ngerman]{scrartcl}
     Dieser wird dann mit der \textsc{generate\_tree} Funktion generiert und zurückgegeben.
     Die Codetabelle kann anschließend über die Pfade zu den $n$ höchsten Blättern generiert werden. \\
     Da wir in Lemma~\ref{lem:funktioniert} gezeigt haben, dass jeder vollständige Baum (und damit auch $Fill(T_{opt})$) durch mehrere \textit{Expand} Operationen erzeugt werden kann, findet Algorithmus~\ref{alg:optimal_tree} sicher den optimalen Baum. \\
-
     Ich verzichte hier auf eine Laufzeitbetrachtung, da im Folgenden ein effizienterer Algorithmus vorgestellt wird.
 
     \subsection{Reduktion auf $n$ Blätter}
@@ -644,13 +640,22 @@ pass\documentclass[a4paper,10pt,ngerman]{scrartcl}
 
     \begin{lemma}
         Sei $T_{opt}$ ein optimaler Baum der Höhe $h$.
-        Sei $T_i = Cut_i(T)$ und $q_i$ die Anzahl an internen Knoten von $T$ auf Ebene $i \in \{1, \dots, h\}$.
-        Dann gilt: $T_i = Reduce(Expand_i(T_{i-1}, q_i))$.
+        Sei $T_i = Cut_i(T)$, $T_i' = Reduce(Fill(T_i))$ und $q_i$ die Anzahl an internen Knoten von $T$ auf Ebene $i \in \{1, \dots, h\}$.
+        Dann gilt: $T_i' = Reduce(Expand_i(T_{i-1}', q_i))$.
         In anderen Worten: \\
         $T_{opt}$ kann bis auf Äquivalenz durch $h$-fache Iteration der Funktion $T' = Reduce(Expand(T',q))$ (für bestimmte Werte von $q$) erzeugt werden.
     \end{lemma}
     \begin{proof}
-
+        Wir wissen, dass
+        \[Fill(T_{i+1}) = Expand_i(Fill(T_i), q_{i+1}).\]
+        Das folgt daraus, dass beide Bäume vollständig sind und die gleiche Anzahl an internen Knoten auf jeder Ebene haben.
+        Es gibt jetzt zwei Fälle, wir befassen uns zuerst mit dem Fall, dass $Fill(T_i)$ weniger als $n$ Blätter hat: \\
+        In diesem Fall verändert die Reduktion den Baum nicht, es gilt also: $T_i' = Fill(T_i)$ und wir können schreiben:
+        \[Fill(T_{i+1}) = Expand_i(Fill(T_i), q_{i+1}) = Expand_i(T_i', q_{i+1})\]
+        Wenn wir beide seiten reduzieren, haben wir das diesen Fall abgeschlossen:
+        \[Reduce(Fill(T_{i+1})) = T_{i+1}' = Expand_i(Fill(T_i), q_{i+1}) = Expand_i(T_i', q_{i+1})\]
+        Der andere Fall folgt aus einer Betrachtung der Anzahl an Blättern auf den Ebenen $i$ bis $h-1$ vor und nach der Erweiterung, woraus dann die gleichheit folgt.
+        Genaueres findet sich in Lemma 10 des Papers\autocite{golin_dynamic_1998}.
     \end{proof}
     Wir haben also gezeigt, dass wir den optimalen Baum durch mehrfaches Anwenden der \textit{Expand} und \textit{Reduce} Funktionen erzeugen können.
     Das können wir durch eine Modifikation des vorherigen Algorithmus erreichen:
@@ -1459,7 +1464,6 @@ fn get_tree_optimal(frequencies : &mut Vec<f64>, color_sizes : Vec<usize>,
                 &= m + l_1 - q + \left(\sum^{c_2-1}_{j=1} l_{j+1} + q \cdot d_j\right) + l_{c_2 + 1} + q \cdot d_{c_2}\\
                 &\text{Da $c_1 < c_2$ gilt $d_j = 0$ für alle $j \in \{j \in \mathbb N \mid j < c_2 \land j \neq c_1\}$. Es gilt aber $d_{c_1} = 1$.} \\
                 &\text{$q \cdot d_j$ ist in der Summe also nur einmal relevant und kann daher \glqq herausgezogen\grqq~werden.} \\
-                % TODO den schritt erklären (weil d_j nur einmal = 1) für j < c_2
                 &= m + l_1 - q + l_{c_2 + 1} + q \cdot d_{c_2} + \left(\sum^{c_2-1}_{j=1} l_{j+1}\right) + q\\
                 &= m + l_1 + l_{c_2 + 1} + q \cdot d_{c_2} + \sum^{c_2-1}_{j=1} l_{j+1}\\
                 &=m + l_1 + l_{c_2 + 1} + q + q \cdot (d_{c_2} - 1)  + \sum^{c_2-1}_{j=1} l_{j+1} \\
